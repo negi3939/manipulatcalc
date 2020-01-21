@@ -81,7 +81,7 @@ namespace Mymath{
 	*/
 	MatrixXd inv(MatrixXd aA){
 		FullPivLU< MatrixXd > invM(aA);
-		return invM.inverse();
+			return invM.inverse();
 	}
 	
 	MatrixXd absmat(MatrixXd aA){
@@ -106,11 +106,10 @@ namespace Mymath{
     	for(ii=0;ii<x.size();ii++){
         	deltax = VectorXd::Zero(x.size());
         	deltax(ii) =  delta; 
-        	bef.block(0,ii,x.size(),1) = (fx-func->function(x-deltax))/delta;
-        	aft.block(0,ii,x.size(),1) = (func->function(x+deltax)-fx)/delta;
+        	bef.block(0,ii,fx.size(),1) = (fx-func->function(x-deltax))/delta;
+        	aft.block(0,ii,fx.size(),1) = (func->function(x+deltax)-fx)/delta;
     	}
     	ans = (bef+aft)/2.0;
-    	if(ans.determinant()==0){return MatrixXd::Identity(fx.size(),x.size());}
     	return ans;
 	}
 

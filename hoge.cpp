@@ -46,7 +46,6 @@ void Solvenu::settargetfx(VectorXd tfx){targetfx = tfx;}
 VectorXd Solvenu::gettargetfx(){return targetfx;}
 
 VectorXd Solvenu::function(VectorXd x){
-    std::cout << "this is Slolvene" << std::endl; 
     PRINT_MAT(x);
     PRINT_MAT(functionerror(x));
     return functionerror(x);
@@ -54,14 +53,15 @@ VectorXd Solvenu::function(VectorXd x){
 
 VectorXd Solvenu::funcorg(VectorXd x){
     VectorXd ans(2);
-    MatrixXd aA(2,x.size());
+    MatrixXd aA(ans.size(),x.size());
     aA << 1,2,3,4;
     ans = aA*x;
     return ans;
 }
 
 VectorXd Solvenu::functionerror(VectorXd x){
-    VectorXd trgfx(2);
+    VectorXd buf = funcorg(x);
+    VectorXd trgfx(buf.size());
     return  funcorg(x) - targetfx;
 }
 
@@ -69,24 +69,59 @@ VectorXd Solvenu::solve(VectorXd intx){
     x = intx;
     VectorXd dx = intx;
     VectorXd chk;
-    while (1){
-        dx = x;
-        x = x - inv(diffvec(x,this))*functionerror(x);
-        PRINT_MAT(x);
-        PRINT_MAT(functionerror(x));
-        chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);
-        if (chk(0) < 0.0000000001) break;
+    if(x.size()==targetfx.size()){
+        while(1){
+            dx = x;
+            x = x - inv(diffvec(x,this))*functionerror(x);
+            PRINT_MAT(x);
+            PRINT_MAT(functionerror(x));
+            chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);
+            if (chk(0) < 0.0000000001) break;
+        }
+    }else{
+        while(1){
+            dx = x;
+            MatrixXd baka =  diffvec(x,this);
+            PRINT_MAT(baka);
+            JacobiSVD<MatrixXd> svd(diffvec(x,this), ComputeThinU|ComputeThinV);
+            PRINT_MAT(svd.solve(functionerror(x)));
+            x = x - svd.solve(functionerror(x));
+            std::cout << "svd mode" << std::endl;
+            PRINT_MAT(x);
+            PRINT_MAT(functionerror(x));
+            chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);
+            if (chk(0) < 0.0000000001) break;
+        }
+
     }
+    
     return x;
 }
 
+class hogeSolvenu :public Solvenu{
+    protected:
+    public:
+        VectorXd funcorg(VectorXd x) override;
+};
+
+VectorXd hogeSolvenu::funcorg(VectorXd x){
+    VectorXd ans(2);
+    MatrixXd aA(ans.size(),x.size());
+    aA << 1,0,0,
+    0,1,0;
+    ans = aA*x;
+    return ans;
+}
+
+
 int main(){
-    Vector2d x = VectorXd::Zero(2);
+
+    VectorXd x = VectorXd::Zero(3);
     VectorXd dx = x;
     VectorXd chk;
     VectorXd tarfx(2);
     tarfx << 2,4;
-    Solvenu eqex;
+    hogeSolvenu eqex;
     eqex.settargetfx(tarfx);
     x = eqex.solve(x);
     PRINT_MAT(eqex.funcorg(x));
