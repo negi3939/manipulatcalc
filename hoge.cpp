@@ -29,7 +29,30 @@
 #define PRINT_MAT(X) std::cout << #X << ":\n" << X << std::endl << std::endl
 using namespace Mymath;
 
-VectorXd function(VectorXd x){
+class Solvenu :public Funcvec{
+    protected:
+        VectorXd targetfx;
+        VectorXd x;
+    public:
+        void settargetfx(VectorXd tfx);
+        VectorXd gettargetfx();
+        VectorXd function(VectorXd x) override;
+        virtual VectorXd funcorg(VectorXd x);
+        VectorXd functionerror(VectorXd x);
+        VectorXd solve(VectorXd intx);
+};
+
+void Solvenu::settargetfx(VectorXd tfx){targetfx = tfx;}
+VectorXd Solvenu::gettargetfx(){return targetfx;}
+
+VectorXd Solvenu::function(VectorXd x){
+    std::cout << "this is Slolvene" << std::endl; 
+    PRINT_MAT(x);
+    PRINT_MAT(functionerror(x));
+    return functionerror(x);
+}
+
+VectorXd Solvenu::funcorg(VectorXd x){
     VectorXd ans(2);
     MatrixXd aA(2,x.size());
     aA << 1,2,3,4;
@@ -37,45 +60,36 @@ VectorXd function(VectorXd x){
     return ans;
 }
 
-VectorXd functionerror(VectorXd x){
+VectorXd Solvenu::functionerror(VectorXd x){
     VectorXd trgfx(2);
-     trgfx << 2,4;
-    return  function(x) -trgfx;
+    return  funcorg(x) - targetfx;
 }
 
-MatrixXd diffvec(VectorXd x,VectorXd (*f)(VectorXd)){
-    int ii;
-    VectorXd fx = f(x);
-    MatrixXd ans(fx.size(),x.size());
-    MatrixXd bef(fx.size(),x.size());
-    MatrixXd aft(fx.size(),x.size());
-    double delta = 0.00000001;
-    VectorXd deltax(x.size());
-    for(ii=0;ii<x.size();ii++){
-        deltax = VectorXd::Zero(x.size());
-        deltax(ii) =  delta; 
-        bef.block(0,ii,x.size(),1) = (fx-f(x-deltax))/delta;
-        aft.block(0,ii,x.size(),1) = (f(x+deltax)-fx)/delta;
+VectorXd Solvenu::solve(VectorXd intx){
+    x = intx;
+    VectorXd dx = intx;
+    VectorXd chk;
+    while (1){
+        dx = x;
+        x = x - inv(diffvec(x,this))*functionerror(x);
+        PRINT_MAT(x);
+        PRINT_MAT(functionerror(x));
+        chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);
+        if (chk(0) < 0.0000000001) break;
     }
-    ans = (bef+aft)/2.0;
-    if(ans.determinant()==0){return MatrixXd::Identity(fx.size(),x.size());}
-    return ans;
+    return x;
 }
 
 int main(){
     Vector2d x = VectorXd::Zero(2);
     VectorXd dx = x;
     VectorXd chk;
-    PRINT_MAT(function(x));
-        while (1){
-        dx = x;
-        x = x - inv(diffvec(x,functionerror))*functionerror(x);
-        PRINT_MAT(x);
-        PRINT_MAT(functionerror(x));
-        chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);
-        if (chk(0) < 0.0000000001) break;
-    }
-    PRINT_MAT(function(x));
+    VectorXd tarfx(2);
+    tarfx << 2,4;
+    Solvenu eqex;
+    eqex.settargetfx(tarfx);
+    x = eqex.solve(x);
+    PRINT_MAT(eqex.funcorg(x));
     std::cout << "success calculated" << std::endl; 
     return 0;
 }

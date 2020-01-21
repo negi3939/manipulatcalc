@@ -20,12 +20,20 @@
 using namespace Eigen;
 
 namespace Mymath{
+
+	class Funcvec{
+		public:
+			virtual VectorXd function(VectorXd x);	
+	};
+
+	VectorXd Funcvec::function(VectorXd x){return x;}
+
 	double sign(double A){
     	if(A>0) return 1;
     	else if(A<0) return -1;
     	else return 0;
 	}
-
+	/*
 	void eig(MatrixXd aA,MatrixXd bB,MatrixXd &eigenV,MatrixXd &eigenD){
 		if((aA.rows()!=aA.cols())||(bB.rows()!=bB.cols())||(aA.rows()!=bB.rows())){std::cout << "Matrix size is not same."<<std::endl;}
 		int ii,jj,size = aA.rows();
@@ -51,6 +59,7 @@ namespace Mymath{
 			}
 		}	
 	}
+	
 	void eig(MatrixXd aA,MatrixXd &eigenV,MatrixXd &eigenD){
 		if(aA.rows()!=aA.cols()){std::cout << "Matrix size is not same."<<std::endl;}
 		int size = aA.rows();
@@ -69,12 +78,12 @@ namespace Mymath{
 			}
 		}	
 	}
-
+	*/
 	MatrixXd inv(MatrixXd aA){
 		FullPivLU< MatrixXd > invM(aA);
 		return invM.inverse();
 	}
-
+	
 	MatrixXd absmat(MatrixXd aA){
 		int ii,jj;
 		MatrixXd ans = MatrixXd::Zero(aA.rows(),aA.cols()); 
@@ -84,6 +93,25 @@ namespace Mymath{
    			}
    		}
 		return ans;
+	}
+
+	MatrixXd diffvec(VectorXd x,Funcvec *func){
+    	int ii;
+    	VectorXd fx = func->function(x);
+    	MatrixXd ans(fx.size(),x.size());
+    	MatrixXd bef(fx.size(),x.size());
+    	MatrixXd aft(fx.size(),x.size());
+    	double delta = 0.00000001;
+    	VectorXd deltax(x.size());
+    	for(ii=0;ii<x.size();ii++){
+        	deltax = VectorXd::Zero(x.size());
+        	deltax(ii) =  delta; 
+        	bef.block(0,ii,x.size(),1) = (fx-func->function(x-deltax))/delta;
+        	aft.block(0,ii,x.size(),1) = (func->function(x+deltax)-fx)/delta;
+    	}
+    	ans = (bef+aft)/2.0;
+    	if(ans.determinant()==0){return MatrixXd::Identity(fx.size(),x.size());}
+    	return ans;
 	}
 
 }
