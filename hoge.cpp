@@ -26,28 +26,56 @@
 #include <Eigen/LU>
 #include "mymath.h"
 
-double f(double x){
-    return x * x * x - 2;
+#define PRINT_MAT(X) std::cout << #X << ":\n" << X << std::endl << std::endl
+using namespace Mymath;
+
+VectorXd function(VectorXd x){
+    VectorXd ans(2);
+    MatrixXd aA(2,x.size());
+    aA << 1,2,3,4;
+    ans = aA*x;
+    return ans;
 }
-double g(double x){
-    double ans,bef,aft;
-    double deltax = 0.00000001;
-    bef = (f(x)-f(x-deltax))/deltax;
-    aft = (f(x+deltax)-f(x))/deltax;
+
+VectorXd functionerror(VectorXd x){
+    VectorXd trgfx(2);
+     trgfx << 2,4;
+    return  function(x) -trgfx;
+}
+
+MatrixXd diffvec(VectorXd x,VectorXd (*f)(VectorXd)){
+    int ii;
+    VectorXd fx = f(x);
+    MatrixXd ans(fx.size(),x.size());
+    MatrixXd bef(fx.size(),x.size());
+    MatrixXd aft(fx.size(),x.size());
+    double delta = 0.00000001;
+    VectorXd deltax(x.size());
+    for(ii=0;ii<x.size();ii++){
+        deltax = VectorXd::Zero(x.size());
+        deltax(ii) =  delta; 
+        bef.block(0,ii,x.size(),1) = (fx-f(x-deltax))/delta;
+        aft.block(0,ii,x.size(),1) = (f(x+deltax)-fx)/delta;
+    }
     ans = (bef+aft)/2.0;
-    if(ans==0){return 1.0;}
-    return ans;  
+    if(ans.determinant()==0){return MatrixXd::Identity(fx.size(),x.size());}
+    return ans;
 }
 
 int main(){
-    double x = 0.0;
-    while (1){
-        double dx = x;
-        x = x - (f(x) / g(x));
-        printf("%12.10f %12.10f\n",dx,x);
-        if (fabs(x - dx) < 0.0000000001) break;
+    Vector2d x = VectorXd::Zero(2);
+    VectorXd dx = x;
+    VectorXd chk;
+    PRINT_MAT(function(x));
+        while (1){
+        dx = x;
+        x = x - inv(diffvec(x,functionerror))*functionerror(x);
+        PRINT_MAT(x);
+        PRINT_MAT(functionerror(x));
+        chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);
+        if (chk(0) < 0.0000000001) break;
     }
-
-    printf("%12.10f %12.10f\n", x, cbrt(2));
+    PRINT_MAT(function(x));
+    std::cout << "success calculated" << std::endl; 
     return 0;
 }
