@@ -90,8 +90,9 @@ VectorXd maniSolvenu::funcorg(VectorXd x){
     int ii;
     Vector3d pos;
     Vector4d qua;
-    VectorXd ans(7);
+    VectorXd ans(6);
     for(ii=0;ii<jointnum;ii++){
+        //x(ii) = x(ii) - sign(x(ii))*(double)((int)(x(ii)/2.0/M_PI));
         aAtheta[ii](0,0) = cos(x(ii));
         aAtheta[ii](0,1) = -sin(x(ii));
         aAtheta[ii](1,0) = sin(x(ii));
@@ -107,8 +108,7 @@ VectorXd maniSolvenu::funcorg(VectorXd x){
     qua = matrixtoquatanion(allA);
     pos = allA.block(0,3,3,1);
     ans.block(0,0,3,1) = pos;
-    ans.block(3,0,4,1) = qua;
-    std::cout << "hereeee" << std::endl;
+    ans.block(3,0,3,1) = qua.block(0,0,3,1);
     return ans;
 }
 
@@ -157,7 +157,7 @@ int main(){
     double theta;
     Vector4d qua;
     Vector3d pos;
-    VectorXd targetx(7);
+    VectorXd targetx(6);
     VectorXd angle(jointn);
     Matrix4d mattheta = Matrix4d::Identity(4,4);
     pos(0) = -0.230;
@@ -170,7 +170,7 @@ int main(){
     mattheta(2,2) = cos(theta);
     qua = mani.matrixtoquatanion(mattheta);
     targetx.block(0,0,3,1) = pos;
-    targetx.block(3,0,4,1) = qua; 
+    targetx.block(3,0,3,1) = qua.block(0,0,3,1); 
     mani.settargetfx(targetx);
     angle = mani.solve(angle);
     PRINT_MAT(angle);
