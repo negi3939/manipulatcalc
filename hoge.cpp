@@ -25,78 +25,10 @@
 #include <Eigen/StdVector>
 #include <Eigen/LU>
 #include "mymath.h"
+#include "solvenu.h"
 
 #define PRINT_MAT(X) std::cout << #X << ":\n" << X << std::endl << std::endl
 using namespace Mymath;
-
-class Solvenu :public Funcvec{
-    protected:
-        VectorXd targetfx;
-        VectorXd x;
-    public:
-        void settargetfx(VectorXd tfx);
-        VectorXd gettargetfx();
-        VectorXd function(VectorXd x) override;
-        virtual VectorXd funcorg(VectorXd x);
-        VectorXd functionerror(VectorXd x);
-        VectorXd solve(VectorXd intx);
-};
-
-void Solvenu::settargetfx(VectorXd tfx){targetfx = tfx;}
-VectorXd Solvenu::gettargetfx(){return targetfx;}
-
-VectorXd Solvenu::function(VectorXd x){
-    PRINT_MAT(x);
-    PRINT_MAT(functionerror(x));
-    return functionerror(x);
-}
-
-VectorXd Solvenu::funcorg(VectorXd x){
-    VectorXd ans(2);
-    MatrixXd aA(ans.size(),x.size());
-    aA << 1,2,3,4;
-    ans = aA*x;
-    return ans;
-}
-
-VectorXd Solvenu::functionerror(VectorXd x){
-    VectorXd buf = funcorg(x);
-    VectorXd trgfx(buf.size());
-    return  funcorg(x) - targetfx;
-}
-
-VectorXd Solvenu::solve(VectorXd intx){
-    x = intx;
-    VectorXd dx = intx;
-    VectorXd chk;
-    if(x.size()==targetfx.size()){
-        while(1){
-            dx = x;
-            x = x - inv(diffvec(x,this))*functionerror(x);
-            PRINT_MAT(x);
-            PRINT_MAT(functionerror(x));
-            chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);
-            if (chk(0) < 0.0000000001) break;
-        }
-    }else{
-        while(1){
-            dx = x;
-            MatrixXd baka =  diffvec(x,this);
-            PRINT_MAT(baka);
-            JacobiSVD<MatrixXd> svd(diffvec(x,this), ComputeThinU|ComputeThinV);
-            PRINT_MAT(svd.solve(functionerror(x)));
-            x = x - svd.solve(functionerror(x));
-            std::cout << "svd mode" << std::endl;
-            PRINT_MAT(x);
-            PRINT_MAT(functionerror(x));
-            chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);
-            if (chk(0) < 0.0000000001) break;
-        }
-
-    }
-    
-    return x;
-}
 
 class hogeSolvenu :public Solvenu{
     protected:
@@ -107,20 +39,44 @@ class hogeSolvenu :public Solvenu{
 VectorXd hogeSolvenu::funcorg(VectorXd x){
     VectorXd ans(2);
     MatrixXd aA(ans.size(),x.size());
-    aA << 1,0,0,
-    0,1,0;
-    ans = aA*x;
+    ans(0) = x(0)*x(0) + x(1)*x(1) + x(2);
+    ans(1) = x(0) + x(1)*x(1) + x(2)*x(2);
     return ans;
+}
+
+class Dhparam{
+    protected:
+
+    public:
+};
+
+class maniSolvenu : public Solvenu {
+  protected:
+    int jointnum;
+    MatrixXd *aA;
+    double *aal;
+    double *alp;
+    double *dis;
+  public:
+    manipulator();
+};
+
+maniSolvenu::manipulator(){
+    aA = new MatrixXd[jointnum];
+    aal = new double[jointnum];
+    alp = new double[jointnum];
+    dis = new double[jointnum];
 }
 
 
 int main(){
+    maniSolvenu mani;
 
     VectorXd x = VectorXd::Zero(3);
     VectorXd dx = x;
     VectorXd chk;
     VectorXd tarfx(2);
-    tarfx << 2,4;
+    tarfx << 8,14;
     hogeSolvenu eqex;
     eqex.settargetfx(tarfx);
     x = eqex.solve(x);
