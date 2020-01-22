@@ -65,6 +65,9 @@ VectorXd Solvenu::functionerror(VectorXd x){
     return  funcorg(x) - targetfx;
 }
 
+
+
+
 VectorXd Solvenu::solve(VectorXd intx){
     x = intx;
     VectorXd dx = intx;
