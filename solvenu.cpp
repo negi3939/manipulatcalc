@@ -97,6 +97,8 @@ VectorXd Solvenu::solve(VectorXd intx){
         }
 
     }
-    
+    std::cout << "this is end " << std::endl;
+    PRINT_MAT(dx);
+    PRINT_MAT(x);
     return x;
 }

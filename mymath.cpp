@@ -101,7 +101,7 @@ namespace Mymath{
     	MatrixXd ans(fx.size(),x.size());
     	MatrixXd bef(fx.size(),x.size());
     	MatrixXd aft(fx.size(),x.size());
-    	double delta = 0.000000000000001;
+    	double delta = 0.000001;
     	VectorXd deltax(x.size());
     	for(ii=0;ii<x.size();ii++){
         	deltax = VectorXd::Zero(x.size());

@@ -87,6 +87,11 @@ void maniSolvenu::init(){
 }
 
 VectorXd maniSolvenu::funcorg(VectorXd x){
+    VectorXd ans(6);
+    MatrixXd mat = MatrixXd::Identity(6,6);
+    ans = mat*x;
+    return ans;
+    /*
     int ii;
     Vector3d pos;
     Vector4d qua;
@@ -109,7 +114,7 @@ VectorXd maniSolvenu::funcorg(VectorXd x){
     pos = allA.block(0,3,3,1);
     ans.block(0,0,3,1) = pos;
     ans.block(3,0,3,1) = qua.block(0,0,3,1);
-    return ans;
+    return ans;*/
 }
 
 void maniSolvenu::setdhparameter(int num,double aa,double di,double alph){
