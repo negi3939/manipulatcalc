@@ -90,7 +90,6 @@ VectorXd Solvenu::solve(VectorXd intx){
         }
     }else{
         while(1){
-             std::cout << "here" << std::endl;
             dx = x;
             MatrixXd baka =  diffvec(x,this);
             JacobiSVD<MatrixXd> svd(diffvec(x,this), ComputeThinU|ComputeThinV);
@@ -102,6 +101,5 @@ VectorXd Solvenu::solve(VectorXd intx){
         }
 
     }
-    std::cout << "this is end " << std::endl;
     return x;
 }

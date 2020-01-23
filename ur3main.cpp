@@ -90,7 +90,6 @@ VectorXd invdSolvenu::funcorg(VectorXd x){
     }
     //PRINT_MAT(*jacobi);
     ans = (*jacobi)*x;
-    PRINT_MAT(ans);
     
     return ans;
 }
@@ -135,7 +134,6 @@ int main(){
     pos(2) = 0.3;//-0.400;
     while(xpos<0.2){
         xpos = 0.04d*((double)time) -0.2;
-        PRINT_MAT(xpos);
         pos(0) = xpos;
         theta = 4.0*M_PI/3.0;
         mattheta(0,0) = cos(theta);
@@ -145,12 +143,13 @@ int main(){
         qua = maninvk.matrixtoquatanion(mattheta);
         targetx.block(0,0,3,1) = pos;
         targetx.block(3,0,3,1) = qua.block(0,0,3,1); 
-        targetvel << 0.0,0.0,0.0,0.0,0.0,0.0;
+        targetvel << 0.04d,0.0d,0.0d,0.0d,0.0d,0.0d;
         maninvk.settargetfx(targetx);
+        maninvd.settargetfx(targetvel);
         angle = maninvk.getangle(angle);
         maninvd.calcaA(angle);
-        angvel = maninvd.getvel(targetvel);
-        /*
+        angvel = maninvd.getvel(angvel);
+        
         std::cout << "angle is "<<std::endl;
         fs << time << ",";
         std::cout << time << ",";
@@ -171,9 +170,9 @@ int main(){
             fs <<  angvel(ii) << ",";
             std::cout << angvel(ii) << ",";
         }
-        */
-        //std::cout <<  angvel(jointn-1) << std::endl;
-        //fs <<  angvel(jointn-1) << std::endl;
+        
+        std::cout <<  angvel(jointn-1) << std::endl;
+        fs <<  angvel(jointn-1) << std::endl;
         time += 0.1;
     }
     fs.close();
