@@ -71,12 +71,18 @@ VectorXd Solvenu::functionerror(VectorXd x){
 VectorXd Solvenu::solve(VectorXd intx){
     x = intx;
     VectorXd dx = intx;
+    MatrixXd buf;
     VectorXd chk;
-    if(x.size()==targetfx.size()){
+    if(0){//x.size()==targetfx.size()){
         while(1){
             dx = x;
+            buf = diffvec(x,this);
+            if(buf.determinant()<0.000001){ 
+                std::cout<< "determin 0"<< std::endl;exit(0);
+                }
             x = x - inv(diffvec(x,this))*functionerror(x);
             PRINT_MAT(x);
+            
             PRINT_MAT(functionerror(x));
             chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);
             if (chk(0) < 0.0000000001) break;
