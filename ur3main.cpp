@@ -31,19 +31,6 @@
 #define PRINT_MAT(X) std::cout << #X << ":\n" << X << std::endl << std::endl
 using namespace Mymath;
 
-class invdSolvenu : public invkSolvenu {
-  protected:
-  public:
-    invdSolvenu();
-    VectorXd funcorg(VectorXd x) override;
-    ~invdSolvenu();
-};
-
-invdSolvenu::invdSolvenu(){}
-invdSolvenu::~invdSolvenu(){}
-VectorXd invdSolvenu::funcorg(VectorXd x){}
-
-
 
 int main(){
     std::stringstream filename;
