@@ -90,13 +90,14 @@ VectorXd Solvenu::solve(VectorXd intx){
         }
     }else{
         while(1){
+             std::cout << "here" << std::endl;
             dx = x;
             MatrixXd baka =  diffvec(x,this);
             JacobiSVD<MatrixXd> svd(diffvec(x,this), ComputeThinU|ComputeThinV);
             x = x - svd.solve(functionerror(x));
             chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);
             if(count>10000){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than 10000 CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;PRINT_MAT(functionerror(x));break;}
-            if (chk(0) < 0.0000000001) break;
+            if (chk(0) < 0.0000000001d) break;
             count++;
         }
 

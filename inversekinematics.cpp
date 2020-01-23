@@ -47,7 +47,15 @@ class invkSolvenu : public Solvenu {
   public:
     invkSolvenu();
     invkSolvenu(int num);
+    void copy(const invkSolvenu &invk);
+    void setjointnum(int n);
+    int getjointnum();
+    double getaal(int n);
+    double getalp(int n);
+    double getdis(int n);
+    double getthetaoff(int n);
     VectorXd funcorg(VectorXd x) override;
+    void calcaA(VectorXd x);
     void setdhparameter(int num,double thoff,double aa,double di,double alph);
     Vector4d matrixtoquatanion(Matrix4d mat);
     VectorXd getangle(VectorXd x);
@@ -56,6 +64,22 @@ class invkSolvenu : public Solvenu {
 
 invkSolvenu::invkSolvenu(){jointnum = 6;init();}
 invkSolvenu::invkSolvenu(int num){jointnum = num;init();}
+
+void invkSolvenu::copy(const invkSolvenu &invk){
+    int ii;
+    setjointnum(invk.getjointnum());
+    for(ii=0;ii<jointnum;ii++){
+        setdhparameter(ii,invk.getthetaoff(ii),invk.getaal(ii),invk.getdis(ii),invk.getalp(ii));
+    }
+
+}
+
+void invkSolvenu::setjointnum(int n){jointnum=n;}
+int invkSolvenu::getjointnum(){return jointnum;}
+double invkSolvenu::getaal(int n){return aal[n];}
+double invkSolvenu::getalp(int n){return alp[n];}
+double invkSolvenu::getdis(int n){return dis[n];}
+double invkSolvenu::getthetaoff(int n){return thetaoff[n];}
 
 void invkSolvenu::init(){
     aA = new Matrix4d[jointnum];
@@ -82,25 +106,26 @@ VectorXd invkSolvenu::funcorg(VectorXd x){
     Vector3d pos;
     Vector4d qua;
     VectorXd ans(6);
-    for(ii=0;ii<jointnum;ii++){
+    calcaA(x);
+    Matrix4d allA = aA[0];
+    for(ii=1;ii<jointnum;ii++){
+        allA = allA*aA[ii];
+    }
+    qua = matrixtoquatanion(allA);
+    pos = allA.block(0,3,3,1);
+    ans.block(0,0,3,1) = pos;
+    ans.block(3,0,3,1) = qua.block(0,0,3,1);
+    return ans;
+}
+
+void invkSolvenu::calcaA(VectorXd x){
+    for(int ii=0;ii<jointnum;ii++){
         aAtheta[ii](0,0) = cos(x(ii)+thetaoff[ii]);
         aAtheta[ii](0,1) = -sin(x(ii)+thetaoff[ii]);
         aAtheta[ii](1,0) = sin(x(ii)+thetaoff[ii]);
         aAtheta[ii](1,1) = cos(x(ii)+thetaoff[ii]);
         aA[ii] = aAdis[ii]*aAtheta[ii]*aAaal[ii]*aAalp[ii];
     }
-    
-    Matrix4d allA = aA[0];
-    for(ii=1;ii<jointnum;ii++){
-        allA = allA*aA[ii];
- 
-    }
-
-    qua = matrixtoquatanion(allA);
-    pos = allA.block(0,3,3,1);
-    ans.block(0,0,3,1) = pos;
-    ans.block(3,0,3,1) = qua.block(0,0,3,1);
-    return ans;
 }
 
 void invkSolvenu::setdhparameter(int num,double thoff,double aa,double di,double alph){

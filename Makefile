@@ -21,7 +21,7 @@ endif
 
 ifeq ($(TARGET),hoge)
 	SOURCE_MAIN = hoge.cpp
-	SOURCE_SUB = mymath.cpp solvenu.cpp 
+	SOURCE_SUB = mymath.cpp
 endif
 
 ifdef argv
