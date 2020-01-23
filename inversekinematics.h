@@ -2,7 +2,7 @@
 #define INVKIN_H
 #include "solvenu.h"
 
-class maniSolvenu : public Solvenu {
+class invkSolvenu : public Solvenu {
   protected:
     int jointnum;
     Matrix4d *aA;
@@ -17,13 +17,13 @@ class maniSolvenu : public Solvenu {
     double *thetaoff;
     void init();
   public:
-    maniSolvenu();
-    maniSolvenu(int num);
+    invkSolvenu();
+    invkSolvenu(int num);
     VectorXd funcorg(VectorXd x) override;
     void setdhparameter(int num,double thoff,double aa,double di,double alph);
     Vector4d matrixtoquatanion(Matrix4d mat);
     VectorXd getangle(VectorXd x);
-    ~maniSolvenu();
+    ~invkSolvenu();
 };
 
 #endif

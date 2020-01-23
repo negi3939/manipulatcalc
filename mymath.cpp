@@ -23,9 +23,12 @@ namespace Mymath{
 
 	class Funcvec{
 		public:
-			virtual VectorXd function(VectorXd x);	
+			Funcvec();
+			virtual VectorXd function(VectorXd x);
+			virtual ~Funcvec();
 	};
-
+	Funcvec::Funcvec(){}
+	Funcvec::~Funcvec(){}
 	VectorXd Funcvec::function(VectorXd x){return x;}
 
 	double sign(double A){

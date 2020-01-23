@@ -30,7 +30,7 @@
 #define PRINT_MAT(X) std::cout << #X << ":\n" << X << std::endl << std::endl
 using namespace Mymath;
 
-class maniSolvenu : public Solvenu {
+class invkSolvenu : public Solvenu {
   protected:
     int jointnum;
     Matrix4d *aA;
@@ -45,19 +45,19 @@ class maniSolvenu : public Solvenu {
     double *thetaoff;
     void init();
   public:
-    maniSolvenu();
-    maniSolvenu(int num);
+    invkSolvenu();
+    invkSolvenu(int num);
     VectorXd funcorg(VectorXd x) override;
     void setdhparameter(int num,double thoff,double aa,double di,double alph);
     Vector4d matrixtoquatanion(Matrix4d mat);
     VectorXd getangle(VectorXd x);
-    ~maniSolvenu();
+    ~invkSolvenu();
 };
 
-maniSolvenu::maniSolvenu(){jointnum = 6;init();}
-maniSolvenu::maniSolvenu(int num){jointnum = num;init();}
+invkSolvenu::invkSolvenu(){jointnum = 6;init();}
+invkSolvenu::invkSolvenu(int num){jointnum = num;init();}
 
-void maniSolvenu::init(){
+void invkSolvenu::init(){
     aA = new Matrix4d[jointnum];
     aAdis = new Matrix4d[jointnum];
     aAtheta = new Matrix4d[jointnum];
@@ -77,7 +77,7 @@ void maniSolvenu::init(){
     }
 }
 
-VectorXd maniSolvenu::funcorg(VectorXd x){
+VectorXd invkSolvenu::funcorg(VectorXd x){
     int ii;
     Vector3d pos;
     Vector4d qua;
@@ -103,7 +103,7 @@ VectorXd maniSolvenu::funcorg(VectorXd x){
     return ans;
 }
 
-void maniSolvenu::setdhparameter(int num,double thoff,double aa,double di,double alph){
+void invkSolvenu::setdhparameter(int num,double thoff,double aa,double di,double alph){
     thetaoff[num] = thoff;
     aal[num] = aa;
     dis[num] = di;
@@ -120,7 +120,7 @@ void maniSolvenu::setdhparameter(int num,double thoff,double aa,double di,double
     aAthetaoff[num](1,1) = cos(thetaoff[num]);
 }
 
-Vector4d maniSolvenu::matrixtoquatanion(Matrix4d mat){
+Vector4d invkSolvenu::matrixtoquatanion(Matrix4d mat){
     Vector4d ans;
     Vector4d elem;
     int ii,biggestii=0;
@@ -159,7 +159,7 @@ Vector4d maniSolvenu::matrixtoquatanion(Matrix4d mat){
     return ans;
 }
 
-VectorXd maniSolvenu::getangle(VectorXd x){
+VectorXd invkSolvenu::getangle(VectorXd x){
     VectorXd ang = solve(x);
     VectorXd ans(jointnum);
     double buff;
@@ -170,7 +170,7 @@ VectorXd maniSolvenu::getangle(VectorXd x){
     
 }
 
-maniSolvenu::~maniSolvenu(){
+invkSolvenu::~invkSolvenu(){
     delete[] aal;
     delete[] alp;
     delete[] dis;

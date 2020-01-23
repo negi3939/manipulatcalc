@@ -5,8 +5,11 @@ using namespace Eigen;
 namespace Mymath{
 	class Funcvec{
 		public:
-			virtual VectorXd function(VectorXd x);	
+			Funcvec();
+			virtual VectorXd function(VectorXd x);
+			virtual ~Funcvec();
 	};
+	
 	double sign(double A);
 	/*
 	void eig(MatrixXd aA,MatrixXd bB,MatrixXd &eigenV,MatrixXd &eigenD);

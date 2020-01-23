@@ -34,14 +34,17 @@ class Solvenu :public Funcvec{
         VectorXd targetfx;
         VectorXd x;
     public:
+        Solvenu();
         void settargetfx(VectorXd tfx);
         VectorXd gettargetfx();
         VectorXd function(VectorXd x) override;
         virtual VectorXd funcorg(VectorXd x);
         VectorXd functionerror(VectorXd x);
         VectorXd solve(VectorXd intx);
+        ~Solvenu();
 };
-
+Solvenu::Solvenu(){}
+Solvenu::~Solvenu(){}
 void Solvenu::settargetfx(VectorXd tfx){targetfx = tfx;}
 VectorXd Solvenu::gettargetfx(){return targetfx;}
 
@@ -68,6 +71,7 @@ VectorXd Solvenu::functionerror(VectorXd x){
 
 VectorXd Solvenu::solve(VectorXd intx){
     x = intx;
+    long count = 0;
     VectorXd dx = intx;
     MatrixXd buf;
     VectorXd chk;
@@ -81,6 +85,8 @@ VectorXd Solvenu::solve(VectorXd intx){
             x = x - inv(diffvec(x,this))*functionerror(x);
             chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);
             if (chk(0) < 0.0000000001) break;
+            if(count>10000){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than 10000 CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;PRINT_MAT(functionerror(x));break;}
+            count++;
         }
     }else{
         while(1){
@@ -89,7 +95,9 @@ VectorXd Solvenu::solve(VectorXd intx){
             JacobiSVD<MatrixXd> svd(diffvec(x,this), ComputeThinU|ComputeThinV);
             x = x - svd.solve(functionerror(x));
             chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);
+            if(count>10000){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than 10000 CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;PRINT_MAT(functionerror(x));break;}
             if (chk(0) < 0.0000000001) break;
+            count++;
         }
 
     }

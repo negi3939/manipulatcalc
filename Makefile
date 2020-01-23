@@ -45,7 +45,7 @@ all: $(PROGRAM)
 
 %.out: %.o $(SUBOBJ)
 	g++ -o $@ $^ $(LDFLAGS) -w
-	$(COMMAND)
+	#$(COMMAND)
 %.o : %.cpp
 	g++ -o $@ $< -c $(CXXFLAGS) -w
 clean:

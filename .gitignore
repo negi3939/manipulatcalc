@@ -3,5 +3,7 @@
 *.exe
 *.txt
 *.dat
+*.csv
 *.mat
 *~
+data/*

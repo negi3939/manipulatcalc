@@ -8,12 +8,14 @@ class Solvenu : public Funcvec{
         VectorXd targetfx;
         VectorXd x;
     public:
+        Solvenu();
         void settargetfx(VectorXd tfx);
         VectorXd gettargetfx();
         VectorXd function(VectorXd x) override;
         virtual VectorXd funcorg(VectorXd x);
         VectorXd functionerror(VectorXd x);
         VectorXd solve(VectorXd intx);
+        ~Solvenu();
 };
 
 #endif
