@@ -46,8 +46,6 @@ void Solvenu::settargetfx(VectorXd tfx){targetfx = tfx;}
 VectorXd Solvenu::gettargetfx(){return targetfx;}
 
 VectorXd Solvenu::function(VectorXd x){
-    PRINT_MAT(x);
-    PRINT_MAT(functionerror(x));
     return functionerror(x);
 }
 
@@ -81,9 +79,6 @@ VectorXd Solvenu::solve(VectorXd intx){
                 std::cout<< "determin 0"<< std::endl;exit(0);
                 }
             x = x - inv(diffvec(x,this))*functionerror(x);
-            PRINT_MAT(x);
-            
-            PRINT_MAT(functionerror(x));
             chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);
             if (chk(0) < 0.0000000001) break;
         }
@@ -91,20 +86,13 @@ VectorXd Solvenu::solve(VectorXd intx){
         while(1){
             dx = x;
             MatrixXd baka =  diffvec(x,this);
-            PRINT_MAT(baka);
             JacobiSVD<MatrixXd> svd(diffvec(x,this), ComputeThinU|ComputeThinV);
-            PRINT_MAT(svd.solve(functionerror(x)));
             x = x - svd.solve(functionerror(x));
-            std::cout << "svd mode" << std::endl;
-            PRINT_MAT(x);
-            PRINT_MAT(functionerror(x));
             chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);
             if (chk(0) < 0.0000000001) break;
         }
 
     }
     std::cout << "this is end " << std::endl;
-    PRINT_MAT(dx);
-    PRINT_MAT(x);
     return x;
 }

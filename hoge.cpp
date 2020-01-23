@@ -98,10 +98,10 @@ VectorXd maniSolvenu::funcorg(VectorXd x){
     VectorXd ans(6);
     for(ii=0;ii<jointnum;ii++){
         //x(ii) = x(ii) - sign(x(ii))*(double)((int)(x(ii)/2.0/M_PI));
-        aAtheta[ii](0,0) = cos(x(ii));
-        aAtheta[ii](0,1) = -sin(x(ii));
-        aAtheta[ii](1,0) = sin(x(ii));
-        aAtheta[ii](1,1) = cos(x(ii));
+        aAtheta[ii](0,0) = cos(x(ii)+thetaoff[ii]);
+        aAtheta[ii](0,1) = -sin(x(ii)+thetaoff[ii]);
+        aAtheta[ii](1,0) = sin(x(ii)+thetaoff[ii]);
+        aAtheta[ii](1,1) = cos(x(ii)+thetaoff[ii]);
         aA[ii] = aAdis[ii]*aAtheta[ii]*aAaal[ii]*aAalp[ii];
     }
     
@@ -110,7 +110,7 @@ VectorXd maniSolvenu::funcorg(VectorXd x){
         allA = allA*aA[ii];
  
     }
-    
+
     qua = matrixtoquatanion(allA);
     pos = allA.block(0,3,3,1);
     ans.block(0,0,3,1) = pos;
@@ -189,7 +189,7 @@ maniSolvenu::~maniSolvenu(){
 int main(){
     int ii,jointn = 6;
     maniSolvenu mani(jointn);
-    mani.setdhparameter(0,M_PI,0.0,0.1519,M_PI/2.0);
+    mani.setdhparameter(0,0.0,0.0,0.1519,M_PI/2.0);
     mani.setdhparameter(1,0.0,-0.24365,0.0,0.0);
     mani.setdhparameter(2,0.0,-0.21325,0.0,0.0);
     mani.setdhparameter(3,0.0,0.0,0.11235,M_PI/2.0);
@@ -201,7 +201,7 @@ int main(){
     VectorXd targetx(6);
     VectorXd angle(jointn);
     Matrix4d mattheta = Matrix4d::Identity(4,4);
-    pos(0) = 0.1;//-0.230;
+    pos(0) = -0.1;//-0.230;
     pos(1) = 0.2;//-0.300;
     pos(2) = 0.3;//-0.400;
     theta = 4.0*M_PI/3.0;
@@ -210,29 +210,20 @@ int main(){
     mattheta(2,0) = -sin(theta);
     mattheta(2,2) = cos(theta);
     qua = mani.matrixtoquatanion(mattheta);
-    PRINT_MAT(qua);
-    
     targetx.block(0,0,3,1) = pos;
     targetx.block(3,0,3,1) = qua.block(0,0,3,1); 
     mani.settargetfx(targetx);
     angle = mani.solve(angle);
-    PRINT_MAT(angle);
+    angle(0) = angle(0) -M_PI;
     for(ii=0;ii<jointn;ii++){
         angle(ii) = angle(ii) - (int)(angle(ii)/2.0/M_PI)*2.0*M_PI;
     }
-    PRINT_MAT(angle);
-    PRINT_MAT( mani.functionerror(angle));
-    /*
-    VectorXd x = VectorXd::Zero(3);
-    VectorXd dx = x;
-    VectorXd chk;
-    VectorXd tarfx(2);
-    tarfx << 8,14;
-    hogeSolvenu eqex;
-    eqex.settargetfx(tarfx);
-    x = eqex.solve(x);
-    PRINT_MAT(eqex.funcorg(x));
-    std::cout << "success calculated" << std::endl;
-    */
+    std::cout << "angle is ";
+    for(ii=0;ii<jointn;ii++){
+        std::cout << angle(ii) << ",";
+    }
+    std::cout << std::endl;
+    
+
     return 0;
 }
