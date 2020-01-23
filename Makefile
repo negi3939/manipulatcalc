@@ -16,7 +16,7 @@ endif
 
 ifeq ($(TARGET),ur3)
 	SOURCE_MAIN = ur3main.cpp
-	SOURCE_SUB = mymath.cpp solvenu.cpp inversekinematics.cpp
+	SOURCE_SUB = mymath.cpp solvenu.cpp inversekinematics.cpp inversedynamics.cpp
 endif
 
 ifeq ($(TARGET),hoge)

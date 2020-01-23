@@ -85,7 +85,7 @@ VectorXd Solvenu::solve(VectorXd intx){
             x = x - inv(diffvec(x,this))*functionerror(x);
             chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);
             if (chk(0) < 0.0000000001) break;
-            if(count>10000){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than 10000 CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;PRINT_MAT(functionerror(x));break;}
+            if(count>100000){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than 10000 CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;PRINT_MAT(functionerror(x));break;}
             count++;
         }
     }else{
@@ -95,7 +95,7 @@ VectorXd Solvenu::solve(VectorXd intx){
             JacobiSVD<MatrixXd> svd(diffvec(x,this), ComputeThinU|ComputeThinV);
             x = x - svd.solve(functionerror(x));
             chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);
-            if(count>10000){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than 10000 CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;PRINT_MAT(functionerror(x));break;}
+            if(count>100000){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than 10000 CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;PRINT_MAT(functionerror(x));break;}
             if (chk(0) < 0.0000000001d) break;
             count++;
         }
