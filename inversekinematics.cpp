@@ -26,41 +26,8 @@
 #include <Eigen/LU>
 #include "mymath.h"
 #include "solvenu.h"
+#include "inversekinematics.h"
 
-#define PRINT_MAT(X) std::cout << #X << ":\n" << X << std::endl << std::endl
-using namespace Mymath;
-
-class invkSolvenu : public Solvenu {
-  protected:
-    int jointnum;
-    Matrix4d *aA;
-    Matrix4d *aAdis;
-    Matrix4d *aAtheta;
-    Matrix4d *aAthetaoff;
-    Matrix4d *aAaal;
-    Matrix4d *aAalp;
-    double *aal;
-    double *alp;
-    double *dis;
-    double *thetaoff;
-    void init();
-  public:
-    invkSolvenu();
-    invkSolvenu(int num);
-    void copy(const invkSolvenu &invk);
-    void setjointnum(int n);
-    int getjointnum();
-    double getaal(int n);
-    double getalp(int n);
-    double getdis(int n);
-    double getthetaoff(int n);
-    VectorXd funcorg(VectorXd x) override;
-    void calcaA(VectorXd x);
-    void setdhparameter(int num,double thoff,double aa,double di,double alph);
-    Vector4d matrixtoquatanion(Matrix4d mat);
-    VectorXd getangle(VectorXd x);
-    ~invkSolvenu();
-};
 
 invkSolvenu::invkSolvenu(){jointnum = 6;init();}
 invkSolvenu::invkSolvenu(int num){jointnum = num;init();}
@@ -92,6 +59,10 @@ void invkSolvenu::init(){
     alp = new double[jointnum];
     dis = new double[jointnum];
     thetaoff = new double[jointnum];
+    time = new double;
+    pre_time = new double;
+    *time = 0.0d;
+    *pre_time = 0.0d;
     for(int ii=0;ii<jointnum;ii++){
         aAdis[ii] = MatrixXd::Identity(4,4);
         aAthetaoff[ii] = MatrixXd::Identity(4,4);
@@ -204,4 +175,6 @@ invkSolvenu::~invkSolvenu(){
     delete[] aAtheta;
     delete[] aAdis;
     delete[] aA;
+    delete pre_time;
+    delete time;
 }

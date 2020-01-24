@@ -2,9 +2,14 @@
 #define INVKIN_H
 #include "solvenu.h"
 
+#define PRINT_MAT(X) std::cout << #X << ":\n" << X << std::endl << std::endl
+using namespace Mymath;
+
 class invkSolvenu : public Solvenu {
   protected:
     int jointnum;
+    double *time;
+    double *pre_time;
     Matrix4d *aA;
     Matrix4d *aAdis;
     Matrix4d *aAtheta;

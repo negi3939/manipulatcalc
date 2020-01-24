@@ -25,24 +25,8 @@
 #include <Eigen/StdVector>
 #include <Eigen/LU>
 #include "mymath.h"
+#include "solvenu.h"
 
-#define PRINT_MAT(X) std::cout << #X << ":\n" << X << std::endl << std::endl
-using namespace Mymath;
-
-class Solvenu :public Funcvec{
-    protected:
-        VectorXd targetfx;
-        VectorXd x;
-    public:
-        Solvenu();
-        void settargetfx(VectorXd tfx);
-        VectorXd gettargetfx();
-        VectorXd function(VectorXd x) override;
-        virtual VectorXd funcorg(VectorXd x);
-        VectorXd functionerror(VectorXd x);
-        VectorXd solve(VectorXd intx);
-        ~Solvenu();
-};
 Solvenu::Solvenu(){}
 Solvenu::~Solvenu(){}
 void Solvenu::settargetfx(VectorXd tfx){targetfx = tfx;}

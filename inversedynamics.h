@@ -3,6 +3,9 @@
 #include "solvenu.h"
 #include "inversekinematics.h"
 
+#define PRINT_MAT(X) std::cout << #X << ":\n" << X << std::endl << std::endl
+using namespace Mymath;
+
 class invdSolvenu : public invkSolvenu {
   protected:
     Matrix4d *aTt;
@@ -14,6 +17,8 @@ class invdSolvenu : public invkSolvenu {
     invdSolvenu();
     invdSolvenu(int num);
     VectorXd funcorg(VectorXd x) override;
+    void calcaTt();
+    void calcjacobi();
     VectorXd getvel(VectorXd x);
     ~invdSolvenu();
 };

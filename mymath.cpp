@@ -13,20 +13,12 @@
 #include<Eigen/StdVector>
 #include <Eigen/LU>
 #include <functional> //-std=c++11をつける
-
-#define DT                       (0.0000001)                        //時間ステップ(s)
-#define PRINT_MAT(X) std::cout << #X << ":\n" << X << std::endl << std::endl
+#include "mymath.h"
 
 using namespace Eigen;
 
 namespace Mymath{
 
-	class Funcvec{
-		public:
-			Funcvec();
-			virtual VectorXd function(VectorXd x);
-			virtual ~Funcvec();
-	};
 	Funcvec::Funcvec(){}
 	Funcvec::~Funcvec(){}
 	VectorXd Funcvec::function(VectorXd x){return x;}

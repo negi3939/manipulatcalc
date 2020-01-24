@@ -1,6 +1,7 @@
 #ifndef SOLVENU_H
 #define SOLVENU_H
 
+#define PRINT_MAT(X) std::cout << #X << ":\n" << X << std::endl << std::endl
 using namespace Mymath;
 
 class Solvenu : public Funcvec{

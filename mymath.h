@@ -1,5 +1,8 @@
 #ifndef MYMATH_H
 #define MYMATH_H
+
+#define PRINT_MAT(X) std::cout << #X << ":\n" << X << std::endl << std::endl
+
 using namespace Eigen;
 
 namespace Mymath{
