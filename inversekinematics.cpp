@@ -181,5 +181,4 @@ invkSolvenu::~invkSolvenu(){
     delete[] aAdis;
     delete[] aA;
     delete pre_time;
-    delete time;
 }

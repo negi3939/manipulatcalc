@@ -32,6 +32,7 @@
 #define PRINT_MAT(X) std::cout << #X << ":\n" << X << std::endl << std::endl
 using namespace Mymath;
 
+
 int main(){
     std::stringstream filename;
     filename << "data/angleserial.dat";
@@ -66,7 +67,7 @@ int main(){
     pos(0) = xpos;//-0.230;
     pos(1) = 0.2;//-0.300;
     pos(2) = 0.3;//-0.400;
-    while(xpos<0.2){
+    while(1){//xpos<0.2){
         xpos = 0.04d*((double)time) -0.2;
         pos(0) = xpos;
         theta = 4.0*M_PI/3.0;
