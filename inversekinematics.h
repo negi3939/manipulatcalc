@@ -27,8 +27,10 @@ class invkSolvenu : public Solvenu {
     void copy(const invkSolvenu &invk);
     void setjointnum(int n);
     void settime(const double &t);
+    void settime(double *t);
     int getjointnum();
     double gettime();
+    double* gettimead();
     double getaal(int n);
     double getalp(int n);
     double getdis(int n);

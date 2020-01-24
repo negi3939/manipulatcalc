@@ -107,7 +107,7 @@ int main(){
         std::cout <<  angvel(jointn-1) << std::endl;
         fs <<  angvel(jointn-1) << std::endl;
         */
-       std::cout << "time is:"<< time << "  invk class time is " << maninvk.gettime() << std::endl;
+       std::cout << "time is:"<< time << "  invk class time is " << maninvd.gettime() << std::endl;
         time += 0.1;
     }
     fs.close();
