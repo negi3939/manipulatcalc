@@ -42,7 +42,9 @@ void invkSolvenu::copy(const invkSolvenu &invk){
 }
 
 void invkSolvenu::setjointnum(int n){jointnum=n;}
+void invkSolvenu::settime(const double &t){time = &t;}
 int invkSolvenu::getjointnum(){return jointnum;}
+double invkSolvenu::gettime(){return *time;}
 double invkSolvenu::getaal(int n){return aal[n];}
 double invkSolvenu::getalp(int n){return alp[n];}
 double invkSolvenu::getdis(int n){return dis[n];}

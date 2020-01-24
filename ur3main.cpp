@@ -47,6 +47,7 @@ int main(){
     double xpos = -0.2;
     invkSolvenu maninvk(jointn);
     invdSolvenu maninvd(jointn);
+    maninvk.settime(time);
     maninvk.setdhparameter(0,M_PI,0.0,0.1519,M_PI/2.0);
     maninvk.setdhparameter(1,0.0,-0.24365,0.0,0.0);
     maninvk.setdhparameter(2,0.0,-0.21325,0.0,0.0);
@@ -82,7 +83,7 @@ int main(){
         angle = maninvk.getangle(angle);
         maninvd.calcaA(angle);
         angvel = maninvd.getvel(angvel);
-        
+        /*
         std::cout << "angle is "<<std::endl;
         fs << time << ",";
         std::cout << time << ",";
@@ -105,6 +106,8 @@ int main(){
         }
         std::cout <<  angvel(jointn-1) << std::endl;
         fs <<  angvel(jointn-1) << std::endl;
+        */
+       std::cout << "time is:"<< time << "  invk class time is " << maninvk.gettime() << std::endl;
         time += 0.1;
     }
     fs.close();
