@@ -62,7 +62,7 @@ int main(){
     VectorXd angle =VectorXd::Zero(jointn);
     VectorXd angvel =VectorXd::Zero(jointn);
     Matrix4d mattheta = Matrix4d::Identity(4,4);
-    pos(0) =xpos;//-0.230;
+    pos(0) = xpos;//-0.230;
     pos(1) = 0.2;//-0.300;
     pos(2) = 0.3;//-0.400;
     while(xpos<0.2){

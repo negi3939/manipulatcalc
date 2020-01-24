@@ -1,5 +1,5 @@
-# solver for manipulator
-Inverse kinetmaticsとInverse dynamicsを計算　数値的に求める
+# Solver for manipulator
+任意の軸のマニピュレータの計算の数値計算．
 
 # 数値的方程式解法 
 mymath.cpp と　solvenu.cppを一緒に用いることで使える．ニュートン法を用いて一般方程式の解を得る．Funcveクラスを継承してfunctionをオーバーライドして使用する．

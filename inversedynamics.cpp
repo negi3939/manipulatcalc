@@ -81,7 +81,7 @@ VectorXd invdSolvenu::funcorg(VectorXd x){
     rrend = aTt[jointnum-1].block(0,3,3,1);
     ppa[0] = rrend;
     jacobi->block(0,0,3,1) = zz[0].cross(ppa[0]);
-    jacobi->block(3,0,3,1) = ppa[0];
+    jacobi->block(3,0,3,1) = zz[0];
     for(ii=1;ii<jointnum;ii++){
         rra[ii] = aTt[ii-1].block(0,3,3,1);
         zz[ii] = aTt[ii-1].block(0,2,3,1);
@@ -89,9 +89,7 @@ VectorXd invdSolvenu::funcorg(VectorXd x){
         jacobi->block(0,ii,3,1) = zz[ii].cross(ppa[ii]);
         jacobi->block(3,ii,3,1) = zz[ii];
     }
-    
     ans = (*jacobi)*x;
-    
     return ans;
 }
 
