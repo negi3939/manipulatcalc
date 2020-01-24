@@ -25,16 +25,14 @@
 #include <Eigen/StdVector>
 #include <Eigen/LU>
 #include "mymath.h"
-
+#include "animat.h"
+//#include"figure.h"
 
 #define PRINT_MAT(X) std::cout << #X << ":\n" << X << std::endl << std::endl
 using namespace Mymath;
 
-int main(){
-    Vector3d ahoge = VectorXd::Random(3,1);
-    Vector3d bhoge = VectorXd::Random(3,1);
-    PRINT_MAT(ahoge);
-    PRINT_MAT(bhoge);
-    PRINT_MAT(ahoge.cross(bhoge));
+int main(int ac,char *av[]){
+    initialGlut(ac,av);
+    while(1){}
     return 0;
 }

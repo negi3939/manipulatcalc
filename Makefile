@@ -21,7 +21,7 @@ endif
 
 ifeq ($(TARGET),hoge)
 	SOURCE_MAIN = hoge.cpp
-	SOURCE_SUB = mymath.cpp
+	SOURCE_SUB = mymath.cpp animat.cpp
 endif
 
 ifdef argv

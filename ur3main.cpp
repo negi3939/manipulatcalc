@@ -44,8 +44,12 @@ int main(){
 		exit(1);
 	}
     int ii,jointn = 6;
-    double time = 0.0;
-    double xpos = -0.2;
+    double ddtt = 0.1d;
+    double time = 0.0d;
+    double timecha = 0.0d;
+    double xpos = -0.15d;
+    double xvel = 0.0d;
+    double xvelcha = 0.0d;
     invkSolvenu maninvk(jointn);
     invdSolvenu maninvd(jointn);
     maninvk.settime(time);
@@ -65,12 +69,19 @@ int main(){
     VectorXd angvel =VectorXd::Zero(jointn);
     Matrix4d mattheta = Matrix4d::Identity(4,4);
     pos(0) = xpos;//-0.230;
-    pos(1) = 0.2;//-0.300;
-    pos(2) = 0.3;//-0.400;
-    while(1){//xpos<0.2){
-        xpos = 0.04d*((double)time) -0.2;
+    pos(1) = 0.15d;//-0.300;
+    pos(2) = 0.05d;//-0.400;
+    while(xpos<0.15d){
+        if(xpos<0.0d){
+            xvel = xvel+0.01*ddtt;
+            timecha = time;
+            xvelcha = xvel;
+        }else{
+            xvel = xvel-0.01*ddtt;
+        }
+        xpos = xpos + xvel*ddtt;
         pos(0) = xpos;
-        theta = 4.0*M_PI/3.0;
+        theta = 4.0d*M_PI/3.0d;
         mattheta(0,0) = cos(theta);
         mattheta(0,2) = sin(theta);
         mattheta(2,0) = -sin(theta);
@@ -78,13 +89,12 @@ int main(){
         qua = maninvk.matrixtoquatanion(mattheta);
         targetx.block(0,0,3,1) = pos;
         targetx.block(3,0,3,1) = qua.block(0,0,3,1); 
-        targetvel << 0.04d,0.0d,0.0d,0.0d,0.0d,0.0d;
+        targetvel << xvel,0.0d,0.0d,0.0d,0.0d,0.0d;
         maninvk.settargetfx(targetx);
         maninvd.settargetfx(targetvel);
         angle = maninvk.getangle(angle);
         maninvd.calcaA(angle);
         angvel = maninvd.getvel(angvel);
-        /*
         std::cout << "angle is "<<std::endl;
         fs << time << ",";
         std::cout << time << ",";
@@ -107,9 +117,7 @@ int main(){
         }
         std::cout <<  angvel(jointn-1) << std::endl;
         fs <<  angvel(jointn-1) << std::endl;
-        */
-       std::cout << "time is:"<< time << "  invk class time is " << maninvd.gettime() << std::endl;
-        time += 0.1;
+        time += ddtt;
     }
     fs.close();
 
