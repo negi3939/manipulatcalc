@@ -44,7 +44,7 @@ int main(){
 		exit(1);
 	}
     int ii,jointn = 6;
-    double ddtt = 0.1d;
+    double ddtt = 0.008d;
     double time = 0.0d;
     double timecha = 0.0d;
     double xpos = -0.15d;
@@ -66,22 +66,25 @@ int main(){
     VectorXd targetx(6);
     VectorXd targetvel(6);
     VectorXd angle =VectorXd::Zero(jointn);
+    VectorXd preangle =VectorXd::Zero(jointn);
+    VectorXd anglewrite =VectorXd::Zero(jointn);
+    VectorXd angledoublepi =VectorXd::Zero(jointn);
     VectorXd angvel =VectorXd::Zero(jointn);
     Matrix4d mattheta = Matrix4d::Identity(4,4);
     pos(0) = xpos;//-0.230;
-    pos(1) = 0.15d;//-0.300;
-    pos(2) = 0.05d;//-0.400;
+    pos(1) = 0.4d;//-0.300;
+    pos(2) = 0.3d;//-0.400;
     while(xpos<0.15d){
         if(xpos<0.0d){
-            xvel = xvel+0.01*ddtt;
+            xvel = xvel+0.1*ddtt;
             timecha = time;
             xvelcha = xvel;
         }else{
-            xvel = xvel-0.01*ddtt;
+            xvel = xvel-0.1*ddtt;
         }
         xpos = xpos + xvel*ddtt;
         pos(0) = xpos;
-        theta = 4.0d*M_PI/3.0d;
+        theta = 2.0*M_PI/2.0d;
         mattheta(0,0) = cos(theta);
         mattheta(0,2) = sin(theta);
         mattheta(2,0) = -sin(theta);
@@ -92,9 +95,20 @@ int main(){
         targetvel << xvel,0.0d,0.0d,0.0d,0.0d,0.0d;
         maninvk.settargetfx(targetx);
         maninvd.settargetfx(targetvel);
+        preangle = angle;
         angle = maninvk.getangle(angle);
         maninvd.calcaA(angle);
         angvel = maninvd.getvel(angvel);
+        
+        for(ii=0;ii<jointn;ii++){
+            if(angle(ii)-preangle(ii)>1.5d*M_PI){
+                angledoublepi(ii) -= 1.0d;
+            }else if(angle(ii)-preangle(ii)<-1.5d*M_PI){
+                angledoublepi(ii) += 1.0d;
+            }
+            anglewrite(ii) = angle(ii) + 2.0d*M_PI*angledoublepi(ii);
+        }
+
         std::cout << "angle is "<<std::endl;
         fs << time << ",";
         std::cout << time << ",";
@@ -107,8 +121,8 @@ int main(){
             std::cout<< qua(ii) << ",";
         }
         for(ii=0;ii<jointn;ii++){
-            fs <<  angle(ii) << ",";
-            std::cout << angle(ii) << ",";
+            fs <<  anglewrite(ii) << ",";
+            std::cout << anglewrite(ii) << ",";
         }
         
         for(ii=0;ii<jointn-1;ii++){

@@ -31,8 +31,33 @@
 #define PRINT_MAT(X) std::cout << #X << ":\n" << X << std::endl << std::endl
 using namespace Mymath;
 
+class Hoge{
+    private:
+        int a;
+    protected:
+        static void* staticviewa(void *pParam) {
+        	std::cout << "in static space :" << reinterpret_cast<Hoge*>(pParam)->geta() << std::endl;
+      	}
+    public:
+        void seta(int n);
+        void viewa();
+        int geta();
+};
+
+void Hoge::seta(int n){a =n;}
+void Hoge::viewa(){staticviewa(this);}
+int Hoge::geta(){return a;}
+
+
 int main(int ac,char *av[]){
-    initialGlut(ac,av);
-    while(1){}
+    //Animat anihoge;
+    //initialGlut(ac,av);
+    //while(1){}
+    Hoge hoge;
+    for(int ii=0;ii<100;ii++){
+        hoge.seta(ii);
+        hoge.viewa();
+    }
+    
     return 0;
 }

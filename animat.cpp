@@ -18,7 +18,7 @@
 #define PRINT_MAT(X) std::cout << #X << ":\n" << X << std::endl << std::endl
 
 
-void animat::resize(int w,int h){
+void Animat::resize(int w,int h){
 		double wide = 1000.0;
 		/*pthread_mutex_lock(&futex);
 		wide = ctr::wide;
@@ -29,19 +29,19 @@ void animat::resize(int w,int h){
 		glOrtho(-w / wide, w / wide, -h / wide, h / wide, -1.0, 1.0);
 }
 
-void animat::init(void){
-		glClear(GL_COLOR_BUFFER_BIT);
-		glClearColor(0.0, 0.0, 0.0, 0.5);
+void Animat::init(void){
+	glClear(GL_COLOR_BUFFER_BIT);
+	glClearColor(0.0, 0.0, 0.0, 0.5);
 }
 
-void animat::display(){}
+void Animat::display(){}
 
-void animat::displayrun(){
+void Animat::displayrun(){
 	display();
 	glFlush();
 }
 
-void animat::end(){
+void Animat::end(){
 		bool endf=0;
 		/*
 		pthread_mutex_lock(&endutex);
@@ -51,19 +51,20 @@ void animat::end(){
 		if(endf==1){exit(0);}
 }
 
-void animat::timer(int value){
+void Animat::timer(int value){
 		glutPostRedisplay();
-		glutTimerFunc(1,timer,0);
+		//glutTimerFunc(1,timer,0);
 		end();
 }
 
 
 
-void animat::initialGlut(int ac,char *av[]){	
+void Animat::initialGlut(int ac,char *av[]){	
 	glutInit(&ac,av);
 	glutInitWindowPosition(100,20);
-	glutInitWindowSize(1000,1000);
-	glutReshapeFunc(resize);
+	glutInitWindowSize(1000,1000);	
+	glutReshapeFunc(staticresize);
+	/*
 	glutInitDisplayMode(GLUT_RGBA);
 	glutCreateWindow("animation");
 	glutDisplayFunc(displayrun);
@@ -72,9 +73,10 @@ void animat::initialGlut(int ac,char *av[]){
 	init();
 	glutTimerFunc(1,timer,0);
 	glutMainLoop();
+	*/
 }
 
-void resize(int w,int h){
+void resize(int w,int h,int hoge){
 		double wide = 1000.0;
 		/*pthread_mutex_lock(&futex);
 		wide = ctr::wide;
@@ -83,6 +85,7 @@ void resize(int w,int h){
 		glViewport(0, 0, w, h);
 		glLoadIdentity();
 		glOrtho(-w / wide, w / wide, -h / wide, h / wide, -1.0, 1.0);
+		std::cout << "hoge is" << hoge << std::endl;
 }
 
 void init(void){

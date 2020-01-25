@@ -5,8 +5,14 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-class animat{
+class Animat{
 	protected:
+		static void* statictimer(void *pParam,int val) {
+        	reinterpret_cast<Animat*>(pParam)->timer(val);
+      	}
+		static void* staticresize(void *pParam,int w,int h) {
+        	reinterpret_cast<Animat*>(pParam)->resize(w,h);
+      	}
 	public:
 		void resize(int w,int h);
 		void init(void);
