@@ -53,12 +53,12 @@ int main(){
     invkSolvenu maninvk(jointn);
     invdSolvenu maninvd(jointn);
     maninvk.settime(time);
-    maninvk.setdhparameter(0,M_PI,0.0,0.1519,M_PI/2.0);
-    maninvk.setdhparameter(1,0.0,-0.24365,0.0,0.0);
-    maninvk.setdhparameter(2,0.0,-0.21325,0.0,0.0);
-    maninvk.setdhparameter(3,0.0,0.0,0.11235,M_PI/2.0);
-    maninvk.setdhparameter(4,0.0,0.0,0.08535,-M_PI/2.0);
-    maninvk.setdhparameter(5,0.0,0.0,0.0819,0.0);
+    maninvk.setdhparameter(0,M_PI,0.0d,0.1519d,M_PI/2.0d);
+    maninvk.setdhparameter(1,0.0d,-0.24365d,0.0d,0.0d);
+    maninvk.setdhparameter(2,0.0d,-0.21325d,0.0d,0.0d);
+    maninvk.setdhparameter(3,0.0d,0.0d,0.11235d,M_PI/2.0d);
+    maninvk.setdhparameter(4,0.0d,0.0d,0.08535d,-M_PI/2.0d);
+    maninvk.setdhparameter(5,0.0d,0.0d,0.0819d +0.053d,0.0d);//手先補正(Festo)
     maninvd.copy(maninvk);
     double theta;
     Vector4d qua;
@@ -74,13 +74,15 @@ int main(){
     pos(0) = xpos;//-0.230;
     pos(1) = 0.4d;//-0.300;
     pos(2) = 0.3d;//-0.400;
-    while(xpos<0.15d){
+    double acc = 3.0d*9.81d;
+    while(xpos<0.15){
         if(xpos<0.0d){
-            xvel = xvel+0.1*ddtt;
+            xvel = xvel+acc*ddtt;
             timecha = time;
             xvelcha = xvel;
         }else{
-            xvel = xvel-0.1*ddtt;
+            xvel = xvel-acc*ddtt;
+            if(xvel<0.0d){break;}
         }
         xpos = xpos + xvel*ddtt;
         pos(0) = xpos;
