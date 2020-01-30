@@ -81,7 +81,7 @@ VectorXd invkSolvenu::funcorg(VectorXd x){
     int ii;
     Vector3d pos;
     Vector4d qua;
-    VectorXd ans(6);
+    VectorXd ans(7);
     calcaA(x);
     Matrix4d allA = aA[0];
     for(ii=1;ii<jointnum;ii++){
@@ -91,6 +91,7 @@ VectorXd invkSolvenu::funcorg(VectorXd x){
     pos = allA.block(0,3,3,1);
     ans.block(0,0,3,1) = pos;
     ans.block(3,0,3,1) = qua.block(0,0,3,1);
+    ans(6) = sign(qua(3))*1.0d;
     return ans;
 }
 
@@ -162,6 +163,15 @@ Vector4d invkSolvenu::matrixtoquatanion(Matrix4d mat){
 
 VectorXd invkSolvenu::getangle(VectorXd x){
     VectorXd ang = solve(x);
+    VectorXd error = functionerror(ang);
+     //PRINT_MAT(error);
+    while(0){
+        x = VectorXd::Random(jointnum,1);
+        ang = solve(x);
+        error = functionerror(ang);
+        //PRINT_MAT(error);
+
+    }
     VectorXd ans(jointnum);
     double buff;
     for(int ii=0;ii<jointnum;ii++){

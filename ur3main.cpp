@@ -83,9 +83,10 @@ void inputfvel(int ac,char *av[]){
     maninvd.setcountlimit(5000);
     Vector4d qua;
     Vector3d pos;
-    VectorXd targetx(6);
+    VectorXd targetx(7);
     VectorXd targetvel(6);
     VectorXd angle =VectorXd::Zero(jointn);
+    //angle << 1.65283d,-1.02693d,0.661377d,-1.20774d,-1.54049d,-3.05953d;
     VectorXd preangle =VectorXd::Zero(jointn);
     VectorXd anglewrite =VectorXd::Zero(jointn);
     VectorXd angledoublepi =VectorXd::Zero(jointn);
@@ -133,7 +134,7 @@ void inputfvel(int ac,char *av[]){
             time = ((int)(timef[ii]/ddtt))*ddtt;
             xpos = xinipos + xf[ii];
             zpos = zinipos + zf[ii];
-            theta = 3.0*M_PI/4.0;//thetaini + thetaf[ii];
+            theta = thetaini + thetaf[ii];
             pos(0) = xpos;
             pos(2) = zpos;
             mattheta(0,0) = cos(theta);
@@ -142,7 +143,8 @@ void inputfvel(int ac,char *av[]){
             mattheta(2,2) = cos(theta);
             qua = maninvk.matrixtoquatanion(mattheta);
             targetx.block(0,0,3,1) = pos;
-            targetx.block(3,0,3,1) = qua.block(0,0,3,1); 
+            targetx.block(3,0,3,1) = qua.block(0,0,3,1);
+            targetx(6) = 1.0d*sign(qua(3));
             targetvel << vxf[ii],0.0d,vzf[ii],0.0d,vthetaf[ii],0.0d;
             maninvk.settargetfx(targetx);
             maninvd.settargetfx(targetvel);
@@ -243,9 +245,10 @@ void sankakuvel(){
     double theta;
     Vector4d qua;
     Vector3d pos;
-    VectorXd targetx(6);
+    VectorXd targetx(7);
     VectorXd targetvel(6);
     VectorXd angle =VectorXd::Zero(jointn);
+    angle << 1.65283d,-1.02693d,0.661377d,-1.20774d,-1.54049d,-3.05953d;
     VectorXd preangle =VectorXd::Zero(jointn);
     VectorXd anglewrite =VectorXd::Zero(jointn);
     VectorXd angledoublepi =VectorXd::Zero(jointn);
@@ -278,7 +281,8 @@ void sankakuvel(){
         mattheta(2,2) = cos(theta);
         qua = maninvk.matrixtoquatanion(mattheta);
         targetx.block(0,0,3,1) = pos;
-        targetx.block(3,0,3,1) = qua.block(0,0,3,1); 
+        targetx.block(3,0,3,1) = qua.block(0,0,3,1);
+        targetx(6) = qua(3); 
         targetvel << xvel,0.0d,0.0d,0.0d,0.0d,0.0d;
         maninvk.settargetfx(targetx);
         maninvd.settargetfx(targetvel);

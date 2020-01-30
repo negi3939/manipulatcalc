@@ -63,6 +63,7 @@ VectorXd Solvenu::solve(VectorXd intx){
         while(1){
             dx = x;
             buf = diffvec(x,this);
+            exit(0);
             if(buf.determinant()<0.000001){ 
                 std::cout<< "determin 0"<< std::endl;exit(0);
                 }
