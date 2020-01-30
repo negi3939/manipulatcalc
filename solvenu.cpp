@@ -27,8 +27,11 @@
 #include "mymath.h"
 #include "solvenu.h"
 
-Solvenu::Solvenu(){}
+Solvenu::Solvenu(){countlimit=10000;}
 Solvenu::~Solvenu(){}
+
+void Solvenu::setcountlimit(long a){countlimit = a;}
+
 void Solvenu::settargetfx(VectorXd tfx){targetfx = tfx;}
 VectorXd Solvenu::gettargetfx(){return targetfx;}
 
@@ -76,7 +79,7 @@ VectorXd Solvenu::solve(VectorXd intx){
             JacobiSVD<MatrixXd> svd(diffvec(x,this), ComputeThinU|ComputeThinV);
             x = x - svd.solve(functionerror(x));
             chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);
-            if(count>100000){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than 10000 CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;PRINT_MAT(functionerror(x));break;}
+            if(count>countlimit){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than 10000 CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;PRINT_MAT(functionerror(x));break;}
             if (chk(0) < 0.0000000001d) break;
             count++;
         }

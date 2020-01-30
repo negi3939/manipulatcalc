@@ -29,8 +29,8 @@
 #include "inversekinematics.h"
 
 
-invkSolvenu::invkSolvenu(){jointnum = 6;init();}
-invkSolvenu::invkSolvenu(int num){jointnum = num;init();}
+invkSolvenu::invkSolvenu():Solvenu(){jointnum = 6;init();}
+invkSolvenu::invkSolvenu(int num):Solvenu(){jointnum = num;init();}
 
 void invkSolvenu::copy(const invkSolvenu &invk){
     int ii;

@@ -6,10 +6,12 @@ using namespace Mymath;
 
 class Solvenu : public Funcvec{
     protected:
+        long countlimit;
         VectorXd targetfx;
         VectorXd x;
     public:
         Solvenu();
+        void setcountlimit(long a);
         void settargetfx(VectorXd tfx);
         VectorXd gettargetfx();
         VectorXd function(VectorXd x) override;

@@ -43,6 +43,7 @@ int main(int ac,char *av[]){
     return 0;
 }
 
+
 void inputfvel(int ac,char *av[]){
     std::ifstream ifs(av[1]);
     if (!ifs){
@@ -64,7 +65,7 @@ void inputfvel(int ac,char *av[]){
     double xpos = xinipos;
     double zinipos = 0.3d;
     double zpos = zinipos;
-    double thetaini = 1.0d*M_PI;
+    double thetaini = -1.0d*M_PI;
     double theta = thetaini;
     double xvel = 0.0d;
     double zvel = 0.0d;
@@ -77,7 +78,9 @@ void inputfvel(int ac,char *av[]){
     maninvk.setdhparameter(3,0.0d,0.0d,0.11235d,M_PI/2.0d);
     maninvk.setdhparameter(4,0.0d,0.0d,0.08535d,-M_PI/2.0d);
     maninvk.setdhparameter(5,0.0d,0.0d,0.0819d +0.055d,0.0d);//手先補正(Festo)
+    maninvk.setcountlimit(5000);
     maninvd.copy(maninvk);
+    maninvd.setcountlimit(5000);
     Vector4d qua;
     Vector3d pos;
     VectorXd targetx(6);
@@ -130,7 +133,7 @@ void inputfvel(int ac,char *av[]){
             time = ((int)(timef[ii]/ddtt))*ddtt;
             xpos = xinipos + xf[ii];
             zpos = zinipos + zf[ii];
-            theta = thetaini + thetaf[ii];
+            theta = 3.0*M_PI/4.0;//thetaini + thetaf[ii];
             pos(0) = xpos;
             pos(2) = zpos;
             mattheta(0,0) = cos(theta);
@@ -180,6 +183,32 @@ void inputfvel(int ac,char *av[]){
         }
 
     }
+    while(time<10.0){
+        //VectorXd angvel =VectorXd::Zero(jointn);
+        std::cout << "angle is "<<std::endl;
+        fs << time << ",";
+        std::cout << time << ",";
+        for(jj=0;jj<3;jj++){
+            fs << pos(jj) << ",";
+            std::cout << pos(jj) << ",";
+        }
+        for(jj=0;jj<4;jj++){
+            fs << qua(jj) << ",";
+            std::cout<< qua(jj) << ",";
+        }
+        for(jj=0;jj<jointn;jj++){
+            fs <<  anglewrite(jj) << ",";
+            std::cout << anglewrite(jj) << ",";
+        }
+        
+        for(jj=0;jj<jointn-1;jj++){
+            fs <<  angvel(jj) << ",";
+            std::cout << angvel(jj) << ",";
+        }
+        std::cout <<  angvel(jointn-1) << std::endl;
+        fs <<  angvel(jointn-1) << std::endl;
+        time += ddtt;
+    }
     fs.close();
 }
 
@@ -222,11 +251,15 @@ void sankakuvel(){
     VectorXd angledoublepi =VectorXd::Zero(jointn);
     VectorXd angvel =VectorXd::Zero(jointn);
     Matrix4d mattheta = Matrix4d::Identity(4,4);
+    
     pos(0) = xpos;//-0.230;
     pos(1) = 0.4d;//-0.300;
     pos(2) = 0.3d;//-0.400;
-    
-    double acc = 7.0d;
+
+    double targettend = 0.587d;
+    double targetxend = 0.3d;
+
+    double acc = 4.0d*targetxend/targettend/targettend;//acc = 4x/t/t
     while(xpos<0.15){
         if(xpos<0.0d){
             xvel = xvel+acc*ddtt;
@@ -238,7 +271,7 @@ void sankakuvel(){
         }
         xpos = xpos + xvel*ddtt;
         pos(0) = xpos;
-        theta = 2.0*M_PI/2.0d;
+        theta = 1.0d*M_PI-1.0e-30;
         mattheta(0,0) = cos(theta);
         mattheta(0,2) = sin(theta);
         mattheta(2,0) = -sin(theta);
@@ -286,5 +319,33 @@ void sankakuvel(){
         fs <<  angvel(jointn-1) << std::endl;
         time += ddtt;
     }
+
+    while(time<10.0){
+        //VectorXd angvel =VectorXd::Zero(jointn);
+        std::cout << "angle is "<<std::endl;
+        fs << time << ",";
+        std::cout << time << ",";
+        for(ii=0;ii<3;ii++){
+            fs << pos(ii) << ",";
+            std::cout << pos(ii) << ",";
+        }
+        for(ii=0;ii<4;ii++){
+            fs << qua(ii) << ",";
+            std::cout<< qua(ii) << ",";
+        }
+        for(ii=0;ii<jointn;ii++){
+            fs <<  anglewrite(ii) << ",";
+            std::cout << anglewrite(ii) << ",";
+        }
+        
+        for(ii=0;ii<jointn-1;ii++){
+            fs <<  angvel(ii) << ",";
+            std::cout << angvel(ii) << ",";
+        }
+        std::cout <<  angvel(jointn-1) << std::endl;
+        fs <<  angvel(jointn-1) << std::endl;
+        time += ddtt;
+    }
+
     fs.close();
 }
