@@ -91,7 +91,7 @@ VectorXd invkSolvenu::funcorg(VectorXd x){
     pos = allA.block(0,3,3,1);
     ans.block(0,0,3,1) = pos;
     ans.block(3,0,3,1) = qua.block(0,0,3,1);
-    ans(6) = sign(qua(3))*1.0d;
+    ans(6) = sign(qua(3))*0.0d;
     return ans;
 }
 

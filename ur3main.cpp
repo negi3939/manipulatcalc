@@ -78,9 +78,9 @@ void inputfvel(int ac,char *av[]){
     maninvk.setdhparameter(3,0.0d,0.0d,0.11235d,M_PI/2.0d);
     maninvk.setdhparameter(4,0.0d,0.0d,0.08535d,-M_PI/2.0d);
     maninvk.setdhparameter(5,0.0d,0.0d,0.0819d +0.055d,0.0d);//手先補正(Festo)
-    maninvk.setcountlimit(5000);
+    maninvk.setcountlimit(500);
     maninvd.copy(maninvk);
-    maninvd.setcountlimit(5000);
+    maninvd.setcountlimit(500);
     Vector4d qua;
     Vector3d pos;
     VectorXd targetx(7);
@@ -130,7 +130,7 @@ void inputfvel(int ac,char *av[]){
     }
     double ddttf = timef[1] -timef[0];
     for(ii=0;ii<timef.size();ii++){
-        if((timef[ii]-((int)(timef[ii]/ddtt))*ddtt) < (ddttf/2.0d)){
+        if(1){//(timef[ii]-((int)(timef[ii]/ddtt))*ddtt) < (ddttf/2.0d)){
             time = ((int)(timef[ii]/ddtt))*ddtt;
             xpos = xinipos + xf[ii];
             zpos = zinipos + zf[ii];
@@ -144,7 +144,7 @@ void inputfvel(int ac,char *av[]){
             qua = maninvk.matrixtoquatanion(mattheta);
             targetx.block(0,0,3,1) = pos;
             targetx.block(3,0,3,1) = qua.block(0,0,3,1);
-            targetx(6) = 1.0d*sign(qua(3));
+            targetx(6) = 0.0d*sign(qua(3));
             targetvel << vxf[ii],0.0d,vzf[ii],0.0d,vthetaf[ii],0.0d;
             maninvk.settargetfx(targetx);
             maninvd.settargetfx(targetvel);
@@ -160,28 +160,30 @@ void inputfvel(int ac,char *av[]){
                 }
                 anglewrite(jj) = angle(jj) + 2.0d*M_PI*angledoublepi(jj);
             }
-            std::cout << "angle is "<<std::endl;
-            fs << time << ",";
-            std::cout << time << ",";
-            for(jj=0;jj<3;jj++){
-                fs << pos(jj) << ",";
-                std::cout << pos(jj) << ",";
-            }
-            for(jj=0;jj<4;jj++){
-                fs << qua(jj) << ",";
-                std::cout<< qua(jj) << ",";
-            }
-            for(jj=0;jj<jointn;jj++){
-                fs <<  anglewrite(jj) << ",";
-                std::cout << anglewrite(jj) << ",";
-            }
+            if((timef[ii]-((int)(timef[ii]/ddtt))*ddtt) < (ddttf/1.0d)){
+                std::cout << "angle is "<<std::endl;
+                fs << time << ",";
+                std::cout << time << ",";
+                for(jj=0;jj<3;jj++){
+                    fs << pos(jj) << ",";
+                    std::cout << pos(jj) << ",";
+                }
+                for(jj=0;jj<4;jj++){
+                    fs << qua(jj) << ",";
+                    std::cout<< qua(jj) << ",";
+                }
+                for(jj=0;jj<jointn;jj++){
+                    fs <<  anglewrite(jj) << ",";
+                    std::cout << anglewrite(jj) << ",";
+                }
         
-            for(jj=0;jj<jointn-1;jj++){
-                fs <<  angvel(jj) << ",";
-                std::cout << angvel(jj) << ",";
+                for(jj=0;jj<jointn-1;jj++){
+                    fs <<  angvel(jj) << ",";
+                    std::cout << angvel(jj) << ",";
+                }
+                std::cout <<  angvel(jointn-1) << std::endl;
+                fs <<  angvel(jointn-1) << std::endl;
             }
-            std::cout <<  angvel(jointn-1) << std::endl;
-            fs <<  angvel(jointn-1) << std::endl;
         }
 
     }
