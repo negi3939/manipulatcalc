@@ -105,6 +105,11 @@ void invkSolvenu::calcaA(VectorXd x){
     }
 }
 
+void invkSolvenu::calcaA(VectorXd x,Matrix4d &reta){
+    calcaA(x);
+    reta = (*aA);
+}
+
 void invkSolvenu::setdhparameter(int num,double thoff,double aa,double di,double alph){
     thetaoff[num] = thoff;
     aal[num] = aa;
@@ -208,21 +213,22 @@ int main(){
     VectorXd angle = VectorXd::Zero(jointn);
     Vector4d qua;//クオータニオン
     Vector3d pos;//3軸位置
-    Matrix4d mattheta = Matrix4d::Identity(4,4);//回転変位行列
+    Matrix4d mattheta;//回転変位行列
+    angle(0) = -0.25d*M_PI;
+    angle(1) = -0.25d*M_PI;
+    angle(2) = -0.25d*M_PI;
+    angle(3) = -0.25d*M_PI;
+    angle(4) = -0.25d*M_PI;
+    angle(5) = -0.25d*M_PI;
+    angle(6) = -0.25d*M_PI;
     VectorXd targetx(7);//目標位置姿勢
-    pos(0) = -0.2d;
-    pos(1) = 0.1d;
-    pos(2) = 0.2d;
-    mattheta(0,0) = cos(0.0d);
-    mattheta(0,2) = sin(0.0d);
-    mattheta(2,0) = -sin(0.0d);
-    mattheta(2,2) = cos(0.0d);
+    maninvk->calcaA(angle,mattheta);
     qua = maninvk->matrixtoquatanion(mattheta);//回転行列からクオータニオンへ変換
-    targetx.block(0,0,3,1) = pos;
-    targetx.block(3,0,3,1) = qua.block(0,0,3,1);
-    maninvk->settargetfx(targetx);
-    angle = maninvk->getangle(angle);
-    PRINT_MAT(angle);
+    PRINT_MAT(mattheta);
+    // targetx.block(0,0,3,1) = pos;
+    //targetx.block(3,0,3,1) = qua.block(0,0,3,1);
+    //maninvk->settargetfx(targetx);
+    //angle = maninvk->getangle(angle);
     return 0;
 }
 #endif

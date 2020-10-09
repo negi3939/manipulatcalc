@@ -37,6 +37,7 @@ class invkSolvenu : public Solvenu {
     double getthetaoff(int n);
     VectorXd funcorg(VectorXd x) override;
     void calcaA(VectorXd x);
+    void calcaA(VectorXd x,Matrix4d &reta);
     void setdhparameter(int num,double thoff,double aa,double di,double alph);
     Vector4d matrixtoquatanion(Matrix4d mat);
     VectorXd getangle(VectorXd x);
