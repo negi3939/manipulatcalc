@@ -11,8 +11,8 @@
 ifdef target
 	TARGET=$(target)
 else
-	TARGET=id
-	#ik
+	TARGET=ik
+	#id
 	#ur3
 endif
 

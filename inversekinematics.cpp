@@ -195,23 +195,24 @@ invkSolvenu::~invkSolvenu(){
 
 #if defined(IK_IS_MAIN)
 int main(){
-    int ii,jointn = 6;
+    int ii,jointn = 7;
     invkSolvenu *maninvk;
     maninvk = new invkSolvenu(jointn);
-    maninvk->setdhparameter(0,M_PI,0.0d,0.1519d,M_PI/2.0d);
-    maninvk->setdhparameter(1,0.0d,-0.24365d,0.0d,0.0d);
-    maninvk->setdhparameter(2,0.0d,-0.21325d,0.0d,0.0d);
-    maninvk->setdhparameter(3,0.0d,0.0d,0.11235d,M_PI/2.0d);
-    maninvk->setdhparameter(4,0.0d,0.0d,0.08535d,-M_PI/2.0d);
-    maninvk->setdhparameter(5,0.0d,0.0d,0.0819d +0.055d,0.0d);//
-    VectorXd angle =VectorXd::Zero(jointn);
+    maninvk->setdhparameter(0,0.0d,0.0d,0.05d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(1,0.0d,0.05d,0.0d,-0.5d*M_PI);
+    maninvk->setdhparameter(2,0.0d,0.0d,0.2d,0.5d*M_PI);
+    maninvk->setdhparameter(3,0.0d,0.135d,0.0d,-0.5d*M_PI);
+    maninvk->setdhparameter(4,0.0d,0.0d,0.115d,0.5d*M_PI);
+    maninvk->setdhparameter(5,0.0d,0.019d,0.0d,-0.5d*M_PI);//
+    maninvk->setdhparameter(6,0.0d,0.0d,0.084d,0.0d);//
+    VectorXd angle = VectorXd::Zero(jointn);
     Vector4d qua;//クオータニオン
     Vector3d pos;//3軸位置
     Matrix4d mattheta = Matrix4d::Identity(4,4);//回転変位行列
     VectorXd targetx(7);//目標位置姿勢
     pos(0) = -0.2d;
-    pos(1) = 0.4d;
-    pos(2) = 0.3d;
+    pos(1) = 0.1d;
+    pos(2) = 0.2d;
     mattheta(0,0) = cos(0.0d);
     mattheta(0,2) = sin(0.0d);
     mattheta(2,0) = -sin(0.0d);
