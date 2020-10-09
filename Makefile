@@ -11,12 +11,32 @@
 ifdef target
 	TARGET=$(target)
 else
-	TARGET=ur3
+	TARGET=id
+	#ik
+	#ur3
 endif
+
+
+DIRX = /usr/X11R6/lib
+
+CXXFLAGS = -I ~/eigenlib/eigen-3.3.7/ -fpermissive
+LDFLAGS	 = -L "$(DIRX)" -lglut -lGLU -lGL -lXmu  -lXext -lX11 -lm  -pthread -std=c++11
 
 ifeq ($(TARGET),ur3)
 	SOURCE_MAIN = ur3main.cpp
 	SOURCE_SUB = mymath.cpp solvenu.cpp inversekinematics.cpp inversedynamics.cpp
+endif
+
+ifeq ($(TARGET),ik)
+	SOURCE_MAIN = inversekinematics.cpp
+	SOURCE_SUB = mymath.cpp solvenu.cpp
+	CXXFLAGS += -DIK_IS_MAIN
+endif
+
+ifeq ($(TARGET),id)
+	SOURCE_MAIN = inversedynamics.cpp
+	SOURCE_SUB = mymath.cpp solvenu.cpp inversekinematics.cpp
+	CXXFLAGS += -DID_IS_MAIN
 endif
 
 ifeq ($(TARGET),hoge)
@@ -37,10 +57,6 @@ endif
 PROGRAM = $(SOURCE_MAIN:%.cpp=%.out)
 SUBOBJ = $(SOURCE_SUB:%.cpp=%.o)
 
-DIRX = /usr/X11R6/lib
-
-CXXFLAGS = -I ~/eigenlib/eigen-3.3.7/ -fpermissive
-LDFLAGS	 = -L "$(DIRX)" -lglut -lGLU -lGL -lXmu  -lXext -lX11 -lm  -pthread -std=c++11
 
 all: $(PROGRAM)
 

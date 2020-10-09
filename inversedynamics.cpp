@@ -113,3 +113,28 @@ VectorXd invdSolvenu::getvel(VectorXd x){
     VectorXd vel = solve(x);
     return vel;
 }
+
+#if defined(ID_IS_MAIN)
+int main(){
+    int ii,jointn = 6;
+    invdSolvenu *maninvd;
+    maninvd = new invdSolvenu(jointn);
+    maninvd->setdhparameter(0,M_PI,0.0d,0.1519d,M_PI/2.0d);
+    maninvd->setdhparameter(1,0.0d,-0.24365d,0.0d,0.0d);
+    maninvd->setdhparameter(2,0.0d,-0.21325d,0.0d,0.0d);
+    maninvd->setdhparameter(3,0.0d,0.0d,0.11235d,M_PI/2.0d);
+    maninvd->setdhparameter(4,0.0d,0.0d,0.08535d,-M_PI/2.0d);
+    maninvd->setdhparameter(5,0.0d,0.0d,0.0819d +0.055d,0.0d);//
+    std::cout << "hoge" << std::endl;
+    VectorXd angle =VectorXd::Zero(jointn);//関節角度
+    VectorXd ctauv = VectorXd::Zero(jointn);//関節の電流値
+    double torqconstant = 3.70d;//トルク定数
+    Vector3d forcev,momentv;//手先力,手先モーメント
+    PRINT_MAT(angle);
+    maninvd->calcaA(angle);
+    maninvd->calcforce(torqconstant*ctauv,forcev,momentv);
+    PRINT_MAT(forcev);
+    PRINT_MAT(momentv);
+    return 0;
+}
+#endif
