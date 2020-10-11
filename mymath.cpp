@@ -28,7 +28,7 @@ namespace Mymath{
     	else if(A<0) return -1;
     	else return 0;
 	}
-	/*
+	#if defined(CALC_EIGEN)
 	void eig(MatrixXd aA,MatrixXd bB,MatrixXd &eigenV,MatrixXd &eigenD){
 		if((aA.rows()!=aA.cols())||(bB.rows()!=bB.cols())||(aA.rows()!=bB.rows())){std::cout << "Matrix size is not same."<<std::endl;}
 		int ii,jj,size = aA.rows();
@@ -73,12 +73,17 @@ namespace Mymath{
 			}
 		}	
 	}
-	*/
+	#endif
+
 	MatrixXd inv(MatrixXd aA){
 		FullPivLU< MatrixXd > invM(aA);
 			return invM.inverse();
 	}
 	
+	MatrixXd pseudo_inv(MatrixXd aA){
+		return inv(aA.transpose()*aA)*aA.transpose();	
+	}
+
 	MatrixXd absmat(MatrixXd aA){
 		int ii,jj;
 		MatrixXd ans = MatrixXd::Zero(aA.rows(),aA.cols()); 

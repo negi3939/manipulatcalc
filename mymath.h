@@ -19,6 +19,7 @@ namespace Mymath{
 	void eig(MatrixXd aA,MatrixXd &eigenV,MatrixXd &eigenD);
 	*/
 	MatrixXd inv(MatrixXd aA);
+	MatrixXd pseudo_inv(MatrixXd aA);
 	MatrixXd absmat(MatrixXd aA);
 	MatrixXd diffvec(VectorXd x,Funcvec *func);
 }

@@ -202,7 +202,7 @@ invkSolvenu::~invkSolvenu(){
     delete pre_time;
 }
 
-
+#if defined(IK_IS_MAIN)
 void forward_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta){
     angle(0) = -0.25d*M_PI;
     angle(1) = -0.25d*M_PI;
@@ -239,7 +239,6 @@ void inverse_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta)
     std::cout << angle(maninvk->getjointnum()-1) <<  std::endl;
 }
 
-#if defined(IK_IS_MAIN)
 int main(){
     int ii,jointn = 7;
     invkSolvenu *maninvk;

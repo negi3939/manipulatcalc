@@ -103,10 +103,11 @@ void invdSolvenu::calcforce(VectorXd tau,Vector3d &f,Vector3d &mom){
     VectorXd fmom(6);
     fmom.block(0,0,3,1) = f;
     fmom.block(3,0,3,1) = mom;
-    JacobiSVD<MatrixXd> svd(jacobi->transpose(),ComputeThinU|ComputeThinV);
-    fmom = svd.solve(tau);
+    /*JacobiSVD<MatrixXd> svd(jacobi->transpose(),ComputeThinU|ComputeThinV);
+    fmom = svd.solve(tau);*/
+    fmom = pseudo_inv(jacobi->transpose())*tau;
     f = fmom.block(0,0,3,1);
-    mom = fmom.block(3,0,3,1);//動作未確認
+    mom = fmom.block(3,0,3,1);//動作未確認*/
 }
 
 VectorXd invdSolvenu::getvel(VectorXd x){
@@ -115,26 +116,71 @@ VectorXd invdSolvenu::getvel(VectorXd x){
 }
 
 #if defined(ID_IS_MAIN)
-int main(){
-    int ii,jointn = 6;
-    invdSolvenu *maninvd;
-    maninvd = new invdSolvenu(jointn);
-    maninvd->setdhparameter(0,M_PI,0.0d,0.1519d,M_PI/2.0d);
-    maninvd->setdhparameter(1,0.0d,-0.24365d,0.0d,0.0d);
-    maninvd->setdhparameter(2,0.0d,-0.21325d,0.0d,0.0d);
-    maninvd->setdhparameter(3,0.0d,0.0d,0.11235d,M_PI/2.0d);
-    maninvd->setdhparameter(4,0.0d,0.0d,0.08535d,-M_PI/2.0d);
-    maninvd->setdhparameter(5,0.0d,0.0d,0.0819d +0.055d,0.0d);//
-    std::cout << "hoge" << std::endl;
-    VectorXd angle =VectorXd::Zero(jointn);//関節角度
-    VectorXd ctauv = VectorXd::Zero(jointn);//関節の電流値
-    double torqconstant = 3.70d;//トルク定数
-    Vector3d forcev,momentv;//手先力,手先モーメント
-    PRINT_MAT(angle);
+VectorXd forward_dynamics(invdSolvenu *maninvd,VectorXd &angle,Vector3d &forcev,Vector3d &momentv){
+    VectorXd tau;
+    angle(0) = -0.25d*M_PI;
+    angle(1) = -0.25d*M_PI;
+    angle(2) = -0.25d*M_PI;
+    angle(3) = -0.25d*M_PI;
+    angle(4) = -0.25d*M_PI;
+    angle(5) = -0.25d*M_PI;
+    angle(6) = -0.25d*M_PI;
     maninvd->calcaA(angle);
+    forcev(0) = 1.0d;
+    forcev(1) = 1.0d;
+    forcev(2) = 1.0d;
+    momentv(0) = 0.0d;
+    momentv(1) = 0.0d;
+    momentv(2) = 0.0d;
+    tau = maninvd->gettau(forcev,momentv);
+    PRINT_MAT(tau);
+    return tau;
+}
+
+void inverse_dynamics(invdSolvenu *maninvd,VectorXd &angle,VectorXd &ctauv,Vector3d &forcev,Vector3d &momentv){
+    double torqconstant = 3.70d;
+    angle(0) = -0.25d*M_PI;
+    angle(1) = -0.25d*M_PI;
+    angle(2) = -0.25d*M_PI;
+    angle(3) = -0.25d*M_PI;
+    angle(4) = -0.25d*M_PI;
+    angle(5) = -0.25d*M_PI;
+    angle(6) = -0.25d*M_PI;
+    maninvd->calcaA(angle);
+    ctauv(0) = 1.0d;
+    ctauv(1) = 1.0d;
+    ctauv(2) = 1.0d;
+    ctauv(3) = 1.0d;
+    ctauv(4) = 1.0d;
+    ctauv(5) = 1.0d;
+    ctauv(6) = 1.0d;
     maninvd->calcforce(torqconstant*ctauv,forcev,momentv);
     PRINT_MAT(forcev);
     PRINT_MAT(momentv);
+}
+
+int main(){
+    int ii,jointn = 7;
+    invdSolvenu *maninvd;
+    maninvd = new invdSolvenu(jointn);
+    /*RT CRANE*/
+    maninvd->setdhparameter(0,0.0d*M_PI,0.0d,0.064d,-0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvd->setdhparameter(1,0.0d*M_PI,0.0d,0.0d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvd->setdhparameter(2,0.0d*M_PI,0.0d,0.065d+0.185d,-0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvd->setdhparameter(3,0.0d*M_PI,0.0d,0.0d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvd->setdhparameter(4,0.0d*M_PI,0.0d,0.121d+0.129d,-0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvd->setdhparameter(5,0.0d*M_PI,0.0d,0.0d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvd->setdhparameter(6,0.0d*M_PI,0.0d,0.019d+0.084d,0.0d);//(int num,double thoff,double aa,double di,double alph);
+    /**/
+    VectorXd angle = VectorXd::Zero(jointn);//joint angle
+    VectorXd ctauv = VectorXd::Zero(jointn);//current
+    Matrix4d mattheta = MatrixXd::Identity(4,4);//回転変位行列
+    Vector3d forcev,momentv;//手先力,手先モーメント
+    /*test*/
+    forward_dynamics(maninvd,angle,forcev,momentv);//calc FD test
+    inverse_dynamics(maninvd,angle,ctauv,forcev,momentv);//calc ID test
+
+    delete maninvd;
     return 0;
 }
 #endif
