@@ -107,7 +107,12 @@ void invkSolvenu::calcaA(VectorXd x){
 
 void invkSolvenu::calcaA(VectorXd x,Matrix4d &reta){
     calcaA(x);
-    reta = (*aA);
+    Matrix4d allA = aA[0];
+    for(int ii=1;ii<jointnum;ii++){
+        allA = allA*aA[ii];
+        //PRINT_MAT(allA);
+    }
+    reta = allA;
 }
 
 void invkSolvenu::setdhparameter(int num,double thoff,double aa,double di,double alph){
@@ -169,7 +174,6 @@ Vector4d invkSolvenu::matrixtoquatanion(Matrix4d mat){
 VectorXd invkSolvenu::getangle(VectorXd x){
     VectorXd ang = solve(x);
     VectorXd error = functionerror(ang);
-     //PRINT_MAT(error);
     while(0){
         x = VectorXd::Random(jointnum,1);
         ang = solve(x);
@@ -198,22 +202,8 @@ invkSolvenu::~invkSolvenu(){
     delete pre_time;
 }
 
-#if defined(IK_IS_MAIN)
-int main(){
-    int ii,jointn = 7;
-    invkSolvenu *maninvk;
-    maninvk = new invkSolvenu(jointn);
-    maninvk->setdhparameter(0,0.0d,0.0d,0.05d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
-    maninvk->setdhparameter(1,0.0d,0.05d,0.0d,-0.5d*M_PI);
-    maninvk->setdhparameter(2,0.0d,0.0d,0.2d,0.5d*M_PI);
-    maninvk->setdhparameter(3,0.0d,0.135d,0.0d,-0.5d*M_PI);
-    maninvk->setdhparameter(4,0.0d,0.0d,0.115d,0.5d*M_PI);
-    maninvk->setdhparameter(5,0.0d,0.019d,0.0d,-0.5d*M_PI);//
-    maninvk->setdhparameter(6,0.0d,0.0d,0.084d,0.0d);//
-    VectorXd angle = VectorXd::Zero(jointn);
-    Vector4d qua;//クオータニオン
-    Vector3d pos;//3軸位置
-    Matrix4d mattheta;//回転変位行列
+
+void forward_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta){
     angle(0) = -0.25d*M_PI;
     angle(1) = -0.25d*M_PI;
     angle(2) = -0.25d*M_PI;
@@ -221,14 +211,55 @@ int main(){
     angle(4) = -0.25d*M_PI;
     angle(5) = -0.25d*M_PI;
     angle(6) = -0.25d*M_PI;
-    VectorXd targetx(7);//目標位置姿勢
     maninvk->calcaA(angle,mattheta);
+    std::cout << "xyz is \t" << mattheta(0,3) << " , " << mattheta(1,3) << " , "<< mattheta(2,3) << std::endl;
+}
+
+void inverse_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta){
+    VectorXd targetx(7);//目標位置姿勢
+    Vector4d qua;//クオータニオン
+    Vector3d pos;//3軸位置
+    pos(0) = -0.138209d;//x
+    pos(1) = 0.454402d;//y
+    pos(2) = 0.269846d;//z
+    double zangle = 0.0d;//set rotation
+    mattheta(0,0) = cos(zangle);//z axis only
+    mattheta(0,1) = -sin(zangle);//z axis only
+    mattheta(1,0) = cos(zangle);//z axis only
+    mattheta(1,1) = sin(zangle);//z axis only
     qua = maninvk->matrixtoquatanion(mattheta);//回転行列からクオータニオンへ変換
-    PRINT_MAT(mattheta);
-    // targetx.block(0,0,3,1) = pos;
-    //targetx.block(3,0,3,1) = qua.block(0,0,3,1);
-    //maninvk->settargetfx(targetx);
-    //angle = maninvk->getangle(angle);
+    targetx.block(0,0,3,1) = pos;
+    targetx.block(3,0,3,1) = qua.block(0,0,3,1);
+    maninvk->settargetfx(targetx);
+    angle = maninvk->getangle(angle);
+    std::cout << "angles are \t";
+    for(int ii=0;ii<maninvk->getjointnum()-1;ii++){
+        std::cout << angle(ii) << " , ";
+    }
+    std::cout << angle(maninvk->getjointnum()-1) <<  std::endl;
+}
+
+#if defined(IK_IS_MAIN)
+int main(){
+    int ii,jointn = 7;
+    invkSolvenu *maninvk;
+    maninvk = new invkSolvenu(jointn);
+    /*RT CRANE*/
+    maninvk->setdhparameter(0,0.0d*M_PI,0.0d,0.064d,-0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(1,0.0d*M_PI,0.0d,0.0d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(2,0.0d*M_PI,0.0d,0.065d+0.185d,-0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(3,0.0d*M_PI,0.0d,0.0d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(4,0.0d*M_PI,0.0d,0.121d+0.129d,-0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(5,0.0d*M_PI,0.0d,0.0d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(6,0.0d*M_PI,0.0d,0.019d+0.084d,0.0d);//(int num,double thoff,double aa,double di,double alph);
+    /**/
+    VectorXd angle = VectorXd::Zero(jointn);
+    Matrix4d mattheta = MatrixXd::Identity(4,4);//回転変位行列
+    /*test*/
+    forward_kinematics(maninvk,angle,mattheta);//calc FK test
+    inverse_kinematics(maninvk,angle,mattheta);//calc IK test
+    /**/
+    delete maninvk;
     return 0;
 }
 #endif
