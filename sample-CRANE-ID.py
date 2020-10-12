@@ -1,5 +1,5 @@
-import IDpy
+import IDpy as iD
 
-cr = IDpy.ArioID()
-ll = cr.getforce([3.1, 4.1,5.2,6.5])
+cr = iD.ArioID()
+ll = cr.getforce([0.1,0.2,0.3,0.4,0.5,0.6,0.7],[1.1,1.2,1.3,1.4,1.5,1.6,1.7])
 print ll

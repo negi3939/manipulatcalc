@@ -41,9 +41,11 @@ public:
     typedef std::vector<double> double_vector;
 public:
     ArioID();
-    double_vector const& getforce(double_vector const &a) const {
-        return a;
+    double_vector const& getforce(double_vector const &angle,double_vector const &tau) const {
+        return angle;
     }
+    VectorXd stdvectoeig(const double_vector &stv);
+    double_vector eigtostdvec(VectorXd eig);
 private:
     int_vector v_;
     double_vector vd_;
@@ -61,6 +63,22 @@ ArioID::ArioID(){
     maninvd->setdhparameter(4,0.0d*M_PI,0.0d,0.121d+0.129d,-0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
     maninvd->setdhparameter(5,0.0d*M_PI,0.0d,0.0d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
     maninvd->setdhparameter(6,0.0d*M_PI,0.0d,0.019d+0.084d,0.0d);//(int num,double thoff,double aa,double di,double alph)
+}
+
+VectorXd ArioID::stdvectoeig(const double_vector &stv){
+    VectorXd ans(stv.size());
+    for(int ii=0;ii<stv.size();ii++){
+        ans(ii) = stv[ii];
+    }
+    return ans;
+}
+
+ArioID::double_vector ArioID::eigtostdvec(VectorXd eig){
+    double_vector ans(eig.size());
+    for(int ii=0;ii<eig.size();ii++){
+        ans[ii] = eig(ii);
+    }
+    return ans;
 }
 
 BOOST_PYTHON_MODULE( IDpy ){
