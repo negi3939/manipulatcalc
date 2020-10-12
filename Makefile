@@ -11,7 +11,7 @@
 ifdef target
 	TARGET=$(target)
 else
-	TARGET=ikpy
+	TARGET=idpy
 	#ik
 	#ur3
 endif
@@ -57,9 +57,9 @@ endif
 PROGRAM = $(SOURCE_MAIN:%.cpp=%.out)
 SUBOBJ = $(SOURCE_SUB:%.cpp=%.o)
 
-ifeq ($(TARGET),ikpy)
+ifeq ($(TARGET),idpy)
 CXXFLAGS += -I/usr/include/python2.7
-ikpu.py:
+idpy.py:
 	g++ -c -fPIC mymath.cpp -o mymath.o  $(CXXFLAGS) -w
 	g++ -c -fPIC solvenu.cpp -o solvenu.o  $(CXXFLAGS) -w 
 	g++ -c -fPIC inversekinematics.cpp -o inversekinematics.o  $(CXXFLAGS) -w

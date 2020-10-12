@@ -12,6 +12,17 @@ copyメソッドを所有しており,このクラスを継承すればDHパラ�
 mymath.cpp と　solvenu.cppと inversekinematics.cppとinversdynamics.cppを一緒に用いることで使える．DHパラメータはinvdSolvenu::setdhparameter()で指定することもinvdSolvenu::copy()でinverse kinematics用のインスタンスを与えてしてすることもできる．
 目標手先速度角速度をinvdSolvenu::settargetfx()で設定する．invkSolvenu::getangvel()で設定した手先速度角速度となる関節角角度を得る．
 
+# IDpy
+python用のWrapper.$make target=idpy 実行後に import IDpyするとpythonで順運動力学と逆運動力学が使える．
+今はCRANE用のDHパラメータが入っている.
+>>import IDpy as iD
+>>cr = iD.ArioID()
+>>jointangle = [0.1,0.2,0.3,0.4,0.5,0.6,0.7]       #angle rad
+>>jointtau = [1.1,1.2,1.3,1.4,1.5,1.6,1.7]         #angle tau N*m
+>>forcemoment = cr.getforce(jointangle,jointtau)   #get force of end effector 
+>>tau = cr.gettau(jointangle,forcemoment)          #get joint tau
+
+
 # Makefile
 targetを指定するにはmake時にtargetに格納させて使う．また，基本的に実行入る作成後，そのまま実行させる使用にしているが，実行させたくない際はargv=0をつける．
 実行ファイルに引数を付けたい場合はargv=hogeをつけると./hogehoge.out hogeのようにコマンド引数を渡せる．
