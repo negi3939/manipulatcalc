@@ -42,13 +42,17 @@ public:
 public:
     ArioID();
     double_vector const& getforce(double_vector const &angle,double_vector const &tau) const {
+        VectorXd jointangle = stdvectoeig(angle);
+        VectorXd jointtau = stdvectoeig(tau);
+        Vector3d forcev,momentv;
+        maninvd->calcaA(jointangle);
+        maninvd->calcforce(jointtau,forcev,momentv);
         return angle;
     }
     VectorXd stdvectoeig(const double_vector &stv);
-    double_vector eigtostdvec(VectorXd eig);
+    double_vector eigtostdvec(VectorXd &eig);
 private:
     int_vector v_;
-    double_vector vd_;
     invdSolvenu *maninvd;
 };
 
@@ -73,7 +77,7 @@ VectorXd ArioID::stdvectoeig(const double_vector &stv){
     return ans;
 }
 
-ArioID::double_vector ArioID::eigtostdvec(VectorXd eig){
+ArioID::double_vector ArioID::eigtostdvec(VectorXd &eig){
     double_vector ans(eig.size());
     for(int ii=0;ii<eig.size();ii++){
         ans[ii] = eig(ii);
