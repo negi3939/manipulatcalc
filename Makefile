@@ -63,8 +63,9 @@ ikpu.py:
 	g++ -c -fPIC mymath.cpp -o mymath.o  $(CXXFLAGS) -w
 	g++ -c -fPIC solvenu.cpp -o solvenu.o  $(CXXFLAGS) -w 
 	g++ -c -fPIC inversekinematics.cpp -o inversekinematics.o  $(CXXFLAGS) -w
+	g++ -c -fPIC inversedynamics.cpp -o inversedynamics.o  $(CXXFLAGS) -w
 	g++ -c -fPIC IDpy.cpp -o IDpy.o  $(CXXFLAGS) -w
-	g++ -shared -Wl,-soname,IDpy.so -o IDpy.so mymath.o solvenu.o inversekinematics.o IDpy.o -lpython2.7 -lboost_python
+	g++ -shared -Wl,-soname,IDpy.so -o IDpy.so mymath.o solvenu.o inversekinematics.o inversedynamics.o IDpy.o -lpython2.7 -lboost_python
 endif
 
 #FOR PYTHON WRAPPER
