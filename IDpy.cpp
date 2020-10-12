@@ -53,11 +53,23 @@ public:
         forcemom = eigtostdvec(fm); 
         return forcemom;
     }
+    double_vector const& gettau(double_vector const &angle,double_vector const &fm) const {
+        VectorXd jointangle = stdvectoeig(angle);
+        VectorXd formom = stdvectoeig(fm);
+        Vector3d forcev,momentv;
+        forcev = formom.block(0,0,3,1);
+        momentv = formom.block(3,0,3,1);
+        maninvd->calcaA(jointangle);
+        VectorXd tau = maninvd->gettau(forcev,momentv);
+        jointtau = eigtostdvec(tau);
+        return jointtau;
+    }
     VectorXd stdvectoeig(const double_vector &stv);
     double_vector eigtostdvec(VectorXd &eig);
-private:
+protected:
     int_vector v_;
     double_vector forcemom;
+    double_vector jointtau;
     invdSolvenu *maninvd;
 };
 
@@ -73,6 +85,7 @@ ArioID::ArioID(){
     maninvd->setdhparameter(5,0.0d*M_PI,0.0d,0.0d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
     maninvd->setdhparameter(6,0.0d*M_PI,0.0d,0.019d+0.084d,0.0d);//(int num,double thoff,double aa,double di,double alph)
     forcemom.resize(6);
+    jointtau.resize(jointn);
 }
 
 VectorXd ArioID::stdvectoeig(const double_vector &stv){
@@ -89,7 +102,6 @@ ArioID::double_vector ArioID::eigtostdvec(VectorXd &eig){
     for(int ii=0;ii<eig.size();ii++){
         ans[ii] = eig(ii);
     }
-    std::cout << "ans is " << ans[3] << std::endl;
     return ans;
 }
 
@@ -97,7 +109,8 @@ BOOST_PYTHON_MODULE( IDpy ){
     using namespace boost::python;
 
     class_<ArioID>("ArioID")
-        .def("getforce", &ArioID::getforce, return_value_policy<copy_const_reference>());
+        .def("getforce", &ArioID::getforce, return_value_policy<copy_const_reference>())
+        .def("gettau", &ArioID::gettau, return_value_policy<copy_const_reference>());
     to_python_converter<ArioID::int_vector, vector_to_pylist_converter<ArioID::int_vector> >();
     converter::registry::push_back(
         &pylist_to_vector_converter<ArioID::int_vector>::convertible,
