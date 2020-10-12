@@ -45,9 +45,14 @@ public:
         VectorXd jointangle = stdvectoeig(angle);
         VectorXd jointtau = stdvectoeig(tau);
         Vector3d forcev,momentv;
+        VectorXd fm = VectorXd::Zero(6);
         maninvd->calcaA(jointangle);
         maninvd->calcforce(jointtau,forcev,momentv);
-        return angle;
+        fm.block(0,0,3,1) = forcev;
+        fm.block(3,0,3,1) = momentv;
+        double_vector ans = angle;
+        ans.at(0) = 2.0d;
+        return ans;
     }
     VectorXd stdvectoeig(const double_vector &stv);
     double_vector eigtostdvec(VectorXd &eig);
@@ -78,10 +83,12 @@ VectorXd ArioID::stdvectoeig(const double_vector &stv){
 }
 
 ArioID::double_vector ArioID::eigtostdvec(VectorXd &eig){
-    double_vector ans(eig.size());
+    double_vector ans;
+    ans.resize(eig.size());
     for(int ii=0;ii<eig.size();ii++){
         ans[ii] = eig(ii);
     }
+    std::cout << "ans is " << ans[3] << std::endl;
     return ans;
 }
 
