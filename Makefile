@@ -11,7 +11,7 @@
 ifdef target
 	TARGET=$(target)
 else
-	TARGET=id
+	TARGET=ikpy
 	#ik
 	#ur3
 endif
@@ -57,6 +57,22 @@ endif
 PROGRAM = $(SOURCE_MAIN:%.cpp=%.out)
 SUBOBJ = $(SOURCE_SUB:%.cpp=%.o)
 
+ifeq ($(TARGET),ikpy)
+CXXFLAGS += -I/usr/include/python2.7
+ikpu.py:
+	g++ -c -fPIC mymath.cpp -o mymath.o  $(CXXFLAGS) -w
+	g++ -c -fPIC solvenu.cpp -o solvenu.o  $(CXXFLAGS) -w 
+	g++ -c -fPIC inversekinematics.cpp -o inversekinematics.o  $(CXXFLAGS) -w
+	g++ -c -fPIC IDpy.cpp -o IDpy.o  $(CXXFLAGS) -w
+	g++ -shared -Wl,-soname,IDpy.so -o IDpy.so mymath.o solvenu.o inversekinematics.o IDpy.o -lpython2.7 -lboost_python
+endif
+
+#FOR PYTHON WRAPPER
+IFILE = $(SOURCE_MAIN:%.cpp=%.i)
+WRAPFILE = $(SOURCE_MAIN:%.cpp=%_wrap.cxx)
+WRAPOBJ = $(SOURCE_MAIN:%.cpp=%_wrap.o)
+SOFILE = $(SOURCE_MAIN:%.cpp=_%.so)
+PYFILE = $(SOURCE_MAIN:%.cpp=%.py)
 
 all: $(PROGRAM)
 
@@ -66,4 +82,4 @@ all: $(PROGRAM)
 %.o : %.cpp
 	g++ -o $@ $< -c $(CXXFLAGS) -w
 clean:
-	rm -f *.o $(PROGRAM)
+	rm -f *.o *.so $(PROGRAM)
