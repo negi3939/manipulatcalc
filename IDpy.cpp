@@ -112,7 +112,7 @@ void Negi39FIKFID::setjointnum(const double &jj){
 void Negi39FIKFID::setdhparameter(const int &ii,const double_vector &dh){
     maninvk->setdhparameter(ii,dh[0],dh[1],dh[2],dh[3]);
     maninvd->setdhparameter(ii,dh[0],dh[1],dh[2],dh[3]);
-    std::cout << "set Dh : " << ii << "th thetaoffset: " << maninvd->getthetaoff(ii) << " [rad]  a: " << maninvd->getaal(ii) << " [m] d: " << maninvd->getdis(ii) << " [m] alpha:"<< maninvd->getalp(ii) << " [rad]"<<std::endl;
+    std::cout << "set Dh : " << ii << "th joint -> thetaoffset: " << maninvd->getthetaoff(ii) << " [rad]  a: " << maninvd->getaal(ii) << " [m] d: " << maninvd->getdis(ii) << " [m] alpha:"<< maninvd->getalp(ii) << " [rad]"<<std::endl;
 }
 
 VectorXd Negi39FIKFID::stdvectoeig(const double_vector &stv){
