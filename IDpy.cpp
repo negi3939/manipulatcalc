@@ -35,13 +35,13 @@
 #include "inversedynamics.h"
 #include "IDpy.h"
 
-class ArioID{
+class Negi39FIKFID{
 public:
     typedef std::vector<int> int_vector;
     typedef std::vector<double> double_vector;
 public:
-    ArioID();
-    ~ArioID();
+    Negi39FIKFID();
+    ~Negi39FIKFID();
     double_vector const& getforce(double_vector const &angle,double_vector const &tau) const {
         VectorXd jointangle = stdvectoeig(angle);
         VectorXd jointtau = stdvectoeig(tau);
@@ -65,6 +65,8 @@ public:
         jointtau = eigtostdvec(tau);
         return jointtau;
     }
+    void setjointnum(const double &jj);
+    void setdhparameter(const int &ii,const double_vector &dh);
     VectorXd stdvectoeig(const double_vector &stv);
     double_vector eigtostdvec(VectorXd &eig);
 protected:
@@ -75,7 +77,7 @@ protected:
     invdSolvenu *maninvd;
 };
 
-ArioID::ArioID(){
+Negi39FIKFID::Negi39FIKFID(){
     int ii,jointn = 7;
     maninvk = new invkSolvenu(jointn);
     maninvd = new invdSolvenu(jointn);
@@ -92,12 +94,28 @@ ArioID::ArioID(){
     jointtau.resize(jointn);
 }
 
-ArioID::~ArioID(){
+Negi39FIKFID::~Negi39FIKFID(){
     delete maninvk;
     delete maninvd;
 }
 
-VectorXd ArioID::stdvectoeig(const double_vector &stv){
+void Negi39FIKFID::setjointnum(const double &jj){
+    int ii,jointn = jj;
+    delete maninvk;
+    delete maninvd;
+    maninvk = new invkSolvenu(jointn);
+    maninvd = new invdSolvenu(jointn);
+    std::cout << "set JOINT_NUM :" << maninvd->getjointnum() << std::endl;
+    jointtau.resize(jointn);
+}
+
+void Negi39FIKFID::setdhparameter(const int &ii,const double_vector &dh){
+    maninvk->setdhparameter(ii,dh[0],dh[1],dh[2],dh[3]);
+    maninvd->setdhparameter(ii,dh[0],dh[1],dh[2],dh[3]);
+    std::cout << "set Dh : " << ii << "th thetaoffset: " << maninvd->getthetaoff(ii) << " [rad]  a: " << maninvd->getaal(ii) << " [m] d: " << maninvd->getdis(ii) << " [m] alpha:"<< maninvd->getalp(ii) << " [rad]"<<std::endl;
+}
+
+VectorXd Negi39FIKFID::stdvectoeig(const double_vector &stv){
     VectorXd ans(stv.size());
     for(int ii=0;ii<stv.size();ii++){
         ans(ii) = stv[ii];
@@ -105,7 +123,7 @@ VectorXd ArioID::stdvectoeig(const double_vector &stv){
     return ans;
 }
 
-ArioID::double_vector ArioID::eigtostdvec(VectorXd &eig){
+Negi39FIKFID::double_vector Negi39FIKFID::eigtostdvec(VectorXd &eig){
     double_vector ans;
     ans.resize(eig.size());
     for(int ii=0;ii<eig.size();ii++){
@@ -117,17 +135,19 @@ ArioID::double_vector ArioID::eigtostdvec(VectorXd &eig){
 BOOST_PYTHON_MODULE( IDpy ){
     using namespace boost::python;
 
-    class_<ArioID>("ArioID")
-        .def("getforce", &ArioID::getforce, return_value_policy<copy_const_reference>())
-        .def("gettau", &ArioID::gettau, return_value_policy<copy_const_reference>());
-    to_python_converter<ArioID::int_vector, vector_to_pylist_converter<ArioID::int_vector> >();
+    class_<Negi39FIKFID>("Negi39FIKFID")
+        .def("setjointnum", &Negi39FIKFID::setjointnum)
+        .def("setdhparameter", &Negi39FIKFID::setdhparameter)
+        .def("getforce", &Negi39FIKFID::getforce, return_value_policy<copy_const_reference>())
+        .def("gettau", &Negi39FIKFID::gettau, return_value_policy<copy_const_reference>());
+    to_python_converter<Negi39FIKFID::int_vector, vector_to_pylist_converter<Negi39FIKFID::int_vector> >();
     converter::registry::push_back(
-        &pylist_to_vector_converter<ArioID::int_vector>::convertible,
-        &pylist_to_vector_converter<ArioID::int_vector>::construct,
-        boost::python::type_id<ArioID::int_vector>());
-    to_python_converter<ArioID::double_vector, vector_to_pylist_converter<ArioID::double_vector> >();
+        &pylist_to_vector_converter<Negi39FIKFID::int_vector>::convertible,
+        &pylist_to_vector_converter<Negi39FIKFID::int_vector>::construct,
+        boost::python::type_id<Negi39FIKFID::int_vector>());
+    to_python_converter<Negi39FIKFID::double_vector, vector_to_pylist_converter<Negi39FIKFID::double_vector> >();
     converter::registry::push_back(
-        &pylist_to_vector_converter<ArioID::double_vector>::convertible,
-        &pylist_to_vector_converter<ArioID::double_vector>::construct,
-        boost::python::type_id<ArioID::double_vector>());
+        &pylist_to_vector_converter<Negi39FIKFID::double_vector>::convertible,
+        &pylist_to_vector_converter<Negi39FIKFID::double_vector>::construct,
+        boost::python::type_id<Negi39FIKFID::double_vector>());
 }

@@ -21,16 +21,13 @@ template<typename T_>
 class pylist_to_vector_converter {
 public:
     typedef T_ native_type;
-
     static void* convertible(PyObject* pyo) {
         if (!PySequence_Check(pyo))
             return 0;
-
         return pyo;
     }
 
-    static void construct(PyObject* pyo, boost::python::converter::rvalue_from_python_stage1_data* data)
-    {
+    static void construct(PyObject* pyo, boost::python::converter::rvalue_from_python_stage1_data* data){
         namespace py = boost::python;
         native_type* storage = new(reinterpret_cast<py::converter::rvalue_from_python_storage<native_type>*>(data)->storage.bytes) native_type();
         for (py::ssize_t i = 0, l = PySequence_Size(pyo); i < l; ++i) {
