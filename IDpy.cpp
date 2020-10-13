@@ -41,6 +41,7 @@ public:
     typedef std::vector<double> double_vector;
 public:
     ArioID();
+    ~ArioID();
     double_vector const& getforce(double_vector const &angle,double_vector const &tau) const {
         VectorXd jointangle = stdvectoeig(angle);
         VectorXd jointtau = stdvectoeig(tau);
@@ -70,22 +71,30 @@ protected:
     int_vector v_;
     double_vector forcemom;
     double_vector jointtau;
+    invkSolvenu *maninvk;
     invdSolvenu *maninvd;
 };
 
 ArioID::ArioID(){
     int ii,jointn = 7;
+    maninvk = new invkSolvenu(jointn);
     maninvd = new invdSolvenu(jointn);
     /*set RTCRANE DH*/
-    maninvd->setdhparameter(0,0.0d*M_PI,0.0d,0.064d,-0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
-    maninvd->setdhparameter(1,0.0d*M_PI,0.0d,0.0d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
-    maninvd->setdhparameter(2,0.0d*M_PI,0.0d,0.065d+0.185d,-0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
-    maninvd->setdhparameter(3,0.0d*M_PI,0.0d,0.0d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
-    maninvd->setdhparameter(4,0.0d*M_PI,0.0d,0.121d+0.129d,-0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
-    maninvd->setdhparameter(5,0.0d*M_PI,0.0d,0.0d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
-    maninvd->setdhparameter(6,0.0d*M_PI,0.0d,0.019d+0.084d,0.0d);//(int num,double thoff,double aa,double di,double alph)
+    maninvk->setdhparameter(0,0.0d*M_PI,0.0d,0.064d,-0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(1,0.0d*M_PI,0.0d,0.0d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(2,0.0d*M_PI,0.0d,0.065d+0.185d,-0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(3,0.0d*M_PI,0.0d,0.0d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(4,0.0d*M_PI,0.0d,0.121d+0.129d,-0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(5,0.0d*M_PI,0.0d,0.0d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(6,0.0d*M_PI,0.0d,0.019d+0.084d,0.0d);//(int num,double thoff,double aa,double di,double alph)
+    maninvd->copy(maninvk);
     forcemom.resize(6);
     jointtau.resize(jointn);
+}
+
+ArioID::~ArioID(){
+    delete maninvk;
+    delete maninvd;
 }
 
 VectorXd ArioID::stdvectoeig(const double_vector &stv){

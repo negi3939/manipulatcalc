@@ -42,6 +42,16 @@ void invkSolvenu::copy(const invkSolvenu &invk){
 
 }
 
+void invkSolvenu::copy(invkSolvenu *invk){
+    int ii;
+    setjointnum(invk->getjointnum());
+    settime(invk->gettimead());
+    for(ii=0;ii<jointnum;ii++){
+        setdhparameter(ii,invk->getthetaoff(ii),invk->getaal(ii),invk->getdis(ii),invk->getalp(ii));
+    }
+
+}
+
 void invkSolvenu::setjointnum(int n){jointnum=n;}
 void invkSolvenu::settime(const double &t){time = &t;}
 void invkSolvenu::settime(double *t){time = t;}
