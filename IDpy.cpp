@@ -42,8 +42,20 @@ public:
 public:
     Negi39FIKFID();
     ~Negi39FIKFID();
+    double_vector const& getangle(double_vector const &posquo) const {
+        VectorXd posquovector = stdvectoeig(posquo);
+        Vector4d quatatnion;
+        quatatnion = posquovector.block(3,0,4,1);
+        if(quatatnion.norm()<0.8d||quatatnion.norm()>1.2d){
+            std::cout << "quatanion is wrong. set appropriate value." << std::endl;
+            exit(0);
+        }
+        maninvk->settargetfx(posquovector);
+
+        return posquo;
+    }
     double_vector const& getforce(double_vector const &angle,double_vector const &tau) const {
-        VectorXd jointangle = stdvectoeig(angle);
+        stdvectoeig(angle,jointangle);
         VectorXd jointtau = stdvectoeig(tau);
         Vector3d forcev,momentv;
         maninvd->calcaA(jointangle);
@@ -55,7 +67,7 @@ public:
         return forcemom;
     }
     double_vector const& gettau(double_vector const &angle,double_vector const &fm) const {
-        VectorXd jointangle = stdvectoeig(angle);
+        stdvectoeig(angle,jointangle);
         VectorXd formom = stdvectoeig(fm);
         Vector3d forcev,momentv;
         forcev = formom.block(0,0,3,1);
@@ -67,12 +79,14 @@ public:
     }
     void setjointnum(const double &jj);
     void setdhparameter(const int &ii,const double_vector &dh);
+    void stdvectoeig(const double_vector &stv,VectorXd eig);
     VectorXd stdvectoeig(const double_vector &stv);
     double_vector eigtostdvec(VectorXd &eig);
 protected:
     int_vector v_;
     double_vector forcemom;
     double_vector jointtau;
+    VectorXd jointangle;
     invkSolvenu *maninvk;
     invdSolvenu *maninvd;
 };
@@ -92,6 +106,7 @@ Negi39FIKFID::Negi39FIKFID(){
     maninvd->copy(maninvk);
     forcemom.resize(6);
     jointtau.resize(jointn);
+    jointangle = VectorXd::Zero(jointn);
 }
 
 Negi39FIKFID::~Negi39FIKFID(){
@@ -113,6 +128,16 @@ void Negi39FIKFID::setdhparameter(const int &ii,const double_vector &dh){
     maninvk->setdhparameter(ii,dh[0],dh[1],dh[2],dh[3]);
     maninvd->setdhparameter(ii,dh[0],dh[1],dh[2],dh[3]);
     std::cout << "set Dh : " << ii << "th joint -> thetaoffset: " << maninvd->getthetaoff(ii) << " [rad]  a: " << maninvd->getaal(ii) << " [m] d: " << maninvd->getdis(ii) << " [m] alpha:"<< maninvd->getalp(ii) << " [rad]"<<std::endl;
+}
+
+void Negi39FIKFID::stdvectoeig(const double_vector &stv,VectorXd eig){
+    if(eig.size()!=stv.size()){
+        std::cout << "size is not match" << std::endl;
+        exit(0);
+    }
+    for(int ii=0;ii<stv.size();ii++){
+        eig(ii) = stv[ii];
+    }
 }
 
 VectorXd Negi39FIKFID::stdvectoeig(const double_vector &stv){
