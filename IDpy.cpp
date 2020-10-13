@@ -95,6 +95,7 @@ void Negi39FIKFID::getforce_content(const double_vector &angle,const double_vect
     fm.block(3,0,3,1) = momentv;
     forcemom = eigtostdvec(fm); 
 }
+
 void Negi39FIKFID::gettau_content(const double_vector &angle,const double_vector &fm){
     stdvectoeig(angle,jointangle);
     VectorXd formom = stdvectoeig(fm);
