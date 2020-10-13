@@ -35,65 +35,6 @@
 #include "inversedynamics.h"
 #include "IDpy.h"
 
-class Negi39FIKFID{
-public:
-    typedef std::vector<int> int_vector;
-    typedef std::vector<double> double_vector;
-public:
-    Negi39FIKFID();
-    ~Negi39FIKFID();
-    double_vector const& getangle(double_vector const &posquo) const {
-        VectorXd posquovector = stdvectoeig(posquo);
-        Vector4d quatatnion;
-        quatatnion = posquovector.block(3,0,4,1);
-        if(quatatnion.norm()<0.8d||quatatnion.norm()>1.2d){
-            std::cout << "quatanion is wrong. set appropriate value." << std::endl;
-            exit(0);
-        }
-        maninvk->settargetfx(posquovector);
-        calcik();
-        joint_angle = eigtostdvec(jointangle);
-        return joint_angle;
-    }
-    double_vector const& getforce(double_vector const &angle,double_vector const &tau) const {
-        stdvectoeig(angle,jointangle);
-        VectorXd jointtau = stdvectoeig(tau);
-        Vector3d forcev,momentv;
-        maninvd->calcaA(jointangle);
-        maninvd->calcforce(jointtau,forcev,momentv);
-        VectorXd fm = VectorXd::Zero(6);
-        fm.block(0,0,3,1) = forcev;
-        fm.block(3,0,3,1) = momentv;
-        forcemom = eigtostdvec(fm); 
-        return forcemom;
-    }
-    double_vector const& gettau(double_vector const &angle,double_vector const &fm) const {
-        stdvectoeig(angle,jointangle);
-        VectorXd formom = stdvectoeig(fm);
-        Vector3d forcev,momentv;
-        forcev = formom.block(0,0,3,1);
-        momentv = formom.block(3,0,3,1);
-        maninvd->calcaA(jointangle);
-        VectorXd tau = maninvd->gettau(forcev,momentv);
-        jointtau = eigtostdvec(tau);
-        return jointtau;
-    }
-    void setjointnum(const double &jj);
-    void setdhparameter(const int &ii,const double_vector &dh);
-    void calcik();
-    void stdvectoeig(const double_vector &stv,VectorXd eig);
-    VectorXd stdvectoeig(const double_vector &stv);
-    double_vector eigtostdvec(VectorXd eig);
-protected:
-    int_vector v_;
-    double_vector joint_angle;
-    double_vector forcemom;
-    double_vector jointtau;
-    VectorXd jointangle;
-    invkSolvenu *maninvk;
-    invdSolvenu *maninvd;
-};
-
 Negi39FIKFID::Negi39FIKFID(){
     int ii,jointn = 7;
     maninvk = new invkSolvenu(jointn);
@@ -117,6 +58,54 @@ Negi39FIKFID::~Negi39FIKFID(){
     delete maninvd;
 }
 
+void Negi39FIKFID::getangle_content(const double_vector &posquo){
+    VectorXd posquovector = stdvectoeig(posquo);
+    Vector4d quatanion;
+    quatanion = posquovector.block(3,0,4,1);
+    if(quatanion.norm()<0.8d||quatanion.norm()>1.2d){
+        std::cout << "quatanion is wrong. set appropriate value." << std::endl;
+        exit(0);
+    }
+    maninvk->settargetfx(posquovector);
+    calcik();
+    joint_angle = eigtostdvec(jointangle);
+}
+void Negi39FIKFID::getpos_content(const double_vector &angle){
+    stdvectoeig(angle,jointangle);
+    Vector4d quatanion;
+    Vector3d position;
+    Matrix4d mattheta;
+    VectorXd poq = VectorXd::Zero(7);
+    poq(3) = 1.0d;
+    maninvk->calcaA(jointangle,mattheta);
+    quatanion = maninvk->matrixtoquatanion(mattheta);
+    position = mattheta.block(0,3,3,1);
+    poq.block(0,0,3,1) = position;
+    poq.block(3,0,4,1) = quatanion;
+    pos_qua = eigtostdvec(poq);
+}
+void Negi39FIKFID::getforce_content(const double_vector &angle,const double_vector &tau){
+    stdvectoeig(angle,jointangle);
+    VectorXd jointtau = stdvectoeig(tau);
+    Vector3d forcev,momentv;
+    maninvd->calcaA(jointangle);
+    maninvd->calcforce(jointtau,forcev,momentv);
+    VectorXd fm = VectorXd::Zero(6);
+    fm.block(0,0,3,1) = forcev;
+    fm.block(3,0,3,1) = momentv;
+    forcemom = eigtostdvec(fm); 
+}
+void Negi39FIKFID::gettau_content(const double_vector &angle,const double_vector &fm){
+    stdvectoeig(angle,jointangle);
+    VectorXd formom = stdvectoeig(fm);
+    Vector3d forcev,momentv;
+    forcev = formom.block(0,0,3,1);
+    momentv = formom.block(3,0,3,1);
+    maninvd->calcaA(jointangle);
+    VectorXd tau = maninvd->gettau(forcev,momentv);
+    jointtau = eigtostdvec(tau);
+}
+
 void Negi39FIKFID::setjointnum(const double &jj){
     int ii,jointn = jj;
     delete maninvk;
@@ -137,7 +126,7 @@ void Negi39FIKFID::calcik(){
     jointangle = maninvk->getangle(jointangle);
 }
 
-void Negi39FIKFID::stdvectoeig(const double_vector &stv,VectorXd eig){
+void Negi39FIKFID::stdvectoeig(const double_vector &stv,VectorXd &eig){
     if(eig.size()!=stv.size()){
         std::cout << "size is not match" << std::endl;
         exit(0);
@@ -171,6 +160,7 @@ BOOST_PYTHON_MODULE( IDpy ){
         .def("setjointnum", &Negi39FIKFID::setjointnum)
         .def("setdhparameter", &Negi39FIKFID::setdhparameter)
         .def("getangle", &Negi39FIKFID::getangle, return_value_policy<copy_const_reference>())
+        .def("getpos", &Negi39FIKFID::getpos, return_value_policy<copy_const_reference>())
         .def("getforce", &Negi39FIKFID::getforce, return_value_policy<copy_const_reference>())
         .def("gettau", &Negi39FIKFID::gettau, return_value_policy<copy_const_reference>());
     to_python_converter<Negi39FIKFID::int_vector, vector_to_pylist_converter<Negi39FIKFID::int_vector> >();

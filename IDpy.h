@@ -39,4 +39,49 @@ public:
     }
 };
 
+class Negi39FIKFID{
+public:
+    typedef std::vector<int> int_vector;
+    typedef std::vector<double> double_vector;
+public:
+    Negi39FIKFID();
+    ~Negi39FIKFID();
+    double_vector const& getangle(double_vector const &posquo) const {//IK
+        getangle_content(posquo);
+        return joint_angle; 
+    }
+    double_vector const& getpos(double_vector const &angle) const {
+        getpos_content(angle);
+        return pos_qua;
+    }
+    double_vector const& getforce(double_vector const &angle,double_vector const &tau) const {//ID
+        getforce_content(angle,tau);
+        return forcemom;
+    }
+    double_vector const& gettau(double_vector const &angle,double_vector const &fm) const {//FD
+        gettau_content(angle,fm);
+        return jointtau;
+    }
+    void getangle_content(const double_vector &posquo);
+    void getpos_content(const double_vector &angle);
+    void getforce_content(const double_vector &angle,const double_vector &tau);
+    void gettau_content(const double_vector &angle,const double_vector &fm);
+    void setjointnum(const double &jj);
+    void setdhparameter(const int &ii,const double_vector &dh);
+    void calcik();
+    void stdvectoeig(const double_vector &stv,VectorXd &eig);
+    VectorXd stdvectoeig(const double_vector &stv);
+    double_vector eigtostdvec(VectorXd eig);
+    void compositvector(VectorXd a,VectorXd b,VectorXd &ab);
+protected:
+    int_vector v_;
+    double_vector joint_angle;
+    double_vector pos_qua;
+    double_vector forcemom;
+    double_vector jointtau;
+    VectorXd jointangle;
+    invkSolvenu *maninvk;
+    invdSolvenu *maninvd;
+};
+
 #endif
