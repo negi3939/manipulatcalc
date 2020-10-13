@@ -51,8 +51,9 @@ public:
             exit(0);
         }
         maninvk->settargetfx(posquovector);
-
-        return posquo;
+        calcik();
+        joint_angle = eigtostdvec(jointangle);
+        return joint_angle;
     }
     double_vector const& getforce(double_vector const &angle,double_vector const &tau) const {
         stdvectoeig(angle,jointangle);
@@ -79,11 +80,13 @@ public:
     }
     void setjointnum(const double &jj);
     void setdhparameter(const int &ii,const double_vector &dh);
+    void calcik();
     void stdvectoeig(const double_vector &stv,VectorXd eig);
     VectorXd stdvectoeig(const double_vector &stv);
-    double_vector eigtostdvec(VectorXd &eig);
+    double_vector eigtostdvec(VectorXd eig);
 protected:
     int_vector v_;
+    double_vector joint_angle;
     double_vector forcemom;
     double_vector jointtau;
     VectorXd jointangle;
@@ -130,6 +133,10 @@ void Negi39FIKFID::setdhparameter(const int &ii,const double_vector &dh){
     std::cout << "set Dh : " << ii << "th joint -> thetaoffset: " << maninvd->getthetaoff(ii) << " [rad]  a: " << maninvd->getaal(ii) << " [m] d: " << maninvd->getdis(ii) << " [m] alpha:"<< maninvd->getalp(ii) << " [rad]"<<std::endl;
 }
 
+void Negi39FIKFID::calcik(){
+    jointangle = maninvk->getangle(jointangle);
+}
+
 void Negi39FIKFID::stdvectoeig(const double_vector &stv,VectorXd eig){
     if(eig.size()!=stv.size()){
         std::cout << "size is not match" << std::endl;
@@ -148,7 +155,7 @@ VectorXd Negi39FIKFID::stdvectoeig(const double_vector &stv){
     return ans;
 }
 
-Negi39FIKFID::double_vector Negi39FIKFID::eigtostdvec(VectorXd &eig){
+Negi39FIKFID::double_vector Negi39FIKFID::eigtostdvec(VectorXd eig){
     double_vector ans;
     ans.resize(eig.size());
     for(int ii=0;ii<eig.size();ii++){
@@ -163,6 +170,7 @@ BOOST_PYTHON_MODULE( IDpy ){
     class_<Negi39FIKFID>("Negi39FIKFID")
         .def("setjointnum", &Negi39FIKFID::setjointnum)
         .def("setdhparameter", &Negi39FIKFID::setdhparameter)
+        .def("getangle", &Negi39FIKFID::getangle, return_value_policy<copy_const_reference>())
         .def("getforce", &Negi39FIKFID::getforce, return_value_policy<copy_const_reference>())
         .def("gettau", &Negi39FIKFID::gettau, return_value_policy<copy_const_reference>());
     to_python_converter<Negi39FIKFID::int_vector, vector_to_pylist_converter<Negi39FIKFID::int_vector> >();
