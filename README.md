@@ -1,7 +1,7 @@
 # Negi式IKIDソルバ
-任意の軸のマニピュレータの運動学・運動力学ソルバ
-DHパラメータを入力して使う
-そのうちMMDのモーションとかにつかいたいなぁ
+任意の軸のマニピュレータの運動学・運動力学ソルバ  
+DHパラメータを入力して使う  
+そのうちMMDのモーションとかにつかいたいなぁ  
 
 # 数値的方程式解法 
 mymath.cpp と　solvenu.cppを一緒に用いることで使える．ニュートン法を用いて一般方程式の解を得る．Funcveクラスを継承してfunctionをオーバーライドして使用する．
@@ -17,14 +17,14 @@ mymath.cpp と　solvenu.cppと inversekinematics.cppとinversdynamics.cppを一
 # IDpy
 python用のWrapper.$make target=idpy 実行後に import IDpyするとpythonで順運動力学と逆運動力学が使える．
 今はCRANE用のDHパラメータが入っている.
- $ >> import IDpy as iD
- $ >> cr = iD.Negi39FIKFID()
- $ >> cr.setjointnum(7) #set jointnum
- $ >> cr.setdhparameter((int) joint,(double_vector)[thetaoffset,a,d,alpha])# set DH parameter
- $ >> jointangle = [0.1,0.2,0.3,0.4,0.5,0.6,0.7]       #angle rad
- $ >> jointtau = [1.1,1.2,1.3,1.4,1.5,1.6,1.7]         #angle tau N*m
- $ >> forcemoment = cr.getforce(jointangle,jointtau)   #get force of end effector 
- $ >> tau = cr.gettau(jointangle,forcemoment)          #get joint tau
+ $ >> import IDpy as iD  
+ $ >> cr = iD.Negi39FIKFID()  
+ $ >> cr.setjointnum(7) #set jointnum  
+ $ >> cr.setdhparameter((int) joint,(double_vector)[thetaoffset,a,d,alpha])# set DH parameter  
+ $ >> jointangle = [0.1,0.2,0.3,0.4,0.5,0.6,0.7]       #angle rad  
+ $ >> jointtau = [1.1,1.2,1.3,1.4,1.5,1.6,1.7]         #angle tau N*m  
+ $ >> forcemoment = cr.getforce(jointangle,jointtau)   #get force of end effector   
+ $ >> tau = cr.gettau(jointangle,forcemoment)          #get joint tau  
 
 
 # Makefile
