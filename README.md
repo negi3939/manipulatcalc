@@ -1,20 +1,20 @@
-## Negi式IKIDソルバ
+# Negi式IKIDソルバ
 任意の軸のマニピュレータの運動学・運動力学ソルバ  
 DHパラメータを入力して使う  
 そのうちMMDのモーションとかにつかいたいなぁ  
 
-# 数値的方程式解法 
+### 数値的方程式解法 
 mymath.cpp と　solvenu.cppを一緒に用いることで使える．ニュートン法を用いて一般方程式の解を得る．Funcveクラスを継承してfunctionをオーバーライドして使用する．
 
-# Inverse kinetmatics
+### Inverse kinetmatics
 mymath.cpp と　solvenu.cppと inversekinematics.cppを一緒に用いることで使える．DHパラメータをinvkSolvenu::setdhparameter()で指定し，目標手先位置姿勢(クオータニオン)をinvkSolvenu::settargetfx()で設定する．回転行列からクオータニオンを得るには invkSolvenu::matrixtoquatanion()を用いる．invkSolvenu::getangle()で設定した手先位置姿勢となる関節角度(-π<θ<π)を得る．
 copyメソッドを所有しており,このクラスを継承すればDHパラメータ等をまるごとコピーできる．
 
-# Inverse Dynamics
+### Inverse Dynamics
 mymath.cpp と　solvenu.cppと inversekinematics.cppとinversdynamics.cppを一緒に用いることで使える．DHパラメータはinvdSolvenu::setdhparameter()で指定することもinvdSolvenu::copy()でinverse kinematics用のインスタンスを与えてしてすることもできる．
 目標手先速度角速度をinvdSolvenu::settargetfx()で設定する．invkSolvenu::getangvel()で設定した手先速度角速度となる関節角角度を得る．
 
-# IDpy
+## IDpy
 python用のWrapper.$make target=idpy 実行後に import IDpyするとpythonで順逆運動学と順逆運動力学が使える．
 今はCRANE用のDHパラメータが入っている.  
  $ >> import IDpy as iD  
@@ -27,7 +27,7 @@ python用のWrapper.$make target=idpy 実行後に import IDpyするとpythonで
  $ >> tau = cr.gettau(jointangle,forcemoment)          #get joint tau  
 
 
-# Makefile
+## Makefile
 targetを指定するにはmake時にtargetに格納させて使う．また，基本的に実行入る作成後，そのまま実行させる使用にしているが，実行させたくない際はargv=0をつける．
 実行ファイルに引数を付けたい場合はargv=hogeをつけると./hogehoge.out hogeのようにコマンド引数を渡せる．
 projectを追加する際にはifeq()を用いてSOURCE_MAINとSOURCE_SUBにそれぞれファイルを指定する．
