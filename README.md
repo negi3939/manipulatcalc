@@ -16,7 +16,7 @@ mymath.cpp と　solvenu.cppと inversekinematics.cppとinversdynamics.cppを一
 
 # IDpy
 python用のWrapper.$make target=idpy 実行後に import IDpyするとpythonで順運動力学と逆運動力学が使える．
-今はCRANE用のDHパラメータが入っている.
+今はCRANE用のDHパラメータが入っている.  
  $ >> import IDpy as iD  
  $ >> cr = iD.Negi39FIKFID()  
  $ >> cr.setjointnum(7) #set jointnum  
