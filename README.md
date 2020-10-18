@@ -15,7 +15,7 @@ mymath.cpp と　solvenu.cppと inversekinematics.cppとinversdynamics.cppを一
 目標手先速度角速度をinvdSolvenu::settargetfx()で設定する．invkSolvenu::getangvel()で設定した手先速度角速度となる関節角角度を得る．
 
 # IDpy
-python用のWrapper.$make target=idpy 実行後に import IDpyするとpythonで順逆運動学と逆逆運動力学が使える．
+python用のWrapper.$make target=idpy 実行後に import IDpyするとpythonで順逆運動学と順逆運動力学が使える．
 今はCRANE用のDHパラメータが入っている.  
  $ >> import IDpy as iD  
  $ >> cr = iD.Negi39FIKFID()  
