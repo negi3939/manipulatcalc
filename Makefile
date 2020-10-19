@@ -1,9 +1,7 @@
 ################################################################################################################################################
-###        In this Makefile made by taka, you can use as                                                               	                     ###
-###        $ make                     # You can get the executable file which written in TARGET. And the executable file will run.           ###
-###        $ make target=hoge         # You can get the executable file which written in hoge. And the executable file will run.             ###
-###        $ make argv=hoge           # You can get the executable file which written in TARGET. And the executable file will run with argv. ###
-###        $ make notrun=1            # You can get the executable file which written in TARGET. The executable file will not run.		     ###
+###        In this Makefile made by Negi3939, you can use as                                                               	                     ###
+###        $ make                     # You can get the executable file which written in TARGET.                                             ###
+###        $ make target=hoge         # You can get the executable file which written in hoge.                                               ###
 ###        $ make clean               # The executable file which written in TARGET will removed.                                            ###
 ###        $ make clean target=hoge   # The executable file which written in hoge will removed.                                              ###
 ################################################################################################################################################
