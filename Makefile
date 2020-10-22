@@ -1,19 +1,16 @@
 ################################################################################################################################################
 ###        In this Makefile made by Negi3939, you can use as                                                               	                     ###
 ###        $ make                     # You can get the executable file which written in TARGET.                                             ###
-###        $ make target=hoge         # You can get the executable file which written in hoge.                                               ###
 ###        $ make clean               # The executable file which written in TARGET will removed.                                            ###
-###        $ make clean target=hoge   # The executable file which written in hoge will removed.                                              ###
 ################################################################################################################################################
 
-ifdef target
-	TARGET=$(target)
-else
-	TARGET=idpy
-	#ik
-	#ur3
+TARGET=$(MAKECMDGOALS)
+ifeq ($(MAKECMDGOALS),)
+	TARGET=ik
 endif
-
+ifeq ($(MAKECMDGOALS),clean)
+	TARGET=ik
+endif
 
 DIRX = /usr/X11R6/lib
 
@@ -37,34 +34,21 @@ ifeq ($(TARGET),id)
 	CXXFLAGS += -DID_IS_MAIN
 endif
 
+ifeq ($(TARGET),idpy)
+	SOURCE_MAIN = IDpy.cpp
+	SOURCE_SUB = mymath.cpp solvenu.cpp inversekinematics.cpp inversedynamics.cpp
+	CXXFLAGS += -I/usr/include/python2.7 -fPIC
+endif
+
 ifeq ($(TARGET),hoge)
 	SOURCE_MAIN = hoge.cpp
 	SOURCE_SUB = mymath.cpp 
 	#animat.cpp
 endif
 
-ifdef argv
-	COMMAND = \rm *.o;echo run;./$(SOURCE_MAIN:%.cpp=%.out) argv
-else
-	COMMAND = \rm *.o;echo run;./$(SOURCE_MAIN:%.cpp=%.out)
-endif
-ifdef notrun
-		COMMAND = \rm *.o;echo You got $(SOURCE_MAIN:%.cpp=%.out).
-endif
-
 PROGRAM = $(SOURCE_MAIN:%.cpp=%.out)
+MAINOBJ = $(SOURCE_MAIN:%.cpp=%.o)
 SUBOBJ = $(SOURCE_SUB:%.cpp=%.o)
-
-ifeq ($(TARGET),idpy)
-CXXFLAGS += -I/usr/include/python2.7
-idpy.py:
-	g++ -c -fPIC mymath.cpp -o mymath.o  $(CXXFLAGS) -w
-	g++ -c -fPIC solvenu.cpp -o solvenu.o  $(CXXFLAGS) -w 
-	g++ -c -fPIC inversekinematics.cpp -o inversekinematics.o  $(CXXFLAGS) -w
-	g++ -c -fPIC inversedynamics.cpp -o inversedynamics.o  $(CXXFLAGS) -w
-	g++ -c -fPIC IDpy.cpp -o IDpy.o  $(CXXFLAGS) -w
-	g++ -shared -Wl,-soname,IDpy.so -o IDpy.so mymath.o solvenu.o inversekinematics.o inversedynamics.o IDpy.o -lpython2.7 -lboost_python
-endif
 
 #FOR PYTHON WRAPPER
 IFILE = $(SOURCE_MAIN:%.cpp=%.i)
@@ -73,7 +57,13 @@ WRAPOBJ = $(SOURCE_MAIN:%.cpp=%_wrap.o)
 SOFILE = $(SOURCE_MAIN:%.cpp=_%.so)
 PYFILE = $(SOURCE_MAIN:%.cpp=%.py)
 
+ik: $(PROGRAM)
+id: $(PROGRAM)
+ur3: $(PROGRAM)
 all: $(PROGRAM)
+
+idpy: $(MAINOBJ) $(SUBOBJ)
+	g++ -shared -Wl,-soname,IDpy.so -o IDpy.so mymath.o solvenu.o inversekinematics.o inversedynamics.o IDpy.o -lpython2.7 -lboost_python
 
 %.out: %.o $(SUBOBJ)
 	g++ -o $@ $^ $(LDFLAGS) -w
@@ -82,3 +72,5 @@ all: $(PROGRAM)
 	g++ -o $@ $< -c $(CXXFLAGS) -w
 clean:
 	rm -f *.o *.so $(PROGRAM)
+cleanall:
+	rm -f *.o *.so *.out
