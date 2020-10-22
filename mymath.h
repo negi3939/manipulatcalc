@@ -14,6 +14,8 @@ namespace Mymath{
 	};
 	
 	double sign(double A);
+	double step(double A);
+	double sigmoid(double x,double alp);
 	/*
 	void eig(MatrixXd aA,MatrixXd bB,MatrixXd &eigenV,MatrixXd &eigenD);
 	void eig(MatrixXd aA,MatrixXd &eigenV,MatrixXd &eigenD);

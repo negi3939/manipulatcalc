@@ -28,6 +28,16 @@ namespace Mymath{
     	else if(A<0) return -1;
     	else return 0;
 	}
+
+	double step(double A){
+		if(A>0) return 1;
+		else return 0;
+	}
+
+	double sigmoid(double x,double alp){
+		return 0.5d*(std::tanh(0.5d*alp*x)+1.0d);
+	}
+
 	#if defined(CALC_EIGEN)
 	void eig(MatrixXd aA,MatrixXd bB,MatrixXd &eigenV,MatrixXd &eigenD){
 		if((aA.rows()!=aA.cols())||(bB.rows()!=bB.cols())||(aA.rows()!=bB.rows())){std::cout << "Matrix size is not same."<<std::endl;}

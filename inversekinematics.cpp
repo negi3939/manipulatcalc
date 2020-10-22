@@ -247,6 +247,14 @@ void inverse_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta)
         std::cout << angle(ii) << " , ";
     }
     std::cout << angle(maninvk->getjointnum()-1) <<  std::endl;
+    maninvk->checklimit(angle);
+    std::cout << "angles are \t";
+    for(int ii=0;ii<maninvk->getjointnum()-1;ii++){
+        std::cout << angle(ii) << " , ";
+    }
+    std::cout << angle(maninvk->getjointnum()-1) <<  std::endl;
+    
+    //std::cout << sigmoid(-0.49*M_PI-0.5*M_PI,1000) << std::endl;
 }
 
 int main(){
@@ -261,6 +269,12 @@ int main(){
     maninvk->setdhparameter(4,0.0d*M_PI,0.0d,0.121d+0.129d,-0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
     maninvk->setdhparameter(5,0.0d*M_PI,0.0d,0.0d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
     maninvk->setdhparameter(6,0.0d*M_PI,0.0d,0.019d+0.084d,0.0d);//(int num,double thoff,double aa,double di,double alph);
+    //limit add
+    VectorXd uplimit(7);
+    VectorXd lowlimit(7);
+    uplimit <<    2.72271 ,  0.5*M_PI  ,   2.72271  ,        0 ,   2.72271 ,    0.5*M_PI ,   2.89725;
+    lowlimit <<  -2.72271 , -0.5*M_PI  ,  -2.72271  , -2.79253 ,  -2.72271 ,   -0.5*M_PI ,  -2.89725;
+    maninvk->setlimit(uplimit,lowlimit);
     /**/
     VectorXd angle = VectorXd::Zero(jointn);
     Matrix4d mattheta = MatrixXd::Identity(4,4);//回転変位行列

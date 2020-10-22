@@ -2,7 +2,7 @@
 ###        In this Makefile made by Negi3939, you can use as                                                          	                     ###
 ###        $ make ik                   # You can get the executable file which can solve IK.                                                 ###
 ###        $ make id                   # You can get the executable file which can solve ID.                                                 ###
-###        $ make idpy                 # You can get the python library which is c++ wrapper                                                 ###
+###        $ make idpy                 # You can get the python library.                                                                     ###
 ###        $ make clean               # The executable file which written in TARGET will removed.                                            ###
 ################################################################################################################################################
 
@@ -15,9 +15,8 @@ ifeq ($(MAKECMDGOALS),clean)
 endif
 
 DIRX = /usr/X11R6/lib
-
 CXXFLAGS = -I ~/eigenlib/eigen-3.3.7/ -fpermissive
-LDFLAGS	 = -L "$(DIRX)" -lglut -lGLU -lGL -lXmu  -lXext -lX11 -lm  -pthread -std=c++11
+LDFLAGS	 = -L "$(DIRX)" -lm  -pthread -std=c++11
 
 ifeq ($(TARGET),ur3)
 	SOURCE_MAIN = ur3main.cpp
@@ -40,7 +39,7 @@ ifeq ($(TARGET),idpy)
 	SOURCE_MAIN = IDpy.cpp
 	SOURCE_SUB = mymath.cpp solvenu.cpp inversekinematics.cpp inversedynamics.cpp
 	CXXFLAGS += -I/usr/include/python2.7 -fPIC
-	LDFLAGS = -lpython2.7 -lboost_python 
+	LDFLAGS += -lpython2.7 -lboost_python 
 endif
 
 ifeq ($(TARGET),hoge)
@@ -52,13 +51,7 @@ endif
 PROGRAM = $(SOURCE_MAIN:%.cpp=%.out)
 MAINOBJ = $(SOURCE_MAIN:%.cpp=%.o)
 SUBOBJ = $(SOURCE_SUB:%.cpp=%.o)
-
-#FOR PYTHON WRAPPER
-IFILE = $(SOURCE_MAIN:%.cpp=%.i)
-WRAPFILE = $(SOURCE_MAIN:%.cpp=%_wrap.cxx)
-WRAPOBJ = $(SOURCE_MAIN:%.cpp=%_wrap.o)
 SOFILE = $(SOURCE_MAIN:%.cpp=_%.so)
-PYFILE = $(SOURCE_MAIN:%.cpp=%.py)
 
 ik: $(PROGRAM)
 id: $(PROGRAM)
@@ -68,7 +61,6 @@ idpy: $(MAINOBJ) $(SUBOBJ)
 
 %.out: %.o $(SUBOBJ)
 	g++ -o $@ $^ $(LDFLAGS) -w
-	#$(COMMAND)
 %.o : %.cpp
 	g++ -o $@ $< -c $(CXXFLAGS) -w
 clean:

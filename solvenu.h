@@ -4,14 +4,25 @@
 #define PRINT_MAT(X) std::cout << #X << ":\n" << X << std::endl << std::endl
 using namespace Mymath;
 
+enum LIMITFlag{
+    LIMITOFF=0,
+    LIMITON=1,
+};
+
 class Solvenu : public Funcvec{
     protected:
         long countlimit;
         VectorXd targetfx;
         VectorXd x;
+        VectorXd upperlimit;
+        VectorXd lowerlimit;
+        LIMITFlag limitfl;
     public:
         Solvenu();
         void setcountlimit(long a);
+        void setlimit(VectorXd uplimit,VectorXd lowlimit);
+        int checklimit(VectorXd &x);
+        VectorXd sigmoidlimit(VectorXd &x,double alpha);
         void settargetfx(VectorXd tfx);
         VectorXd gettargetfx();
         VectorXd function(VectorXd x) override;
