@@ -40,6 +40,7 @@ ifeq ($(TARGET),idpy)
 	SOURCE_MAIN = IDpy.cpp
 	SOURCE_SUB = mymath.cpp solvenu.cpp inversekinematics.cpp inversedynamics.cpp
 	CXXFLAGS += -I/usr/include/python2.7 -fPIC
+	LDFLAGS = -lpython2.7 -lboost_python 
 endif
 
 ifeq ($(TARGET),hoge)
@@ -65,8 +66,7 @@ ur3: $(PROGRAM)
 all: $(PROGRAM)
 
 idpy: $(MAINOBJ) $(SUBOBJ)
-	g++ -shared -Wl,-soname,IDpy.so -o IDpy.so mymath.o solvenu.o inversekinematics.o inversedynamics.o IDpy.o -lpython2.7 -lboost_python
-
+	g++ -shared -Wl,-soname,IDpy.so -o IDpy.so $^ $(LDFLAGS) -w 
 %.out: %.o $(SUBOBJ)
 	g++ -o $@ $^ $(LDFLAGS) -w
 	#$(COMMAND)
