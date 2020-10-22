@@ -1,6 +1,8 @@
 ################################################################################################################################################
-###        In this Makefile made by Negi3939, you can use as                                                               	                     ###
-###        $ make                     # You can get the executable file which written in TARGET.                                             ###
+###        In this Makefile made by Negi3939, you can use as                                                          	                     ###
+###        $ make ik                   # You can get the executable file which can solve IK.                                                 ###
+###        $ make id                   # You can get the executable file which can solve ID.                                                 ###
+###        $ make idpy                 # You can get the python library which is c++ wrapper                                                 ###
 ###        $ make clean               # The executable file which written in TARGET will removed.                                            ###
 ################################################################################################################################################
 
