@@ -63,10 +63,9 @@ PYFILE = $(SOURCE_MAIN:%.cpp=%.py)
 ik: $(PROGRAM)
 id: $(PROGRAM)
 ur3: $(PROGRAM)
-all: $(PROGRAM)
-
 idpy: $(MAINOBJ) $(SUBOBJ)
-	g++ -shared -Wl,-soname,IDpy.so -o IDpy.so $^ $(LDFLAGS) -w 
+	g++ -shared -Wl,-soname,$(SOFILE) -o $(SOFILE) $^ $(LDFLAGS) -w 
+
 %.out: %.o $(SUBOBJ)
 	g++ -o $@ $^ $(LDFLAGS) -w
 	#$(COMMAND)
