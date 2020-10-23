@@ -37,6 +37,13 @@ namespace Mymath{
 	double sigmoid(double x,double alp){
 		return 0.5d*(std::tanh(0.5d*alp*x)+1.0d);
 	}
+	VectorXd sigmoid(VectorXd x,double alp){
+		VectorXd ans = VectorXd::Zero(x.size());
+		for(int ii=0;ii<x.size();ii++){
+			ans(ii) = 0.5d*(std::tanh(0.5d*alp*x(ii))+1.0d);
+		}
+		return ans;
+	}
 
 	#if defined(CALC_EIGEN)
 	void eig(MatrixXd aA,MatrixXd bB,MatrixXd &eigenV,MatrixXd &eigenD){
