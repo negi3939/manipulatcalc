@@ -23,7 +23,7 @@ class Solvenu : public Funcvec{
         void setlimit(VectorXd uplimit,VectorXd lowlimit);
         int checklimit(VectorXd &x);
         VectorXd sigmoidlimit(VectorXd &x,double alpha);
-        double penaltyfunc(VectorXd &x);
+        VectorXd penaltyfunc(VectorXd &x);
         void settargetfx(VectorXd tfx);
         VectorXd gettargetfx();
         VectorXd function(VectorXd x) override;

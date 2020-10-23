@@ -58,11 +58,11 @@ VectorXd Solvenu::sigmoidlimit(VectorXd &x,double alpha){
     return ans;
 }
 
-double Solvenu::penaltyfunc(VectorXd &x){
-    double ans = 0;
+VectorXd Solvenu::penaltyfunc(VectorXd &x){
+    VectorXd ans =VectorXd::Zero(x.size()) ;
     for(int ii=0;ii<x.size();ii++){
-        ans += step(x(ii)-upperlimit(ii))*(x(ii)-upperlimit(ii))*(x(ii)-upperlimit(ii));
-        ans += step(-x(ii)+lowerlimit(ii))*(-x(ii)+lowerlimit(ii))*(x(ii)-upperlimit(ii));
+        ans(ii) += step(x(ii)-upperlimit(ii))*(x(ii)-upperlimit(ii))*(x(ii)-upperlimit(ii));
+        ans(ii) += step(-x(ii)+lowerlimit(ii))*(-x(ii)+lowerlimit(ii))*(x(ii)-upperlimit(ii));
     }
     return ans;
 }
@@ -89,7 +89,7 @@ VectorXd Solvenu::functionerror(VectorXd x){
     if(limitfl==0){ 
         return  funcorg(x) - targetfx;
     }else{
-        VectorXd oone = VectorXd::Ones(targetfx.size());
+        MatrixXd oone = MatrixXd::Ones(x.size(),targetfx.size());
         return  funcorg(x) - targetfx + oone*penaltyfunc(x);
     }
 }

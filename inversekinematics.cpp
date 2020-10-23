@@ -226,12 +226,17 @@ void forward_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta)
 }
 
 void inverse_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta){
+    VectorXd uplimit(7);
+    VectorXd lowlimit(7);
+    uplimit <<    2.72271 ,  0.5*M_PI  ,   2.72271  ,        0 ,   2.72271 ,    0.5*M_PI ,   2.89725;
+    lowlimit <<  -2.72271 , -0.5*M_PI  ,  -2.72271  , -2.79253 ,  -2.72271 ,   -0.5*M_PI ,  -2.89725;
     VectorXd targetx(7);//目標位置姿勢
     Vector4d qua;//クオータニオン
     Vector3d pos;//3軸位置
     pos(0) = -0.138209d;//x
     pos(1) = 0.454402d;//y
     pos(2) = 0.269846d;//z
+    std::cout << "xyz is \t" << pos(0) << " , " << pos(1) << " , "<< pos(2) << std::endl;
     double zangle = 0.0d;//set rotation
     mattheta(0,0) = cos(zangle);//z axis only
     mattheta(0,1) = -sin(zangle);//z axis only
@@ -241,6 +246,7 @@ void inverse_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta)
     targetx.block(0,0,3,1) = pos;
     targetx.block(3,0,3,1) = qua.block(0,0,3,1);
     maninvk->settargetfx(targetx);
+    angle = 0.5d*(uplimit+lowlimit);
     angle = maninvk->getangle(angle);
     std::cout << "angles are \t";
     for(int ii=0;ii<maninvk->getjointnum()-1;ii++){
@@ -279,8 +285,8 @@ int main(){
     VectorXd angle = VectorXd::Zero(jointn);
     Matrix4d mattheta = MatrixXd::Identity(4,4);//回転変位行列
     /*test*/
-    forward_kinematics(maninvk,angle,mattheta);//calc FK test
     inverse_kinematics(maninvk,angle,mattheta);//calc IK test
+    forward_kinematics(maninvk,angle,mattheta);//calc FK test
     /**/
     delete maninvk;
     return 0;
