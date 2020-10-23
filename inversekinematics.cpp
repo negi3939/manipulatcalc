@@ -214,6 +214,7 @@ invkSolvenu::~invkSolvenu(){
 
 #if defined(IK_IS_MAIN)
 void forward_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta){
+    Vector4d qua;//クオータニオン
     angle(0) = -0.25d*M_PI;
     angle(1) = -0.25d*M_PI;
     angle(2) = -0.25d*M_PI;
@@ -222,7 +223,9 @@ void forward_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta)
     angle(5) = -0.25d*M_PI;
     angle(6) = -0.25d*M_PI;
     maninvk->calcaA(angle,mattheta);
+    qua = maninvk->matrixtoquatanion(mattheta);
     std::cout << "xyz is \t" << mattheta(0,3) << " , " << mattheta(1,3) << " , "<< mattheta(2,3) << std::endl;
+    PRINT_MAT(qua);
 }
 
 void inverse_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta){
@@ -238,29 +241,37 @@ void inverse_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta)
     pos(2) = 0.269846d;//z
     std::cout << "xyz is \t" << pos(0) << " , " << pos(1) << " , "<< pos(2) << std::endl;
     double zangle = 0.0d;//set rotation
-    mattheta(0,0) = cos(zangle);//z axis only
-    mattheta(0,1) = -sin(zangle);//z axis only
-    mattheta(1,0) = cos(zangle);//z axis only
-    mattheta(1,1) = sin(zangle);//z axis only
+    mattheta(0,0) = -0.786612;//cos(zangle);//z axis only
+    mattheta(0,1) = -0.390165;//-sin(zangle);//z axis only
+    mattheta(0,2) = 0.478553;
+    mattheta(1,0) = 0.390165;//cos(zangle);//z axis only
+    mattheta(1,1) = 0.286612;//sin(zangle);//z axis only
+    mattheta(1,2) =  0.875;
+    mattheta(2,0) = -0.478553;
+    mattheta(2,1) = -0.478553;
+    mattheta(2,2) = -0.0732233;
     qua = maninvk->matrixtoquatanion(mattheta);//回転行列からクオータニオンへ変換
+    PRINT_MAT(qua);
     targetx.block(0,0,3,1) = pos;
-    targetx.block(3,0,3,1) = qua.block(0,0,3,1);
+    targetx.block(3,0,4,1) = qua.block(0,0,4,1);
     maninvk->settargetfx(targetx);
-    angle = 0.5d*(uplimit+lowlimit);
+    angle(0) = -0.25d*M_PI;
+    angle(1) = -0.25d*M_PI;
+    angle(2) = -0.25d*M_PI;
+    angle(3) = -0.25d*M_PI;
+    angle(4) = -0.25d*M_PI;
+    angle(5) = -0.25d*M_PI;
+    angle(6) = -0.25d*M_PI;
     angle = maninvk->getangle(angle);
     std::cout << "angles are \t";
     for(int ii=0;ii<maninvk->getjointnum()-1;ii++){
         std::cout << angle(ii) << " , ";
     }
     std::cout << angle(maninvk->getjointnum()-1) <<  std::endl;
-    maninvk->checklimit(angle);
-    std::cout << "angles are \t";
-    for(int ii=0;ii<maninvk->getjointnum()-1;ii++){
-        std::cout << angle(ii) << " , ";
-    }
-    std::cout << angle(maninvk->getjointnum()-1) <<  std::endl;
-    
-    //std::cout << sigmoid(-0.49*M_PI-0.5*M_PI,1000) << std::endl;
+    Matrix4d ansmat;
+    maninvk->calcaA(angle,ansmat);
+    std::cout << "answer x: " << ansmat(0,3) << " , y: " << ansmat(1,3) << " , z: "<< ansmat(2,3) << std::endl;
+    std::cout << "error values x: " << pos(0)-ansmat(0,3) << " , y: " << pos(1)-ansmat(1,3) << " , z: "<< pos(2)-ansmat(2,3) << std::endl;
 }
 
 int main(){

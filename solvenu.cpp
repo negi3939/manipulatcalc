@@ -89,8 +89,10 @@ VectorXd Solvenu::functionerror(VectorXd x){
     if(limitfl==0){ 
         return  funcorg(x) - targetfx;
     }else{
-        MatrixXd oone = MatrixXd::Ones(x.size(),targetfx.size());
-        return  funcorg(x) - targetfx + oone*penaltyfunc(x);
+        MatrixXd oone = 100.0d*MatrixXd::Ones(x.size(),targetfx.size());
+        PRINT_MAT(funcorg(x) - targetfx);
+        exit(0);
+        return  funcorg(x) - targetfx;// + oone*penaltyfunc(x);
     }
 }
 
@@ -103,19 +105,17 @@ VectorXd Solvenu::solve(VectorXd intx){
     VectorXd chk;
     if(limitfl){//limitON
         while(1){
-            //checklimit(x);
             dx = x;
             MatrixXd baka =  diffvec(x,this);
             JacobiSVD<MatrixXd> svd(diffvec(x,this), ComputeThinU|ComputeThinV);
             x = x - svd.solve(functionerror(x));// - 0.01d*sigmoid(x-upperlimit,1000) + 0.01d* sigmoid(lowerlimit-x,1000);//limit ここを書き換える必要がある
             chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);// + sigmoidlimit(x,1000);
-            if(count>countlimit){std::cout <<"heyCAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than 10000 CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;PRINT_MAT(functionerror(x));break;}
-            if (chk(0) < 0.0000000001d) break;
+            if(count>countlimit){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than 10000 CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;/*PRINT_MAT(functionerror(x));*/break;}
+            if (chk(0) < 0.0000000001d) {break;}
             count++;
         }
     }else{//limitOFF
         while(1){
-            //checklimit(x);
             dx = x;
             MatrixXd baka =  diffvec(x,this);
             JacobiSVD<MatrixXd> svd(diffvec(x,this), ComputeThinU|ComputeThinV);
@@ -127,5 +127,6 @@ VectorXd Solvenu::solve(VectorXd intx){
         }
 
     }
+    //checklimit(x);
     return x;
 }
