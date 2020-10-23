@@ -92,16 +92,13 @@ VectorXd invkSolvenu::funcorg(VectorXd x){
     Vector3d pos;
     Vector4d qua;
     VectorXd ans(7);
-    calcaA(x);
-    Matrix4d allA = aA[0];
-    for(ii=1;ii<jointnum;ii++){
-        allA = allA*aA[ii];
-    }
+    Matrix4d allA;
+    calcaA(x,allA);
     qua = matrixtoquatanion(allA);
     pos = allA.block(0,3,3,1);
     ans.block(0,0,3,1) = pos;
-    ans.block(3,0,3,1) = qua.block(0,0,3,1);
-    ans(6) = sign(qua(3))*0.0d;
+    ans.block(3,0,4,1) = qua.block(0,0,4,1);
+    //ans(6) = sign(qua(3))*0.0d;
     return ans;
 }
 
@@ -120,8 +117,8 @@ void invkSolvenu::calcaA(VectorXd x,Matrix4d &reta){
     Matrix4d allA = aA[0];
     for(int ii=1;ii<jointnum;ii++){
         allA = allA*aA[ii];
-        //PRINT_MAT(allA);
     }
+    PRINT_MAT(allA);
     reta = allA;
 }
 

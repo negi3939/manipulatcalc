@@ -90,7 +90,7 @@ VectorXd Solvenu::functionerror(VectorXd x){
         return  funcorg(x) - targetfx;
     }else{
         MatrixXd oone = 100.0d*MatrixXd::Ones(x.size(),targetfx.size());
-        PRINT_MAT(funcorg(x) - targetfx);
+        PRINT_MAT(funcorg(x));
         exit(0);
         return  funcorg(x) - targetfx;// + oone*penaltyfunc(x);
     }
