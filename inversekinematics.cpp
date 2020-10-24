@@ -195,7 +195,6 @@ void forward_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta)
     maninvk->calcaA(angle,mattheta);
     qua = maninvk->matrixtoquatanion(mattheta);
     std::cout << "xyz is \t" << mattheta(0,3) << " , " << mattheta(1,3) << " , "<< mattheta(2,3) << std::endl;
-    PRINT_MAT(qua);
 }
 
 void inverse_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta){
@@ -206,9 +205,6 @@ void inverse_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta)
     VectorXd targetx(7);//目標位置姿勢
     Vector4d qua;//クオータニオン
     Vector3d pos;//3軸位置
-    pos(0) = -0.138209d;//x
-    pos(1) = 0.454402d;//y
-    pos(2) = 0.269846d;//z
     std::cout << "xyz is \t" << pos(0) << " , " << pos(1) << " , "<< pos(2) << std::endl;
     double zangle = 0.0d;//set rotation
     angle(0) = -0.25d*M_PI;
@@ -219,8 +215,9 @@ void inverse_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta)
     angle(5) = -0.25d*M_PI;
     angle(6) = -0.25d*M_PI;
     maninvk->calcaA(angle,mattheta);
+    pos = mattheta.block(0,3,3,1);
+    pos(0) -= 0.00001;
     qua = maninvk->matrixtoquatanion(mattheta);//回転行列からクオータニオンへ変換
-    PRINT_MAT(maninvk->quataniontomatrix(qua));
     targetx.block(0,0,3,1) = pos;
     targetx.block(3,0,4,1) = qua.block(0,0,4,1);
     maninvk->settargetfx(targetx);
@@ -231,9 +228,9 @@ void inverse_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta)
     }
     std::cout << angle(maninvk->getjointnum()-1) <<  std::endl;
     Matrix4d ansmat;
+    //PRINT_MAT(maninvk->penaltyfunc(angle));
     maninvk->calcaA(angle,ansmat);
     std::cout << "answer x: " << ansmat(0,3) << " , y: " << ansmat(1,3) << " , z: "<< ansmat(2,3) << std::endl;
-    std::cout << "error values x: " << pos(0)-ansmat(0,3) << " , y: " << pos(1)-ansmat(1,3) << " , z: "<< pos(2)-ansmat(2,3) << std::endl;
 }
 
 int main(){
@@ -253,7 +250,7 @@ int main(){
     VectorXd lowlimit(7);
     uplimit <<    2.72271 ,  0.5*M_PI  ,   2.72271  ,        0 ,   2.72271 ,    0.5*M_PI ,   2.89725;
     lowlimit <<  -2.72271 , -0.5*M_PI  ,  -2.72271  , -2.79253 ,  -2.72271 ,   -0.5*M_PI ,  -2.89725;
-    //maninvk->setlimit(uplimit,lowlimit);
+    maninvk->setlimit(uplimit,lowlimit);
     /**/
     VectorXd angle = VectorXd::Zero(jointn);
     Matrix4d mattheta = MatrixXd::Identity(4,4);//回転変位行列
