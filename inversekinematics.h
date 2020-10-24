@@ -41,6 +41,7 @@ class invkSolvenu : public Solvenu {
     void calcaA(VectorXd x,Matrix4d &reta);
     void setdhparameter(int num,double thoff,double aa,double di,double alph);
     Vector4d matrixtoquatanion(Matrix4d mat);
+    Matrix3d quataniontomatrix(Vector4d qua);
     VectorXd getangle(VectorXd x);
     ~invkSolvenu();
 };

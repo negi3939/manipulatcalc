@@ -98,7 +98,6 @@ VectorXd invkSolvenu::funcorg(VectorXd x){
     pos = allA.block(0,3,3,1);
     ans.block(0,0,3,1) = pos;
     ans.block(3,0,4,1) = qua.block(0,0,4,1);
-    //ans(6) = sign(qua(3))*0.0d;
     return ans;
 }
 
@@ -118,7 +117,6 @@ void invkSolvenu::calcaA(VectorXd x,Matrix4d &reta){
     for(int ii=1;ii<jointnum;ii++){
         allA = allA*aA[ii];
     }
-    PRINT_MAT(allA);
     reta = allA;
 }
 
@@ -141,41 +139,16 @@ void invkSolvenu::setdhparameter(int num,double thoff,double aa,double di,double
 
 Vector4d invkSolvenu::matrixtoquatanion(Matrix4d mat){
     Vector4d ans;
-    Vector4d elem;
-    int ii,biggestii=0;
-    elem(0) = mat(0,0) - mat(1,1) - mat(2,2) + 1.0;
-    elem(1) = -mat(0,0) + mat(1,1) - mat(2,2) + 1.0;
-    elem(2) = -mat(0,0) - mat(1,1) + mat(2,2) + 1.0;
-    elem(3) = mat(0,0) + mat(1,1) + mat(2,2) + 1.0;
-    for(ii=1;ii<4;ii++){
-        if(elem(ii)>elem(biggestii)){biggestii = ii;}
-    }
-    double vv = sqrtf( elem(biggestii) ) * 0.5;
-    ans(biggestii) = vv;
-    double mult = 0.25/vv;
-    switch ( biggestii ) {
-    case 0: // x
-        ans(1) = (mat(0,1) + mat(1,0)) * mult;
-        ans(2) = (mat(2,0) + mat(0,2)) * mult;
-        ans(3) = (mat(1,2) - mat(2,1)) * mult;
-        break;
-    case 1: // y
-        ans(0) = (mat(0,1) + mat(1,0)) * mult;
-        ans(2) = (mat(1,2) + mat(2,1)) * mult;
-        ans(3) = (mat(2,0) - mat(0,2)) * mult;
-        break;
-    case 2: // z
-        ans(0) = (mat(2,0) + mat(0,2)) * mult;
-        ans(1) = (mat(1,2) + mat(2,1)) * mult;
-        ans(3) = (mat(0,1) - mat(1,0)) * mult;
-        break;
-    case 3: // w
-        ans(0) = (mat(1,2) - mat(2,1)) * mult;
-        ans(1) = (mat(2,0) - mat(0,2)) * mult;
-        ans(2) = (mat(0,1) - mat(1,0)) * mult;
-        break;
-    }
-    return ans;
+    Matrix3d matthree;
+    matthree = mat.block(0,0,3,3);
+    Quaterniond qu(matthree);
+	ans << qu.w(),qu.x(), qu.y(), qu.z();
+	return ans;
+}
+
+Matrix3d invkSolvenu::quataniontomatrix(Vector4d qua){
+    Quaterniond qu(qua(0),qua(1),qua(2),qua(3));
+	return qu.matrix();
 }
 
 VectorXd invkSolvenu::getangle(VectorXd x){
@@ -238,20 +211,6 @@ void inverse_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta)
     pos(2) = 0.269846d;//z
     std::cout << "xyz is \t" << pos(0) << " , " << pos(1) << " , "<< pos(2) << std::endl;
     double zangle = 0.0d;//set rotation
-    mattheta(0,0) = -0.786612;//cos(zangle);//z axis only
-    mattheta(0,1) = -0.390165;//-sin(zangle);//z axis only
-    mattheta(0,2) = 0.478553;
-    mattheta(1,0) = 0.390165;//cos(zangle);//z axis only
-    mattheta(1,1) = 0.286612;//sin(zangle);//z axis only
-    mattheta(1,2) =  0.875;
-    mattheta(2,0) = -0.478553;
-    mattheta(2,1) = -0.478553;
-    mattheta(2,2) = -0.0732233;
-    qua = maninvk->matrixtoquatanion(mattheta);//回転行列からクオータニオンへ変換
-    PRINT_MAT(qua);
-    targetx.block(0,0,3,1) = pos;
-    targetx.block(3,0,4,1) = qua.block(0,0,4,1);
-    maninvk->settargetfx(targetx);
     angle(0) = -0.25d*M_PI;
     angle(1) = -0.25d*M_PI;
     angle(2) = -0.25d*M_PI;
@@ -259,6 +218,12 @@ void inverse_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta)
     angle(4) = -0.25d*M_PI;
     angle(5) = -0.25d*M_PI;
     angle(6) = -0.25d*M_PI;
+    maninvk->calcaA(angle,mattheta);
+    qua = maninvk->matrixtoquatanion(mattheta);//回転行列からクオータニオンへ変換
+    PRINT_MAT(maninvk->quataniontomatrix(qua));
+    targetx.block(0,0,3,1) = pos;
+    targetx.block(3,0,4,1) = qua.block(0,0,4,1);
+    maninvk->settargetfx(targetx);
     angle = maninvk->getangle(angle);
     std::cout << "angles are \t";
     for(int ii=0;ii<maninvk->getjointnum()-1;ii++){
@@ -288,7 +253,7 @@ int main(){
     VectorXd lowlimit(7);
     uplimit <<    2.72271 ,  0.5*M_PI  ,   2.72271  ,        0 ,   2.72271 ,    0.5*M_PI ,   2.89725;
     lowlimit <<  -2.72271 , -0.5*M_PI  ,  -2.72271  , -2.79253 ,  -2.72271 ,   -0.5*M_PI ,  -2.89725;
-    maninvk->setlimit(uplimit,lowlimit);
+    //maninvk->setlimit(uplimit,lowlimit);
     /**/
     VectorXd angle = VectorXd::Zero(jointn);
     Matrix4d mattheta = MatrixXd::Identity(4,4);//回転変位行列

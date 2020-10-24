@@ -89,9 +89,11 @@ VectorXd Solvenu::functionerror(VectorXd x){
     if(limitfl==0){ 
         return  funcorg(x) - targetfx;
     }else{
+        //PRINT_MAT(funcorg(x));
+        //PRINT_MAT(targetfx);
+        //PRINT_MAT(funcorg(x)- targetfx);
+        //exit(0);
         MatrixXd oone = 100.0d*MatrixXd::Ones(x.size(),targetfx.size());
-        PRINT_MAT(funcorg(x));
-        exit(0);
         return  funcorg(x) - targetfx;// + oone*penaltyfunc(x);
     }
 }
@@ -111,7 +113,7 @@ VectorXd Solvenu::solve(VectorXd intx){
             x = x - svd.solve(functionerror(x));// - 0.01d*sigmoid(x-upperlimit,1000) + 0.01d* sigmoid(lowerlimit-x,1000);//limit ここを書き換える必要がある
             chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);// + sigmoidlimit(x,1000);
             if(count>countlimit){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than 10000 CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;/*PRINT_MAT(functionerror(x));*/break;}
-            if (chk(0) < 0.0000000001d) {break;}
+            if (chk(0) < 0.000001d) {break;}
             count++;
         }
     }else{//limitOFF
@@ -122,7 +124,42 @@ VectorXd Solvenu::solve(VectorXd intx){
             x = x - svd.solve(functionerror(x));//limit ここを書き換える必要がある
             chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);// + sigmoidlimit(x,1000);
             if(count>countlimit){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than 10000 CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;PRINT_MAT(functionerror(x));break;}
-            if (chk(0) < 0.0000000001d) break;
+            if (chk(0) < 0.000001d) break;
+            count++;
+        }
+
+    }
+    //checklimit(x);
+    return x;
+}
+
+VectorXd Solvenu::solve(VectorXd intx,double thval){
+    //checklimit(intx);
+    x = intx;
+    long count = 0;
+    VectorXd dx = intx;
+    MatrixXd buf;
+    VectorXd chk;
+    if(limitfl){//limitON
+        while(1){
+            dx = x;
+            MatrixXd baka =  diffvec(x,this);
+            JacobiSVD<MatrixXd> svd(diffvec(x,this), ComputeThinU|ComputeThinV);
+            x = x - svd.solve(functionerror(x));// - 0.01d*sigmoid(x-upperlimit,1000) + 0.01d* sigmoid(lowerlimit-x,1000);//limit ここを書き換える必要がある
+            chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);// + sigmoidlimit(x,1000);
+            if(count>countlimit){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than 10000 CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;/*PRINT_MAT(functionerror(x));*/break;}
+            if (chk(0) < thval) {break;}
+            count++;
+        }
+    }else{//limitOFF
+        while(1){
+            dx = x;
+            MatrixXd baka =  diffvec(x,this);
+            JacobiSVD<MatrixXd> svd(diffvec(x,this), ComputeThinU|ComputeThinV);
+            x = x - svd.solve(functionerror(x));//limit ここを書き換える必要がある
+            chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);// + sigmoidlimit(x,1000);
+            if(count>countlimit){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than 10000 CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;PRINT_MAT(functionerror(x));break;}
+            if (chk(0) < thval) break;
             count++;
         }
 
