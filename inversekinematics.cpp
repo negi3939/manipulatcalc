@@ -206,7 +206,7 @@ Matrix3d invkSolvenu::quataniontomatrix(Vector4d qua){
 	return qu.matrix();
 }
 
-VectorXd invkSolvenu::getangle(VectorXd x,SolvFLAG solvfl=JACOBI){
+VectorXd invkSolvenu::getangle(VectorXd x,SolvFLAG solvfl=NEWTON){
     VectorXd ans(jointnum);
     VectorXd ang = x;
     VectorXd deltaang(jointnum);

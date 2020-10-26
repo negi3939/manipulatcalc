@@ -124,7 +124,7 @@ VectorXd Solvenu::solve(VectorXd intx){
             MatrixXd baka =  diffvec(x,this);
             JacobiSVD<MatrixXd> svd(diffvec(x,this), ComputeThinU|ComputeThinV);
             x = x - svd.solve(functionerror(x));//limit ここを書き換える必要がある
-            PRINT_MAT(x);
+            //PRINT_MAT(x);
             checklimit(x);
             chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);// + sigmoidlimit(x,1000);
             if(count>countlimit){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than 10000 CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;PRINT_MAT(functionerror(x));break;}
