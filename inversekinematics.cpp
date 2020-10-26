@@ -192,7 +192,7 @@ void invkSolvenu::calcjacobi(){
 MatrixXd invkSolvenu::getjacobi(){
     calcaTt();
     calcjacobi();
-    return (*jacobi);//動作未確認
+    return (*jacobi);
 }
 
 MatrixXd invkSolvenu::getpseudoinvjacobi(){
@@ -224,18 +224,20 @@ VectorXd invkSolvenu::getangle(VectorXd x,SolvFLAG solvfl=JACOBI){
             calcaA(ang, bufmat);
             matcurrent = bufmat.block(0,0,3,3);//現在の回転行列
             deltamat = inv(matcurrent)*mattarget;//必要回転行列の計算
-            eulerang = VectorXd::Zero(3);//deltamat.eulerAngles(0,1,2);//get euler angle 
+            eulerang = deltamat.eulerAngles(0,1,2);//get euler angle 
             deltaxeul.block(0,0,3,1) = functionerror(ang).block(0,0,3,1);
             deltaxeul.block(3,0,3,1) = eulerang;
-            JacobiSVD<MatrixXd> svd(getjacobi(), ComputeThinU|ComputeThinV);
-            deltaang = svd.solve(deltaxeul);
+            //PRINT_MAT(deltaxeul);
+            getjacobi();
+            psedoinvjacobi = getpseudoinvjacobi();
+            deltaang = psedoinvjacobi*deltaxeul;
+            //PRINT_MAT(psedoinvjacobi);
             if(deltaang.norm()<0.0001d){break;}
-            ang += 0.001d*deltaang;
+            ang += 0.01*deltaang;
             for(int ii=0;ii<jointnum;ii++){//循環変数変換
                 ang(ii) = atan2(sin(ang(ii)),cos(ang(ii)));
             }
-            PRINT_MAT(ang);
-            //exit(0);
+            //PRINT_MAT(ang);
         }    
         break;
     case NEWTON://ニュートン法で解く
@@ -271,7 +273,7 @@ void forward_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta)
     angle(3) = -0.25d*M_PI;
     angle(4) = -0.25d*M_PI;
     angle(5) = -0.25d*M_PI;
-    angle(6) = -0.25d*M_PI;
+    //angle(6) = -0.25d*M_PI;
     maninvk->calcaA(angle,mattheta);
     qua = maninvk->matrixtoquatanion(mattheta);
     std::cout << "xyz is \t" << mattheta(0,3) << " , " << mattheta(1,3) << " , "<< mattheta(2,3) << std::endl;
@@ -285,7 +287,6 @@ void inverse_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta)
     VectorXd targetx(7);//目標位置姿勢
     Vector4d qua;//クオータニオン
     Vector3d pos;//3軸位置
-    std::cout << "xyz is \t" << pos(0) << " , " << pos(1) << " , "<< pos(2) << std::endl;
     double zangle = 0.0d;//set rotation
     angle(0) = -0.25d*M_PI;
     angle(1) = -0.25d*M_PI;
@@ -293,11 +294,12 @@ void inverse_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta)
     angle(3) = -0.25d*M_PI;
     angle(4) = -0.25d*M_PI;
     angle(5) = -0.25d*M_PI;
-    angle(6) = -0.25d*M_PI;
+    //angle(6) = -0.25d*M_PI;
 
     maninvk->calcaA(angle,mattheta);
     pos = mattheta.block(0,3,3,1);
     pos(0) -= 0.01d;
+    std::cout << "xyz is \t" << pos(0) << " , " << pos(1) << " , "<< pos(2) << std::endl;
     qua = maninvk->matrixtoquatanion(mattheta);//回転行列からクオータニオンへ変換
     targetx.block(0,0,3,1) = pos;
     targetx.block(3,0,4,1) = qua.block(0,0,4,1);
@@ -315,7 +317,7 @@ void inverse_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta)
 }
 
 int main(){
-    int ii,jointn = 7;
+    int ii,jointn = 6;
     invkSolvenu *maninvk;
     maninvk = new invkSolvenu(jointn);
     /*RT CRANE*/
@@ -325,7 +327,7 @@ int main(){
     maninvk->setdhparameter(3,0.0d*M_PI,0.0d,0.0d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
     maninvk->setdhparameter(4,0.0d*M_PI,0.0d,0.121d+0.129d,-0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
     maninvk->setdhparameter(5,0.0d*M_PI,0.0d,0.0d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
-    maninvk->setdhparameter(6,0.0d*M_PI,0.0d,0.019d+0.084d,0.0d);//(int num,double thoff,double aa,double di,double alph);
+    //maninvk->setdhparameter(6,0.0d*M_PI,0.0d,0.019d+0.084d,0.0d);//(int num,double thoff,double aa,double di,double alph);
     //limit add
     VectorXd uplimit(7);
     VectorXd lowlimit(7);
