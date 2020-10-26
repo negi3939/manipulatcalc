@@ -149,7 +149,7 @@ VectorXd Solvenu::steepsetdescent(VectorXd intx){
         //std::cout << "norm is " <<functionerror(x).norm() << std::endl;
         s = -diffv.transpose();
         bottom_alpha=0.0d;
-        top_alpha=1.0d;
+        top_alpha=0.1d;
         alpha1 = bottom_alpha + (1.0d -gold_r)*(top_alpha - bottom_alpha);
         alpha2 = bottom_alpha + gold_r*(top_alpha - bottom_alpha);
         while(1){

@@ -279,7 +279,7 @@ void forward_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta)
     angle(3) = -0.25d*M_PI;
     angle(4) = -0.25d*M_PI;
     angle(5) = -0.25d*M_PI;
-    //angle(6) = -0.25d*M_PI;
+    angle(6) = -0.25d*M_PI;
     maninvk->calcaA(angle,mattheta);
     qua = maninvk->matrixtoquatanion(mattheta);
     std::cout << "xyz is \t" << mattheta(0,3) << " , " << mattheta(1,3) << " , "<< mattheta(2,3) << std::endl;
@@ -300,7 +300,7 @@ void inverse_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta)
     angle(3) = -0.25d*M_PI;
     angle(4) = -0.25d*M_PI;
     angle(5) = -0.25d*M_PI;
-    //angle(6) = -0.25d*M_PI;
+    angle(6) = -0.25d*M_PI;
 
     maninvk->calcaA(angle,mattheta);
     pos = mattheta.block(0,3,3,1);
@@ -309,12 +309,13 @@ void inverse_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta)
     targetx.block(0,0,3,1) = pos;
     targetx.block(3,0,4,1) = qua.block(0,0,4,1);
     maninvk->settargetfx(targetx);
-    angle(0) = -0.20d*M_PI;
-    angle(1) = -0.20d*M_PI;
-    angle(2) = -0.20d*M_PI;
-    angle(3) = -0.20d*M_PI;
-    angle(4) = -0.20d*M_PI;
-    angle(5) = -0.20d*M_PI;
+    angle(0) = 0.15d*M_PI;
+    angle(1) = 0.15d*M_PI;
+    angle(2) = 0.15d*M_PI;
+    angle(3) = 0.15d*M_PI;
+    angle(4) = 0.15d*M_PI;
+    angle(5) = 0.15d*M_PI;
+    angle(6) = 0.15d*M_PI;
     angle = maninvk->getangle(angle);
     std::cout << "angles are \t";
     for(int ii=0;ii<maninvk->getjointnum()-1;ii++){
@@ -328,7 +329,7 @@ void inverse_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta)
 }
 
 int main(){
-    int ii,jointn = 6;
+    int ii,jointn = 7;
     invkSolvenu *maninvk;
     maninvk = new invkSolvenu(jointn);
     /*RT CRANE*/
@@ -338,13 +339,13 @@ int main(){
     maninvk->setdhparameter(3,0.0d*M_PI,0.0d,0.0d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
     maninvk->setdhparameter(4,0.0d*M_PI,0.0d,0.121d+0.129d,-0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
     maninvk->setdhparameter(5,0.0d*M_PI,0.0d,0.0d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
-    //maninvk->setdhparameter(6,0.0d*M_PI,0.0d,0.019d+0.084d,0.0d);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(6,0.0d*M_PI,0.0d,0.019d+0.084d,0.0d);//(int num,double thoff,double aa,double di,double alph);
     //limit add
     VectorXd uplimit(7);
     VectorXd lowlimit(7);
     uplimit <<    2.72271 ,  0.5*M_PI  ,   2.72271  ,        0 ,   2.72271 ,    0.5*M_PI ,   2.89725;
     lowlimit <<  -2.72271 , -0.5*M_PI  ,  -2.72271  , -2.79253 ,  -2.72271 ,   -0.5*M_PI ,  -2.89725;
-    //maninvk->setlimit(uplimit,lowlimit);
+    maninvk->setlimit(uplimit,lowlimit);
     /**/
     VectorXd angle = VectorXd::Zero(jointn);
     Matrix4d mattheta = MatrixXd::Identity(4,4);//回転変位行列
