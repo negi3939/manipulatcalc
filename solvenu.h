@@ -30,7 +30,7 @@ class Solvenu : public Funcvec{
         virtual VectorXd funcorg(VectorXd x);
         VectorXd functionerror(VectorXd x);
         VectorXd solve(VectorXd intx);
-        VectorXd solve(VectorXd intx,double thval);
+        VectorXd steepsetdescent(VectorXd intx);
         ~Solvenu();
 };
 

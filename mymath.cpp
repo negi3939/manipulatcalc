@@ -129,5 +129,4 @@ namespace Mymath{
     	ans = (bef+aft)/2.0;
     	return ans;
 	}
-
 }

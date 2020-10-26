@@ -136,37 +136,11 @@ VectorXd Solvenu::solve(VectorXd intx){
     return x;
 }
 
-VectorXd Solvenu::solve(VectorXd intx,double thval){
-    checklimit(intx);
-    x = intx;
-    long count = 0;
-    VectorXd dx = intx;
-    MatrixXd buf;
-    VectorXd chk;
-    if(limitfl){//limitON
-        while(1){
-            dx = x;
-            MatrixXd baka =  diffvec(x,this);
-            JacobiSVD<MatrixXd> svd(diffvec(x,this), ComputeThinU|ComputeThinV);
-            x = x - svd.solve(functionerror(x));// - 0.01d*sigmoid(x-upperlimit,1000) + 0.01d* sigmoid(lowerlimit-x,1000);//limit ここを書き換える必要がある
-            chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);// + sigmoidlimit(x,1000);
-            if(count>countlimit){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than 10000 CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;/*PRINT_MAT(functionerror(x));*/break;}
-            if (chk(0) < thval) {break;}
-            count++;
-        }
-    }else{//limitOFF
-        while(1){
-            dx = x;
-            MatrixXd baka =  diffvec(x,this);
-            JacobiSVD<MatrixXd> svd(diffvec(x,this), ComputeThinU|ComputeThinV);
-            x = x - svd.solve(functionerror(x));//limit ここを書き換える必要がある
-            chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);// + sigmoidlimit(x,1000);
-            if(count>countlimit){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than 10000 CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;PRINT_MAT(functionerror(x));break;}
-            if (chk(0) < thval) break;
-            count++;
-        }
-
-    }
-    
-    return x;
+VectorXd Solvenu::steepsetdescent(VectorXd intx){
+    VectorXd x = intx;
+    MatrixXd diffv;
+    MatrixXd s;
+    diffv =  diffvec(x,this);
+    std::cout << "norm is " <<diffv.norm() << std::endl;
+    s = -diffv.transpose();
 }

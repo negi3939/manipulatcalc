@@ -214,6 +214,7 @@ void inverse_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta)
     angle(4) = -0.25d*M_PI;
     angle(5) = -0.25d*M_PI;
     angle(6) = -0.25d*M_PI;
+
     maninvk->calcaA(angle,mattheta);
     pos = mattheta.block(0,3,3,1);
     pos(0) -= 0.00001;
@@ -221,6 +222,8 @@ void inverse_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta)
     targetx.block(0,0,3,1) = pos;
     targetx.block(3,0,4,1) = qua.block(0,0,4,1);
     maninvk->settargetfx(targetx);
+    maninvk->steepsetdescent(angle);
+    exit(0);
     angle = maninvk->getangle(angle);
     std::cout << "angles are \t";
     for(int ii=0;ii<maninvk->getjointnum()-1;ii++){
