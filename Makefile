@@ -51,13 +51,13 @@ endif
 PROGRAM = $(SOURCE_MAIN:%.cpp=%.out)
 MAINOBJ = $(SOURCE_MAIN:%.cpp=%.o)
 SUBOBJ = $(SOURCE_SUB:%.cpp=%.o)
-SOFILE = $(SOURCE_MAIN:%.cpp=_%.so)
+SOFILE = $(SOURCE_MAIN:%.cpp=%.so)
 
 ik: $(PROGRAM)
 id: $(PROGRAM)
 ur3: $(PROGRAM)
 idpy: $(MAINOBJ) $(SUBOBJ)
-	g++ -shared -Wl,-soname,$(SOFILE) -o $(SOFILE) $^ $(LDFLAGS) -w 
+	g++ -shared -Wl,-soname,$(SOFILE) -o $(SOFILE) $^ $(LDFLAGS) -w
 
 %.out: %.o $(SUBOBJ)
 	g++ -o $@ $^ $(LDFLAGS) -w

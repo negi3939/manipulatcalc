@@ -48,6 +48,11 @@ Negi39FIKFID::Negi39FIKFID(){
     maninvk->setdhparameter(5,0.0d*M_PI,0.0d,0.0d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
     maninvk->setdhparameter(6,0.0d*M_PI,0.0d,0.019d+0.084d,0.0d);//(int num,double thoff,double aa,double di,double alph)
     maninvd->copy(maninvk);
+    uplimit = VectorXd::Zero(7);
+    lowlimit = VectorXd::Zero(7);
+    uplimit <<    2.72271 ,  0.5*M_PI  ,   2.72271  ,        0 ,   2.72271 ,    0.5*M_PI ,   2.89725;//可動上限範囲を設定
+    lowlimit <<  -2.72271 , -0.5*M_PI  ,  -2.72271  , -2.79253 ,  -2.72271 ,   -0.5*M_PI ,  -2.89725;//可動下限範囲を設定
+    maninvk->setlimit(uplimit,lowlimit);//可動範囲を設定（FLAGが立つ）
     forcemom.resize(6);
     jointtau.resize(jointn);
     jointangle = VectorXd::Zero(jointn);
@@ -58,7 +63,8 @@ Negi39FIKFID::~Negi39FIKFID(){
     delete maninvd;
 }
 
-void Negi39FIKFID::getangle_content(const double_vector &posquo){
+void Negi39FIKFID::getangle_content(const double_vector &posquo,const double_vector &angle){
+    jointangle = stdvectoeig(angle);
     VectorXd posquovector = stdvectoeig(posquo);
     Vector4d quatanion;
     quatanion = posquovector.block(3,0,4,1);
@@ -113,18 +119,30 @@ void Negi39FIKFID::setjointnum(const double &jj){
     delete maninvd;
     maninvk = new invkSolvenu(jointn);
     maninvd = new invdSolvenu(jointn);
+    maninvk->unsetlimit();
     std::cout << "set JOINT_NUM :" << maninvd->getjointnum() << std::endl;
     jointtau.resize(jointn);
 }
 
 void Negi39FIKFID::setdhparameter(const int &ii,const double_vector &dh){
+    maninvk->unsetlimit();
     maninvk->setdhparameter(ii,dh[0],dh[1],dh[2],dh[3]);
     maninvd->setdhparameter(ii,dh[0],dh[1],dh[2],dh[3]);
     std::cout << "set Dh : " << ii << "th joint -> thetaoffset: " << maninvd->getthetaoff(ii) << " [rad]  a: " << maninvd->getaal(ii) << " [m] d: " << maninvd->getdis(ii) << " [m] alpha:"<< maninvd->getalp(ii) << " [rad]"<<std::endl;
 }
 
+void Negi39FIKFID::setlimit(const double_vector &upper,const double_vector &lower){
+    stdvectoeig(upper,uplimit);
+    stdvectoeig(lower,lowlimit);
+    maninvk->setlimit(uplimit,lowlimit);//可動範囲を設定（FLAGが立つ）
+}
+
+void Negi39FIKFID::unsetlimit(){
+    maninvk->unsetlimit();//可動範囲を設定解除
+}
+
 void Negi39FIKFID::calcik(){
-    jointangle = maninvk->getangle(jointangle);
+    jointangle = maninvk->getangle(jointangle,DEFOKO);
 }
 
 void Negi39FIKFID::stdvectoeig(const double_vector &stv,VectorXd &eig){
@@ -160,6 +178,8 @@ BOOST_PYTHON_MODULE( IDpy ){
     class_<Negi39FIKFID>("Negi39FIKFID")
         .def("setjointnum", &Negi39FIKFID::setjointnum)
         .def("setdhparameter", &Negi39FIKFID::setdhparameter)
+        .def("setlimit", &Negi39FIKFID::setlimit)
+        .def("unsetlimit", &Negi39FIKFID::unsetlimit)
         .def("getangle", &Negi39FIKFID::getangle, return_value_policy<copy_const_reference>())
         .def("getpos", &Negi39FIKFID::getpos, return_value_policy<copy_const_reference>())
         .def("getforce", &Negi39FIKFID::getforce, return_value_policy<copy_const_reference>())

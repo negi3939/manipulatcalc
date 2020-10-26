@@ -38,6 +38,10 @@ void Solvenu::setlimit(VectorXd uplimit,VectorXd lowlimit){
     limitfl = LIMITON;
 }
 
+void Solvenu::unsetlimit(){
+    limitfl = LIMITOFF;
+}
+
 int Solvenu::checklimit(VectorXd &x){
     if(limitfl==LIMITOFF){return 0;}
     int fl=0;

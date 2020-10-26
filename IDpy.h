@@ -46,8 +46,8 @@ public:
 public:
     Negi39FIKFID();
     ~Negi39FIKFID();
-    double_vector const& getangle(double_vector const &posquo) const {//IK
-        getangle_content(posquo);
+    double_vector const& getangle(double_vector const &posquo,double_vector const &angle) const {//IK
+        getangle_content(posquo,angle);
         return joint_angle; 
     }
     double_vector const& getpos(double_vector const &angle) const {
@@ -62,12 +62,14 @@ public:
         gettau_content(angle,fm);
         return jointtau;
     }
-    void getangle_content(const double_vector &posquo);
+    void getangle_content(const double_vector &posquo,const double_vector &angle);
     void getpos_content(const double_vector &angle);
     void getforce_content(const double_vector &angle,const double_vector &tau);
     void gettau_content(const double_vector &angle,const double_vector &fm);
     void setjointnum(const double &jj);
     void setdhparameter(const int &ii,const double_vector &dh);
+    void setlimit(const double_vector &upper,const double_vector &lower);
+    void unsetlimit();
     void calcik();
     void stdvectoeig(const double_vector &stv,VectorXd &eig);
     VectorXd stdvectoeig(const double_vector &stv);
@@ -80,6 +82,8 @@ protected:
     double_vector forcemom;
     double_vector jointtau;
     VectorXd jointangle;
+    VectorXd uplimit;
+    VectorXd lowlimit;
     invkSolvenu *maninvk;
     invdSolvenu *maninvd;
 };

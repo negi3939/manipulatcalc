@@ -28,6 +28,7 @@ class Solvenu : public Funcvec{
         Solvenu();
         void setcountlimit(long a);
         void setlimit(VectorXd uplimit,VectorXd lowlimit);
+        void unsetlimit();
         int checklimit(VectorXd &x);
         VectorXd sigmoidlimit(VectorXd &x,double alpha);
         VectorXd penaltyfunc(VectorXd &x);
