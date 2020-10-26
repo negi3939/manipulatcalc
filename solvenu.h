@@ -9,6 +9,13 @@ enum LIMITFlag{
     LIMITON=1,
 };
 
+enum SolvFLAG{
+  JACOBI=0,
+  NEWTON=1,
+  STEEPEST=2,
+  DEFOKO=3,
+};
+
 class Solvenu : public Funcvec{
     protected:
         long countlimit;
@@ -29,8 +36,9 @@ class Solvenu : public Funcvec{
         VectorXd function(VectorXd x) override;
         virtual VectorXd funcorg(VectorXd x);
         VectorXd functionerror(VectorXd x);
-        VectorXd solve(VectorXd intx);
-        VectorXd steepsetdescent(VectorXd intx);
+        VectorXd solve(VectorXd intx,SolvFLAG slflag);
+        VectorXd newtonsolve(VectorXd intx);
+        VectorXd steepsetdescentsolve(VectorXd intx);
         ~Solvenu();
 };
 

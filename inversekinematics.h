@@ -5,12 +5,6 @@
 #define PRINT_MAT(X) std::cout << #X << ":\n" << X << std::endl << std::endl
 using namespace Mymath;
 
-enum SolvFLAG{
-  JACOBI=0,
-  NEWTON=1,
-  STEEPEST=2,
-};
-
 class invkSolvenu : public Solvenu {
   protected:
     int jointnum;

@@ -65,7 +65,7 @@ void invdSolvenu::calcforce(VectorXd tau,Vector3d &f,Vector3d &mom){
 }
 
 VectorXd invdSolvenu::getvel(VectorXd x){
-    VectorXd vel = solve(x);
+    VectorXd vel = solve(x,NEWTON);
     return vel;
 }
 
