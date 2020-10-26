@@ -199,7 +199,7 @@ MatrixXd invkSolvenu::getpseudoinvjacobi(){
     calcaTt();
     calcjacobi();
     PRINT_MAT(pseudo_inv(jacobi->transpose()));
-    return pseudo_inv(jacobi->transpose());
+    return pseudo_inv(*jacobi);
 }
 
 Matrix3d invkSolvenu::quataniontomatrix(Vector4d qua){
@@ -214,8 +214,9 @@ VectorXd invkSolvenu::getangle(VectorXd x,SolvFLAG solvfl=JACOBI){
     Matrix4d bufmat;
     MatrixXd psedoinvjacobi;
     VectorXd eulerang;
+    VectorXd deltaxeul(6);
     Matrix3d matcurrent,mattarget,deltamat;
-    Vector4d targetquo,currentquo,deltaqua;
+    Vector4d targetquo,currentquo;
     switch (solvfl){
     case JACOBI://擬似逆行列で解く
         targetquo = targetfx.block(3,0,4,1);//目標のクオータニオン
@@ -223,16 +224,15 @@ VectorXd invkSolvenu::getangle(VectorXd x,SolvFLAG solvfl=JACOBI){
         while(1){
             calcaA(ang, bufmat);
             matcurrent = bufmat.block(0,0,3,3);//現在の回転行列
-            deltamat = mattarget*inv(matcurrent);//必要回転行列の計算
-            deltaqua = matrixtoquatanion(deltamat);
-            exit(0);
-            psedoinvjacobi = getpseudoinvjacobi();
-            deltaang = getpseudoinvjacobi()*functionerror(ang);
-            PRINT_MAT(functionerror(ang));
-            PRINT_MAT(deltaang);
-            exit(0);
+            deltamat = inv(matcurrent)*mattarget;//必要回転行列の計算
+            eulerang = deltamat.eulerAngles(0,1,2);//get euler angle 
+            deltaxeul.block(0,0,3,1) = functionerror(ang).block(0,0,3,1);
+            deltaxeul.block(3,0,3,1) = eulerang;
+            PRINT_MAT(getpseudoinvjacobi());
+            deltaang = getpseudoinvjacobi()*deltaxeul;
             if(deltaang.norm()<0.0001d){break;}
             ang += 0.1d*deltaang;
+            
         }    
         break;
     case NEWTON://ニュートン法で解く

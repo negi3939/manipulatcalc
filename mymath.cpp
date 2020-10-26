@@ -98,7 +98,7 @@ namespace Mymath{
 	}
 	
 	MatrixXd pseudo_inv(MatrixXd aA){
-		return inv(aA.transpose()*aA)*aA;//.transpose();	
+		return inv(aA.transpose()*aA)*aA.transpose();	
 	}
 
 	MatrixXd absmat(MatrixXd aA){
