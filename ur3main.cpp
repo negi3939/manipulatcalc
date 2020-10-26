@@ -149,7 +149,7 @@ void inputfvel(int ac,char *av[]){
             maninvk.settargetfx(targetx);
             maninvd.settargetfx(targetvel);
             preangle = angle;
-            angle = maninvk.getangle(angle);
+            angle = maninvk.getangle(angle,NEWTON);
             maninvd.calcaA(angle);
             angvel = maninvd.getvel(angvel);
             for(jj=0;jj<jointn;jj++){
@@ -289,7 +289,7 @@ void sankakuvel(){
         maninvk.settargetfx(targetx);
         maninvd.settargetfx(targetvel);
         preangle = angle;
-        angle = maninvk.getangle(angle);
+        angle = maninvk.getangle(angle,NEWTON);
         maninvd.calcaA(angle);
         angvel = maninvd.getvel(angvel);
         
