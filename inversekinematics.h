@@ -5,6 +5,11 @@
 #define PRINT_MAT(X) std::cout << #X << ":\n" << X << std::endl << std::endl
 using namespace Mymath;
 
+enum SolvFLAG{
+  JACOBI=0,
+  NEWTON=1,
+};
+
 class invkSolvenu : public Solvenu {
   protected:
     int jointnum;
@@ -20,6 +25,11 @@ class invkSolvenu : public Solvenu {
     double *alp;
     double *dis;
     double *thetaoff;
+    Matrix4d *aTt;
+    Vector3d *rra;
+    Vector3d *ppa;
+    Vector3d *zz;
+    MatrixXd *jacobi;
     void init();
   public:
     invkSolvenu();
@@ -29,6 +39,10 @@ class invkSolvenu : public Solvenu {
     void setjointnum(int n);
     void settime(const double &t);
     void settime(double *t);
+    void calcaTt();
+    void calcjacobi();
+    MatrixXd getjacobi();
+    MatrixXd getpseudoinvjacobi();
     int getjointnum();
     double gettime();
     double* gettimead();
@@ -41,8 +55,9 @@ class invkSolvenu : public Solvenu {
     void calcaA(VectorXd x,Matrix4d &reta);
     void setdhparameter(int num,double thoff,double aa,double di,double alph);
     Vector4d matrixtoquatanion(Matrix4d mat);
+    Vector4d matrixtoquatanion(Matrix3d mat);
     Matrix3d quataniontomatrix(Vector4d qua);
-    VectorXd getangle(VectorXd x);
+    VectorXd getangle(VectorXd x,SolvFLAG solvfl);
     ~invkSolvenu();
 };
 

@@ -8,18 +8,10 @@ using namespace Mymath;
 
 class invdSolvenu : public invkSolvenu {
   protected:
-    Matrix4d *aTt;
-    Vector3d *rra;
-    Vector3d *ppa;
-    Vector3d *zz;
-    MatrixXd *jacobi;
   public:
     invdSolvenu();
     invdSolvenu(int num);
     VectorXd funcorg(VectorXd x) override;
-    void calcaTt();
-    void calcjacobi();
-    MatrixXd getjacobi();
     VectorXd gettau(VectorXd f,VectorXd mom);
     void calcforce(VectorXd tau,Vector3d &f,Vector3d &mom);
     VectorXd getvel(VectorXd x);

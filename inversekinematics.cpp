@@ -78,6 +78,14 @@ void invkSolvenu::init(){
     pre_time = new double;
     *time = 0.0d;
     *pre_time = 0.0d;
+    aTt = new Matrix4d[jointnum];
+    rra = new Vector3d[jointnum];
+    ppa = new Vector3d[jointnum];
+    zz = new Vector3d[jointnum];
+    jacobi = new MatrixXd;
+    *jacobi= MatrixXd::Zero(6,jointnum);
+    rra[0] = Vector3d::Zero(3,1);
+    zz[0] << 0.0d,0.0d,1.0d;
     for(int ii=0;ii<jointnum;ii++){
         aAdis[ii] = MatrixXd::Identity(4,4);
         aAthetaoff[ii] = MatrixXd::Identity(4,4);
@@ -146,28 +154,97 @@ Vector4d invkSolvenu::matrixtoquatanion(Matrix4d mat){
 	return ans;
 }
 
+Vector4d invkSolvenu::matrixtoquatanion(Matrix3d mat){
+    Vector4d ans;
+    Matrix3d matthree;
+    matthree = mat;
+    PRINT_MAT(mat);
+    Quaterniond qu(mat);
+    std::cout << qu.w() << " : " << qu.x() << " : " << qu.y() << " : " << qu.z() << std::endl;
+	ans << qu.w(),qu.x(), qu.y(), qu.z();
+	return ans;
+}
+
+void invkSolvenu::calcaTt(){
+    Matrix4d buff = aA[0];
+    aTt[0] = buff;
+    for(int ii=1;ii<jointnum;ii++){
+        buff = buff*aA[ii];
+        aTt[ii] = buff;
+    }
+}
+
+void invkSolvenu::calcjacobi(){
+    Vector3d rrend;
+    rrend = aTt[jointnum-1].block(0,3,3,1);
+    ppa[0] = rrend;
+    jacobi->block(0,0,3,1) = zz[0].cross(ppa[0]);
+    jacobi->block(3,0,3,1) = zz[0];
+    for(int ii=1;ii<jointnum;ii++){
+        rra[ii] = aTt[ii-1].block(0,3,3,1);
+        zz[ii] = aTt[ii-1].block(0,2,3,1);
+        ppa[ii] = rrend - rra[ii];
+        jacobi->block(0,ii,3,1) = zz[ii].cross(ppa[ii]);
+        jacobi->block(3,ii,3,1) = zz[ii];
+    }
+}
+
+MatrixXd invkSolvenu::getjacobi(){
+    calcaTt();
+    calcjacobi();
+    return (*jacobi);//動作未確認
+}
+
+MatrixXd invkSolvenu::getpseudoinvjacobi(){
+    calcaTt();
+    calcjacobi();
+    PRINT_MAT(pseudo_inv(jacobi->transpose()));
+    return pseudo_inv(jacobi->transpose());
+}
+
 Matrix3d invkSolvenu::quataniontomatrix(Vector4d qua){
     Quaterniond qu(qua(0),qua(1),qua(2),qua(3));
 	return qu.matrix();
 }
 
-VectorXd invkSolvenu::getangle(VectorXd x){
-    VectorXd ang = solve(x);
-    VectorXd error = functionerror(ang);
-    while(0){
-        x = VectorXd::Random(jointnum,1);
-        ang = solve(x);
-        error = functionerror(ang);
-        //PRINT_MAT(error);
-
-    }
+VectorXd invkSolvenu::getangle(VectorXd x,SolvFLAG solvfl=JACOBI){
     VectorXd ans(jointnum);
-    double buff;
-    for(int ii=0;ii<jointnum;ii++){
+    VectorXd ang = x;
+    VectorXd deltaang(jointnum);
+    Matrix4d bufmat;
+    MatrixXd psedoinvjacobi;
+    VectorXd eulerang;
+    Matrix3d matcurrent,mattarget,deltamat;
+    Vector4d targetquo,currentquo,deltaqua;
+    switch (solvfl){
+    case JACOBI://擬似逆行列で解く
+        targetquo = targetfx.block(3,0,4,1);//目標のクオータニオン
+        mattarget = quataniontomatrix(targetquo);//目標の回転行列
+        while(1){
+            calcaA(ang, bufmat);
+            matcurrent = bufmat.block(0,0,3,3);//現在の回転行列
+            deltamat = mattarget*inv(matcurrent);//必要回転行列の計算
+            deltaqua = matrixtoquatanion(deltamat);
+            exit(0);
+            psedoinvjacobi = getpseudoinvjacobi();
+            deltaang = getpseudoinvjacobi()*functionerror(ang);
+            PRINT_MAT(functionerror(ang));
+            PRINT_MAT(deltaang);
+            exit(0);
+            if(deltaang.norm()<0.0001d){break;}
+            ang += 0.1d*deltaang;
+        }    
+        break;
+    case NEWTON://ニュートン法で解く
+        ang = solve(x);
+        break;
+    default:
+        break;
+    }
+    for(int ii=0;ii<jointnum;ii++){//循環変数変換
         ans(ii) = atan2(sin(ang(ii)),cos(ang(ii)));
     }
     return ans;
-    
 }
 
 invkSolvenu::~invkSolvenu(){
@@ -217,13 +294,11 @@ void inverse_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta)
 
     maninvk->calcaA(angle,mattheta);
     pos = mattheta.block(0,3,3,1);
-    pos(0) -= 0.00001;
+    pos(0) -= 0.01d;
     qua = maninvk->matrixtoquatanion(mattheta);//回転行列からクオータニオンへ変換
     targetx.block(0,0,3,1) = pos;
     targetx.block(3,0,4,1) = qua.block(0,0,4,1);
     maninvk->settargetfx(targetx);
-    maninvk->steepsetdescent(angle);
-    exit(0);
     angle = maninvk->getangle(angle);
     std::cout << "angles are \t";
     for(int ii=0;ii<maninvk->getjointnum()-1;ii++){
