@@ -206,7 +206,7 @@ Matrix3d invkSolvenu::quataniontomatrix(Vector4d qua){
 	return qu.matrix();
 }
 
-VectorXd invkSolvenu::getangle(VectorXd x,SolvFLAG solvfl=NEWTON){
+VectorXd invkSolvenu::getangle(VectorXd x,SolvFLAG solvfl=STEEPEST){
     VectorXd ans(jointnum);
     VectorXd ang = x;
     VectorXd deltaang(jointnum);
@@ -230,6 +230,9 @@ VectorXd invkSolvenu::getangle(VectorXd x,SolvFLAG solvfl=NEWTON){
             //PRINT_MAT(deltaxeul);
             getjacobi();
             psedoinvjacobi = getpseudoinvjacobi();
+            PRINT_MAT(getpseudoinvjacobi()*(*jacobi));
+            PRINT_MAT((*jacobi)*getpseudoinvjacobi());
+            exit(0);
             deltaang = psedoinvjacobi*deltaxeul;
             //PRINT_MAT(psedoinvjacobi);
             if(deltaang.norm()<0.0001d){break;}
@@ -242,6 +245,9 @@ VectorXd invkSolvenu::getangle(VectorXd x,SolvFLAG solvfl=NEWTON){
         break;
     case NEWTON://ニュートン法で解く
         ang = solve(x);
+        break;
+    case STEEPEST:
+        ang = steepsetdescent(x);
         break;
     default:
         break;
@@ -298,12 +304,17 @@ void inverse_kinematics(invkSolvenu *maninvk,VectorXd &angle,Matrix4d &mattheta)
 
     maninvk->calcaA(angle,mattheta);
     pos = mattheta.block(0,3,3,1);
-    pos(0) -= 0.01d;
     std::cout << "xyz is \t" << pos(0) << " , " << pos(1) << " , "<< pos(2) << std::endl;
     qua = maninvk->matrixtoquatanion(mattheta);//回転行列からクオータニオンへ変換
     targetx.block(0,0,3,1) = pos;
     targetx.block(3,0,4,1) = qua.block(0,0,4,1);
     maninvk->settargetfx(targetx);
+    angle(0) = -0.20d*M_PI;
+    angle(1) = -0.20d*M_PI;
+    angle(2) = -0.20d*M_PI;
+    angle(3) = -0.20d*M_PI;
+    angle(4) = -0.20d*M_PI;
+    angle(5) = -0.20d*M_PI;
     angle = maninvk->getangle(angle);
     std::cout << "angles are \t";
     for(int ii=0;ii<maninvk->getjointnum()-1;ii++){

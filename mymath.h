@@ -25,6 +25,7 @@ namespace Mymath{
 	MatrixXd pseudo_inv(MatrixXd aA);
 	MatrixXd absmat(MatrixXd aA);
 	MatrixXd diffvec(VectorXd x,Funcvec *func);
+	MatrixXd diffnorm(VectorXd x,Funcvec *func);
 }
 
 #endif

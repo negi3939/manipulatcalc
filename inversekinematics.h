@@ -8,6 +8,7 @@ using namespace Mymath;
 enum SolvFLAG{
   JACOBI=0,
   NEWTON=1,
+  STEEPEST=2,
 };
 
 class invkSolvenu : public Solvenu {

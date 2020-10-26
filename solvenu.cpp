@@ -140,8 +140,32 @@ VectorXd Solvenu::solve(VectorXd intx){
 VectorXd Solvenu::steepsetdescent(VectorXd intx){
     VectorXd x = intx;
     MatrixXd diffv;
+    double gold_r = 0.6180339887d;
+    double bottom_alpha,top_alpha,alpha1,alpha2;
     MatrixXd s;
-    diffv =  diffvec(x,this);
-    std::cout << "norm is " <<diffv.norm() << std::endl;
-    s = -diffv.transpose();
+    while(1){
+        diffv =  diffnorm(x,this);
+        if(functionerror(x).norm()<0.00001d){break;}
+        //std::cout << "norm is " <<functionerror(x).norm() << std::endl;
+        s = -diffv.transpose();
+        bottom_alpha=0.0d;
+        top_alpha=1.0d;
+        alpha1 = bottom_alpha + (1.0d -gold_r)*(top_alpha - bottom_alpha);
+        alpha2 = bottom_alpha + gold_r*(top_alpha - bottom_alpha);
+        while(1){
+            if(functionerror(x + alpha1*s).norm()<functionerror(x + alpha2*s).norm()){
+                top_alpha = alpha2;
+                alpha2 = alpha1;
+                alpha1 = bottom_alpha + (1.0d -gold_r)*(top_alpha - bottom_alpha);
+            }else{
+                bottom_alpha = alpha1;
+                alpha1 = alpha2;
+                alpha2 = bottom_alpha + gold_r*(top_alpha - bottom_alpha);
+            }
+            //std::cout << "bottom_alpha : "<< bottom_alpha << " top_alpha : "<< top_alpha << std::endl;
+            if(std::abs(bottom_alpha - top_alpha) <0.00001d){break;}
+        }
+        x = x + 0.5d*(bottom_alpha+top_alpha)*s;
+    }
+    return x;
 }

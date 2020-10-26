@@ -129,4 +129,23 @@ namespace Mymath{
     	ans = (bef+aft)/2.0;
     	return ans;
 	}
+
+	MatrixXd diffnorm(VectorXd x,Funcvec *func){
+    	int ii;
+    	double fx = func->function(x).norm();
+    	MatrixXd ans(1,x.size());
+    	MatrixXd bef(1,x.size());
+    	MatrixXd aft(1,x.size());
+    	double delta = 0.000001;
+    	VectorXd deltax(x.size());
+    	for(ii=0;ii<x.size();ii++){
+        	deltax = VectorXd::Zero(x.size());
+        	deltax(ii) =  delta; 
+        	bef(0,ii) = (fx-func->function(x-deltax).norm())/delta;
+        	aft(0,ii) = (func->function(x+deltax).norm()-fx)/delta;
+    	}
+    	ans = (bef+aft)/2.0;
+    	return ans;
+	}
 }
+
