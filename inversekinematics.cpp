@@ -198,7 +198,6 @@ MatrixXd invkSolvenu::getjacobi(){
 MatrixXd invkSolvenu::getpseudoinvjacobi(){
     calcaTt();
     calcjacobi();
-    PRINT_MAT(pseudo_inv(jacobi->transpose()));
     return pseudo_inv(*jacobi);
 }
 
@@ -225,14 +224,18 @@ VectorXd invkSolvenu::getangle(VectorXd x,SolvFLAG solvfl=JACOBI){
             calcaA(ang, bufmat);
             matcurrent = bufmat.block(0,0,3,3);//現在の回転行列
             deltamat = inv(matcurrent)*mattarget;//必要回転行列の計算
-            eulerang = deltamat.eulerAngles(0,1,2);//get euler angle 
+            eulerang = VectorXd::Zero(3);//deltamat.eulerAngles(0,1,2);//get euler angle 
             deltaxeul.block(0,0,3,1) = functionerror(ang).block(0,0,3,1);
             deltaxeul.block(3,0,3,1) = eulerang;
-            PRINT_MAT(getpseudoinvjacobi());
-            deltaang = getpseudoinvjacobi()*deltaxeul;
+            JacobiSVD<MatrixXd> svd(getjacobi(), ComputeThinU|ComputeThinV);
+            deltaang = svd.solve(deltaxeul);
             if(deltaang.norm()<0.0001d){break;}
-            ang += 0.1d*deltaang;
-            
+            ang += 0.001d*deltaang;
+            for(int ii=0;ii<jointnum;ii++){//循環変数変換
+                ang(ii) = atan2(sin(ang(ii)),cos(ang(ii)));
+            }
+            PRINT_MAT(ang);
+            //exit(0);
         }    
         break;
     case NEWTON://ニュートン法で解く
@@ -328,7 +331,7 @@ int main(){
     VectorXd lowlimit(7);
     uplimit <<    2.72271 ,  0.5*M_PI  ,   2.72271  ,        0 ,   2.72271 ,    0.5*M_PI ,   2.89725;
     lowlimit <<  -2.72271 , -0.5*M_PI  ,  -2.72271  , -2.79253 ,  -2.72271 ,   -0.5*M_PI ,  -2.89725;
-    maninvk->setlimit(uplimit,lowlimit);
+    //maninvk->setlimit(uplimit,lowlimit);
     /**/
     VectorXd angle = VectorXd::Zero(jointn);
     Matrix4d mattheta = MatrixXd::Identity(4,4);//回転変位行列
