@@ -102,13 +102,14 @@ VectorXd Solvenu::functionerror(VectorXd x){
     }
 }
 
-VectorXd Solvenu::solve(VectorXd intx,SolvFLAG slflag=NEWTON){
+VectorXd Solvenu::solve(VectorXd intx,SolvFLAG slflag=NEWTON,double l_alpha=0){
     switch (slflag){
     case NEWTON:
         return newtonsolve(intx);
         break;
     case STEEPEST:
-        return steepsetdescentsolve(intx);
+        if(l_alpha<=0){return steepsetdescentsolve(intx);}
+        return steepsetdescentsolve(intx,l_alpha);
         break;
     default:
         return intx;
@@ -149,7 +150,7 @@ VectorXd Solvenu::steepsetdescentsolve(VectorXd intx){
         //std::cout << "norm is " <<functionerror(x).norm() << std::endl;
         s = -diffv.transpose();
         bottom_alpha=0.0d;
-        top_alpha=0.1d;
+        top_alpha=10.0d;
         alpha1 = bottom_alpha + (1.0d -gold_r)*(top_alpha - bottom_alpha);
         alpha2 = bottom_alpha + gold_r*(top_alpha - bottom_alpha);
         while(1){
@@ -167,6 +168,21 @@ VectorXd Solvenu::steepsetdescentsolve(VectorXd intx){
             if(std::abs(bottom_alpha - top_alpha) <0.00001d){break;}
         }
         x = x + 0.5d*(bottom_alpha+top_alpha)*s;
+    }
+    return x;
+}
+
+VectorXd Solvenu::steepsetdescentsolve(VectorXd intx,double l_alpha){
+    long count = 0;
+    VectorXd x = intx;
+    MatrixXd diffv;
+    MatrixXd s;
+    while(1){
+        diffv =  diffnorm(x,this);
+        if(functionerror(x).norm()<0.00001d){break;}
+        //std::cout << "alppha is const. norm is " <<functionerror(x).norm() << std::endl;
+        s = -diffv.transpose();
+        x = x + l_alpha*s;
     }
     return x;
 }

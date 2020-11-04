@@ -37,9 +37,10 @@ class Solvenu : public Funcvec{
         VectorXd function(VectorXd x) override;
         virtual VectorXd funcorg(VectorXd x);
         VectorXd functionerror(VectorXd x);
-        VectorXd solve(VectorXd intx,SolvFLAG slflag);
+        VectorXd solve(VectorXd intx,SolvFLAG slflag,double l_alpha=0);
         VectorXd newtonsolve(VectorXd intx);
         VectorXd steepsetdescentsolve(VectorXd intx);
+        VectorXd steepsetdescentsolve(VectorXd intx,double l_alpha);
         ~Solvenu();
 };
 
