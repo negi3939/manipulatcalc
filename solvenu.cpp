@@ -137,6 +137,25 @@ VectorXd Solvenu::newtonsolve(VectorXd intx){
     return x;
 }
 
+VectorXd Solvenu::newtonsolve(VectorXd intx,MatrixXd &l_jacobi){
+    x = intx;
+    long count = 0;
+    VectorXd dx = intx;
+    MatrixXd buf;
+    VectorXd chk;
+    while(1){
+        dx = x;
+        JacobiSVD<MatrixXd> svd(l_jacobi, ComputeThinU|ComputeThinV);
+        x = x - svd.solve(functionerror(x));//limit ここを書き換える必要がある
+        //PRINT_MAT(x);
+        chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);// + sigmoidlimit(x,1000);
+        if(count>countlimit){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than 10000 CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;PRINT_MAT(functionerror(x));break;}
+        if (functionerror(x).norm() < 0.000001d) break;
+        count++;
+    }
+    return x;
+}
+
 VectorXd Solvenu::steepsetdescentsolve(VectorXd intx){
     long count = 0;
     VectorXd x = intx;

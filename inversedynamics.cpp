@@ -39,7 +39,6 @@ VectorXd invdSolvenu::funcorg(VectorXd x){
     return (*jacobi)*x;
 }
 
-
 VectorXd invdSolvenu::gettau(VectorXd f,VectorXd mom){
     calcaTt();
     calcjacobi();
@@ -64,8 +63,24 @@ void invdSolvenu::calcforce(VectorXd tau,Vector3d &f,Vector3d &mom){
     mom = fmom.block(3,0,3,1);//動作未確認*/
 }
 
-VectorXd invdSolvenu::getvel(VectorXd x){
-    VectorXd vel = solve(x,NEWTON);
+VectorXd invdSolvenu::getvel(VectorXd x,SolvFLAG solvfl=DEFOKO){
+    VectorXd vel(x.size());
+    switch (solvfl){
+        case NEWTON://ニュートン法で解く（遅い）
+            vel = solve(x,NEWTON);
+            break;
+        case STEEPEST://最急降下法で解く（速い）
+            vel = solve(x,STEEPEST);
+            break;
+        case DEFOKO:
+            if((jointnum>6)||(limitfl==LIMITON)){//もし関節数が7以上もしくは関節可動範囲制約がある
+                vel = solve(x,STEEPEST);//最急降下法で解く
+            }else{
+                vel = solve(x,NEWTON);//ニュートン法で解く
+            }
+        default:
+            break;
+    }
     return vel;
 }
 
@@ -113,28 +128,96 @@ void inverse_dynamics(invdSolvenu *maninvd,VectorXd &angle,VectorXd &ctauv,Vecto
     PRINT_MAT(momentv);
 }
 
+void check_jacobi(invkSolvenu *maninvk,invdSolvenu *maninvd,VectorXd angle,Matrix4d mattheta){
+    Vector4d qua;
+    Vector3d pos,old_pos;
+    VectorXd vel(6);
+    VectorXd angular_vel(7);
+    VectorXd jacobi_vel(7);
+    int old_pos_fl= 0;
+    VectorXd targetx(7);
+    VectorXd old_angle = angle;
+    double time = 0.0,deltat = 0.1;
+    angle(0) = -0.25d*M_PI;
+    angle(1) = -0.25d*M_PI;
+    angle(2) = -0.25d*M_PI;
+    angle(3) = -0.25d*M_PI;
+    angle(4) = -0.25d*M_PI;
+    angle(5) = -0.25d*M_PI;
+    angle(6) = -0.25d*M_PI;
+    old_angle = angle;
+    maninvk->calcaA(angle,mattheta);
+    pos = mattheta.block(0,3,3,1);
+    old_pos = pos;
+    while(pos(1)>0.44){
+        pos(1) -= 0.001;
+        for(int ii=0;ii<3;ii++){
+            vel(ii) = (pos(ii) - old_pos(ii))/deltat;
+        }
+        for(int ii=3;ii<6;ii++){
+            vel(ii) = 0;
+        }
+        qua = maninvk->matrixtoquatanion(mattheta);//回転行列からクオータニオンへ変換
+        std::cout << " x : " << pos(0) << " y : " << pos(1) << " z : " << pos(2) << std::endl;
+        targetx.block(0,0,3,1) = pos;
+        targetx.block(3,0,4,1) = qua.block(0,0,4,1);
+        maninvk->settargetfx(targetx);
+        angle = maninvk->getangle(angle,DEFOKO);
+        maninvd->calcaA(angle);
+        maninvd->settargetfx(vel);
+        std::cout << "angle_vels are \t";
+        for(int ii=0;ii<maninvk->getjointnum()-1;ii++){
+            angular_vel(ii) = (angle(ii) - old_angle(ii))/deltat;
+            std::cout << angle(ii) << " , ";
+        }
+        std::cout << angle(maninvk->getjointnum()-1) <<  std::endl;
+        //PRINT_MAT(maninvd->getpseudoinvjacobi()*maninvd->getjacobi());
+        jacobi_vel.block(0,0,6,1) = maninvd->getjacobi()*angular_vel;//maninvd->getvel(jacobi_vel);
+        std::cout << "jacobi_vels are \t";
+        for(int ii=0;ii<maninvd->getjointnum()-1;ii++){
+            std::cout << vel(ii) - jacobi_vel(ii) << " , ";
+        }
+        std::cout << jacobi_vel(maninvk->getjointnum()-1) <<  std::endl;
+        old_pos = pos;
+        old_angle = angle;
+        time += deltat;
+        old_pos_fl = 1;
+    }
+}
+
 int main(){
     int ii,jointn = 7;
     invdSolvenu *maninvd;
+    invkSolvenu *maninvk;
     maninvd = new invdSolvenu(jointn);
+    maninvk = new invkSolvenu(jointn);
     /*RT CRANE*/
-    maninvd->setdhparameter(0,0.0d*M_PI,0.0d,0.064d,-0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
-    maninvd->setdhparameter(1,0.0d*M_PI,0.0d,0.0d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
-    maninvd->setdhparameter(2,0.0d*M_PI,0.0d,0.065d+0.185d,-0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
-    maninvd->setdhparameter(3,0.0d*M_PI,0.0d,0.0d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
-    maninvd->setdhparameter(4,0.0d*M_PI,0.0d,0.121d+0.129d,-0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
-    maninvd->setdhparameter(5,0.0d*M_PI,0.0d,0.0d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
-    maninvd->setdhparameter(6,0.0d*M_PI,0.0d,0.019d+0.084d,0.0d);//(int num,double thoff,double aa,double di,double alph);
-    /**/
+    maninvk->setdhparameter(0,0.0d*M_PI,0.0d,0.064d,-0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(1,0.0d*M_PI,0.0d,0.0d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(2,0.0d*M_PI,0.0d,0.065d+0.185d,-0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(3,0.0d*M_PI,0.0d,0.0d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(4,0.0d*M_PI,0.0d,0.121d+0.129d,-0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(5,0.0d*M_PI,0.0d,0.0d,0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(6,0.0d*M_PI,0.0d,0.019d+0.084d,0.0d);//(int num,double thoff,double aa,double di,double alph);
+    maninvd->copy(maninvk);
+    //limit add
+    VectorXd uplimit(7);
+    VectorXd lowlimit(7);
+    uplimit <<    2.72271 ,  0.5*M_PI  ,   2.72271  ,        0 ,   2.72271 ,    0.5*M_PI ,   2.89725;//可動上限範囲を設定
+    lowlimit <<  -2.72271 , -0.5*M_PI  ,  -2.72271  , -2.79253 ,  -2.72271 ,   -0.5*M_PI ,  -2.89725;//可動下限範囲を設定
+    maninvk->setlimit(uplimit,lowlimit);//可動範囲を設定（FLAGが立つ）
     VectorXd angle = VectorXd::Zero(jointn);//joint angle
     VectorXd ctauv = VectorXd::Zero(jointn);//current
     Matrix4d mattheta = MatrixXd::Identity(4,4);//回転変位行列
     Vector3d forcev,momentv;//手先力,手先モーメント
+
     /*test*/
-    forward_dynamics(maninvd,angle,forcev,momentv);//calc FD test
-    inverse_dynamics(maninvd,angle,ctauv,forcev,momentv);//calc ID test
+    check_jacobi(maninvk,maninvd,angle,mattheta);
+    //forward_dynamics(maninvd,angle,forcev,momentv);//calc FD test
+    //inverse_dynamics(maninvd,angle,ctauv,forcev,momentv);//calc ID test
 
     delete maninvd;
+    delete maninvk;
     return 0;
 }
 #endif

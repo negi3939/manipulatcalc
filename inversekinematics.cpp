@@ -212,7 +212,7 @@ VectorXd invkSolvenu::getangle(VectorXd x,SolvFLAG solvfl=DEFOKO){
     VectorXd deltaang(jointnum);
     Matrix4d bufmat;
     MatrixXd psedoinvjacobi;
-    VectorXd eulerang;
+    VectorXd eulerang(3);
     VectorXd deltaxeul(6);
     Matrix3d matcurrent,mattarget,deltamat;
     Vector4d targetquo,currentquo;
@@ -224,22 +224,22 @@ VectorXd invkSolvenu::getangle(VectorXd x,SolvFLAG solvfl=DEFOKO){
             calcaA(ang, bufmat);
             matcurrent = bufmat.block(0,0,3,3);//現在の回転行列
             deltamat = inv(matcurrent)*mattarget;//必要回転行列の計算
-            eulerang = deltamat.eulerAngles(0,1,2);//get euler angle 
-            deltaxeul.block(0,0,3,1) = functionerror(ang).block(0,0,3,1);
-            deltaxeul.block(3,0,3,1) = eulerang;
+            eulerang(0) = atan2(deltamat(0,1),deltamat(1,1));
+            eulerang(1) = asin(-deltamat(2,1));
+            eulerang(2) = atan2(deltamat(2,0),deltamat(2,2));
+
+            deltaxeul.block(0,0,3,1) = targetfx.block(0,0,3,1) - bufmat.block(0,3,3,1);//functionerror(ang).block(0,0,3,1);
+            deltaxeul.block(3,0,3,1) = VectorXd::Zero(3);//eulerang;
             //PRINT_MAT(deltaxeul);
             getjacobi();
-            psedoinvjacobi = getpseudoinvjacobi();
-            PRINT_MAT(getpseudoinvjacobi()*(*jacobi));
-            PRINT_MAT((*jacobi)*getpseudoinvjacobi());
-            exit(0);
-            deltaang = psedoinvjacobi*deltaxeul;
-            //PRINT_MAT(psedoinvjacobi);
+            JacobiSVD<MatrixXd> svd(*jacobi,ComputeThinU|ComputeThinV);
+            deltaang = svd.solve(deltaxeul);
+            //std::cout << "norm is " << deltaang.norm() << std::endl;
             if(deltaang.norm()<0.0001d){break;}
-            ang += 0.01*deltaang;
-            for(int ii=0;ii<jointnum;ii++){//循環変数変換
+            ang += 0.1*deltaang;
+            /*for(int ii=0;ii<jointnum;ii++){//循環変数変換
                 ang(ii) = atan2(sin(ang(ii)),cos(ang(ii)));
-            }
+            }*/
             //PRINT_MAT(ang);
         }    
         break;

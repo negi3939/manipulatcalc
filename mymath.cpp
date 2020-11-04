@@ -66,7 +66,7 @@ namespace Mymath{
 			VectorXd buff = aA*eigenV.block(0,ii,size,1) - eigenD(ii,ii)*bB*eigenV.block(0,ii,size,1);
 			for(int jj=0;jj<size;jj++){
 				if(abs(buff(jj))>0.1){
-				std::cout << "eigen val or eigen vector is not correct." << std::endl; 
+				std::cout << "eigen val\ or eigen vector is not correct." << std::endl; 
 			}
 			}
 		}	

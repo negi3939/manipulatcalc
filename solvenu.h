@@ -39,6 +39,7 @@ class Solvenu : public Funcvec{
         VectorXd functionerror(VectorXd x);
         VectorXd solve(VectorXd intx,SolvFLAG slflag,double l_alpha=0);
         VectorXd newtonsolve(VectorXd intx);
+        VectorXd newtonsolve(VectorXd intx,MatrixXd &l_jacobi);
         VectorXd steepsetdescentsolve(VectorXd intx);
         VectorXd steepsetdescentsolve(VectorXd intx,double l_alpha);
         ~Solvenu();

@@ -8,10 +8,10 @@
 
 TARGET=$(MAKECMDGOALS)
 ifeq ($(MAKECMDGOALS),)
-	TARGET=ik
+	TARGET=id
 endif
 ifeq ($(MAKECMDGOALS),clean)
-	TARGET=ik
+	TARGET=id
 endif
 
 DIRX = /usr/X11R6/lib
