@@ -8,10 +8,10 @@
 
 TARGET=$(MAKECMDGOALS)
 ifeq ($(MAKECMDGOALS),)
-	TARGET=id
+	TARGET=kar
 endif
 ifeq ($(MAKECMDGOALS),clean)
-	TARGET=id
+	TARGET=kar
 endif
 
 DIRX = /usr/X11R6/lib
@@ -20,6 +20,11 @@ LDFLAGS	 = -L "$(DIRX)" -lm  -pthread -std=c++11
 
 ifeq ($(TARGET),ur3)
 	SOURCE_MAIN = ur3main.cpp
+	SOURCE_SUB = mymath.cpp solvenu.cpp inversekinematics.cpp inversedynamics.cpp
+endif
+
+ifeq ($(TARGET),kar)
+	SOURCE_MAIN = KARik.cpp
 	SOURCE_SUB = mymath.cpp solvenu.cpp inversekinematics.cpp inversedynamics.cpp
 endif
 
@@ -53,6 +58,8 @@ MAINOBJ = $(SOURCE_MAIN:%.cpp=%.o)
 SUBOBJ = $(SOURCE_SUB:%.cpp=%.o)
 SOFILE = $(SOURCE_MAIN:%.cpp=%.so)
 
+
+kar: $(PROGRAM)
 ik: $(PROGRAM)
 id: $(PROGRAM)
 ur3: $(PROGRAM)
