@@ -125,8 +125,9 @@ void invkSolvenu::calcaA(VectorXd x,Matrix4d &reta){
     Matrix4d allA = aA[0];
     for(int ii=1;ii<jointnum;ii++){
         allA = allA*aA[ii];
-        PRINT_MAT(allA);
-        exit(0);
+        //if(ii==4){PRINT_MAT(allA);
+        //exit(0);
+        //}
     }
     reta = allA;
 }

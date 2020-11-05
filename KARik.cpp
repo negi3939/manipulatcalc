@@ -42,8 +42,8 @@ int main(){
     /*KAR*/
     double attachdis = 0.102d;
     //                      jointnum             thetaoff                       aa                    di           alpha
-    maninvk->setdhparameter(0,                       0.0d*M_PI,                              0.055d, 0.21d,   0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
-    maninvk->setdhparameter(1,0.5d*M_PI- atan2(0.080d,0.420d), sqrt(0.420d*0.420d + 0.080d*0.080d),  0.0d,   -1.0d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(0,                       0.0d*M_PI,                              0.055d, 0.21d,   -0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(1,-0.5d*M_PI+ atan2(0.080d,0.420d), sqrt(0.420d*0.420d + 0.080d*0.080d),  0.0d,   0.0d*M_PI);//(int num,double thoff,double aa,double di,double alph);
     maninvk->setdhparameter(2,           -atan2(0.080d,0.420d),                             0.390d,  0.0d,   0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
     maninvk->setdhparameter(3,                       0.0d*M_PI,                                0.0d,  0.0d,  -0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
     maninvk->setdhparameter(4,                       0.0d*M_PI,                  0.045d + attachdis,  0.0d,   0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
@@ -60,7 +60,7 @@ int main(){
     uplimit <<    120.0d/180.0d*M_PI ,  70.0d/180.0d*M_PI  , 170.0d/180.0d*M_PI  ,  110.0d/180.0d*M_PI ,   75.0d/180.0d*M_PI ,    120.0d/180.0d*M_PI;//可動上限範囲を設定(1~6軸)
     lowlimit <<  -120.0d/180.0d*M_PI , -35.0d/180.0d*M_PI  ,  -0.0d/180.0d*M_PI  , -110.0d/180.0d*M_PI ,  -90.0d/180.0d*M_PI ,   -120.0d/180.0d*M_PI;//可動下限範囲を設定(1~6軸)
     maninvk->setlimit(uplimit,lowlimit);//可動範囲を設定（FLAGが立つ）
-    
+    PRINT_MAT(lowlimit);
     //IK
     VectorXd targetx(7);//目標位置姿勢
     Vector4d qua;//クオータニオン
