@@ -66,7 +66,11 @@ int main(){
     Vector4d qua;//クオータニオン
     Vector3d pos;//3軸位置
     pos = mattheta.block(0,3,3,1);
-    pos(1) -= 0.01;
+    pos(0) -= 0.1;
+    /*mattheta(0,0) = 1;
+    mattheta(1,0) = 0;mattheta(0,1) = 0;mattheta(0,2) = 0;0;mattheta(2,0) = 0;
+    mattheta(1,1) = cos(0.5*M_PI);mattheta(2,2) = cos(0.5*M_PI);
+    mattheta(1,2) = -sin(0.5*M_PI);mattheta(2,1) = sin(0.5*M_PI);*/
     qua = maninvk->matrixtoquatanion(mattheta);//回転行列からクオータニオンへ変換
     targetx.block(0,0,3,1) = pos;
     targetx.block(3,0,4,1) = qua.block(0,0,4,1);
@@ -80,6 +84,6 @@ int main(){
     std::cout << deg(maninvk->getjointnum()-1) <<  std::endl;
     Matrix4d ansmat;
     //PRINT_MAT(maninvk->penaltyfunc(angle));
-    maninvk->calcaA(angle,ansmat);
-    std::cout << "answer x: " << ansmat(0,3) << " , y: " << ansmat(1,3) << " , z: "<< ansmat(2,3) << std::endl;
+    maninvk->calcaA(angle,mattheta);
+    PRINT_MAT(mattheta);
 }
