@@ -50,14 +50,36 @@ int main(){
     maninvk->setdhparameter(5,                       0.0d*M_PI,                                0.0d,  0.0d,   0.0d*M_PI);//(int num,double thoff,double aa,double di,double alph);
     //limit add
     VectorXd angle = VectorXd::Zero(6);
+    VectorXd deg = VectorXd::Zero(6);
     angle(2) = 0.5d*M_PI;
     maninvk->calcaA(angle,mattheta);
     PRINT_MAT(mattheta);
     std::cout << "atan2 val "<< (-0.5d*M_PI+ atan2(0.080d,0.420d))*180/M_PI << std::endl;
     VectorXd uplimit(6);
     VectorXd lowlimit(6);
-    uplimit <<    2.72271 ,  0.5*M_PI  ,   2.72271  ,        0 ,   2.72271 ,    0.5*M_PI;//可動上限範囲を設定
-    lowlimit <<  -2.72271 , -0.5*M_PI  ,  -2.72271  , -2.79253 ,  -2.72271 ,   -0.5*M_PI;//可動下限範囲を設定
+    uplimit <<    120.0d/180.0d*M_PI ,  70.0d/180.0d*M_PI  , 170.0d/180.0d*M_PI  ,  110.0d/180.0d*M_PI ,   75.0d/180.0d*M_PI ,    120.0d/180.0d*M_PI;//可動上限範囲を設定(1~6軸)
+    lowlimit <<  -120.0d/180.0d*M_PI , -35.0d/180.0d*M_PI  ,  -0.0d/180.0d*M_PI  , -110.0d/180.0d*M_PI ,  -90.0d/180.0d*M_PI ,   -120.0d/180.0d*M_PI;//可動下限範囲を設定(1~6軸)
     maninvk->setlimit(uplimit,lowlimit);//可動範囲を設定（FLAGが立つ）
-
+    
+    //IK
+    VectorXd targetx(7);//目標位置姿勢
+    Vector4d qua;//クオータニオン
+    Vector3d pos;//3軸位置
+    pos = mattheta.block(0,3,3,1);
+    pos(1) -= 0.01;
+    qua = maninvk->matrixtoquatanion(mattheta);//回転行列からクオータニオンへ変換
+    targetx.block(0,0,3,1) = pos;
+    targetx.block(3,0,4,1) = qua.block(0,0,4,1);
+    maninvk->settargetfx(targetx);
+    angle = maninvk->getangle(angle,NEWTON);
+    deg = 180.0d/M_PI*angle;
+    std::cout << "angles are \t";
+    for(int ii=0;ii<maninvk->getjointnum()-1;ii++){
+        std::cout << deg(ii) << " , ";
+    }
+    std::cout << deg(maninvk->getjointnum()-1) <<  std::endl;
+    Matrix4d ansmat;
+    //PRINT_MAT(maninvk->penaltyfunc(angle));
+    maninvk->calcaA(angle,ansmat);
+    std::cout << "answer x: " << ansmat(0,3) << " , y: " << ansmat(1,3) << " , z: "<< ansmat(2,3) << std::endl;
 }

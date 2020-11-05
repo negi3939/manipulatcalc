@@ -95,6 +95,7 @@ void invkSolvenu::init(){
     }
 }
 
+
 VectorXd invkSolvenu::funcorg(VectorXd x){
     int ii;
     Vector3d pos;
@@ -216,6 +217,7 @@ VectorXd invkSolvenu::getangle(VectorXd x,SolvFLAG solvfl=DEFOKO){
     VectorXd deltaxeul(6);
     Matrix3d matcurrent,mattarget,deltamat;
     Vector4d targetquo,currentquo;
+    int checkret=0;
     switch (solvfl){
     case JACOBI://擬似逆行列で解く
         targetquo = targetfx.block(3,0,4,1);//目標のクオータニオン
@@ -229,7 +231,7 @@ VectorXd invkSolvenu::getangle(VectorXd x,SolvFLAG solvfl=DEFOKO){
             eulerang(2) = atan2(deltamat(2,0),deltamat(2,2));
 
             deltaxeul.block(0,0,3,1) = targetfx.block(0,0,3,1) - bufmat.block(0,3,3,1);//functionerror(ang).block(0,0,3,1);
-            deltaxeul.block(3,0,3,1) = VectorXd::Zero(3);//eulerang;
+            deltaxeul.block(3,0,3,1) = eulerang;//VectorXd::Zero(3);
             //PRINT_MAT(deltaxeul);
             getjacobi();
             JacobiSVD<MatrixXd> svd(*jacobi,ComputeThinU|ComputeThinV);
@@ -241,9 +243,11 @@ VectorXd invkSolvenu::getangle(VectorXd x,SolvFLAG solvfl=DEFOKO){
                 ang(ii) = atan2(sin(ang(ii)),cos(ang(ii)));
             }*/
             //PRINT_MAT(ang);
-        }    
+        }
+        if(limitfl==LIMITCHECK){checkret = checklimit(ang);}
+        if(checkret){std::cout << "solve fail :" << checkret << std::endl;}    
         break;
-    case NEWTON://ニュートン法で解く（遅い）
+    case NEWTON://ニュートン法で解く
         ang = solve(x,NEWTON);
         break;
     case STEEPEST://最急降下法で解く（速い）

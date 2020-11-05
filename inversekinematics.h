@@ -52,7 +52,7 @@ class invkSolvenu : public Solvenu {
     Vector4d matrixtoquatanion(Matrix4d mat);
     Vector4d matrixtoquatanion(Matrix3d mat);
     Matrix3d quataniontomatrix(Vector4d qua);
-    VectorXd getangle(VectorXd x,SolvFLAG solvfl);
+    VectorXd getangle(VectorXd x,SolvFLAG solvfl=DEFOKO);
     ~invkSolvenu();
 };
 

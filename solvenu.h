@@ -7,6 +7,7 @@ using namespace Mymath;
 enum LIMITFlag{
     LIMITOFF=0,
     LIMITON=1,
+    LIMITCHECK=2,
 };
 
 enum SolvFLAG{

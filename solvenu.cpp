@@ -90,14 +90,13 @@ VectorXd Solvenu::functionerror(VectorXd x){
     //checklimit(x);
     VectorXd buf = funcorg(x);
     VectorXd trgfx(buf.size());
-    if(limitfl==0){ 
+    if(limitfl!=LIMITON){ 
         return  funcorg(x) - targetfx;
     }else{
         //PRINT_MAT(funcorg(x));
         //PRINT_MAT(targetfx);
         //PRINT_MAT(funcorg(x)- targetfx);
-        //exit(0);
-        MatrixXd oone = 100.0d*MatrixXd::Ones(x.size(),targetfx.size());
+        MatrixXd oone = 100.0d*MatrixXd::Ones(targetfx.size(),x.size());
         return  funcorg(x) - targetfx + oone*penaltyfunc(x);
     }
 }
@@ -125,7 +124,6 @@ VectorXd Solvenu::newtonsolve(VectorXd intx){
     VectorXd chk;
     while(1){
         dx = x;
-        MatrixXd baka =  diffvec(x,this);
         JacobiSVD<MatrixXd> svd(diffvec(x,this), ComputeThinU|ComputeThinV);
         x = x - svd.solve(functionerror(x));//limit ここを書き換える必要がある
         //PRINT_MAT(x);
@@ -134,6 +132,9 @@ VectorXd Solvenu::newtonsolve(VectorXd intx){
         if (functionerror(x).norm() < 0.000001d) break;
         count++;
     }
+    int checkret=0;
+    if(limitfl==LIMITCHECK){checkret = checklimit(x);}
+    if(checkret){std::cout << "solve fail :" << checkret << std::endl;}
     return x;
 }
 
@@ -153,6 +154,9 @@ VectorXd Solvenu::newtonsolve(VectorXd intx,MatrixXd &l_jacobi){
         if (functionerror(x).norm() < 0.000001d) break;
         count++;
     }
+    int checkret=0;
+    if(limitfl==LIMITCHECK){checkret = checklimit(x);}
+    if(checkret){std::cout << "solve fail :" << checkret << std::endl;}
     return x;
 }
 
@@ -188,6 +192,9 @@ VectorXd Solvenu::steepsetdescentsolve(VectorXd intx){
         }
         x = x + 0.5d*(bottom_alpha+top_alpha)*s;
     }
+    int checkret=0;
+    if(limitfl==LIMITCHECK){checkret = checklimit(x);}
+    if(checkret){std::cout << "solve fail :" << checkret << std::endl;}
     return x;
 }
 
@@ -203,5 +210,8 @@ VectorXd Solvenu::steepsetdescentsolve(VectorXd intx,double l_alpha){
         s = -diffv.transpose();
         x = x + l_alpha*s;
     }
+    int checkret=0;
+    if(limitfl==LIMITCHECK){checkret = checklimit(x);}
+    if(checkret){std::cout << "solve fail :" << checkret << std::endl;}
     return x;
 }
