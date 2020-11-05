@@ -27,10 +27,11 @@
 #include "mymath.h"
 #include "solvenu.h"
 
-Solvenu::Solvenu(){countlimit=1000;limitfl=LIMITOFF;}
+Solvenu::Solvenu(){countlimit=1000;limitfl=LIMITOFF;threshold=0.000001d;}
 Solvenu::~Solvenu(){}
 
 void Solvenu::setcountlimit(long a){countlimit = a;}
+void Solvenu::setthreshold(double l_threshold){threshold = l_threshold;}
 
 void Solvenu::setlimit(VectorXd uplimit,VectorXd lowlimit){
     upperlimit = uplimit;
@@ -129,7 +130,7 @@ VectorXd Solvenu::newtonsolve(VectorXd intx){
         //PRINT_MAT(x);
         chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);// + sigmoidlimit(x,1000);
         if(count>countlimit){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than" << countlimit << "CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;PRINT_MAT(functionerror(x));break;}
-        if (functionerror(x).norm() < 0.000001d) break;
+        if (functionerror(x).norm() < threshold) break;
         count++;
     }
     int checkret=0;
@@ -151,7 +152,7 @@ VectorXd Solvenu::newtonsolve(VectorXd intx,MatrixXd &l_jacobi){
         //PRINT_MAT(x);
         chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);// + sigmoidlimit(x,1000);
         if(count>countlimit){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than" << countlimit << "CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;PRINT_MAT(functionerror(x));break;}
-        if (functionerror(x).norm() < 0.000001d) break;
+        if (functionerror(x).norm() < threshold) break;
         count++;
     }
     int checkret=0;
@@ -169,7 +170,7 @@ VectorXd Solvenu::steepsetdescentsolve(VectorXd intx){
     MatrixXd s;
     while(1){
         diffv =  diffnorm(x,this);
-        if(functionerror(x).norm()<0.00001d){break;}
+        if(functionerror(x).norm()<threshold){break;}
         //std::cout << "norm is " <<functionerror(x).norm() << std::endl;
         s = -diffv.transpose();
         bottom_alpha=0.0d;
@@ -188,7 +189,7 @@ VectorXd Solvenu::steepsetdescentsolve(VectorXd intx){
             }
             if(count>countlimit){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than" << countlimit << "CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;PRINT_MAT(functionerror(x));break;}
             //std::cout << "bottom_alpha : "<< bottom_alpha << " top_alpha : "<< top_alpha << std::endl;
-            if(std::abs(bottom_alpha - top_alpha) <0.00001d){break;}
+            if(std::abs(bottom_alpha - top_alpha) <threshold){break;}
         }
         x = x + 0.5d*(bottom_alpha+top_alpha)*s;
     }
@@ -205,7 +206,7 @@ VectorXd Solvenu::steepsetdescentsolve(VectorXd intx,double l_alpha){
     MatrixXd s;
     while(1){
         diffv =  diffnorm(x,this);
-        if(functionerror(x).norm()<0.00001d){break;}
+        if(functionerror(x).norm()<threshold){break;}
         //std::cout << "alppha is const. norm is " <<functionerror(x).norm() << std::endl;
         s = -diffv.transpose();
         x = x + l_alpha*s;

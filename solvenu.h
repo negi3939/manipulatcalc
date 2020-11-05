@@ -25,10 +25,12 @@ class Solvenu : public Funcvec{
         VectorXd upperlimit;
         VectorXd lowerlimit;
         LIMITFlag limitfl;
+        double threshold;
     public:
         Solvenu();
         void setcountlimit(long a);
         void setlimit(VectorXd uplimit,VectorXd lowlimit);
+        void setthreshold(double l_threshold);
         void unsetlimit();
         int checklimit(VectorXd &x);
         VectorXd sigmoidlimit(VectorXd &x,double alpha);
