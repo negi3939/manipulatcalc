@@ -18,6 +18,11 @@ DIRX = /usr/X11R6/lib
 CXXFLAGS = -I ~/eigenlib/eigen-3.3.7/ -fpermissive
 LDFLAGS	 = -L "$(DIRX)" -lm  -pthread -std=c++11
 
+GCCVERSION = $(shell g++ --version | grep ^g++)
+ifeq "$(GCCVERSION)" "g++ (GCC) 3.3.5 (Debian 1:3.3.5-13)"
+	CXXFLAGS += -DGCC3p3
+endif
+
 ifeq ($(TARGET),ur3)
 	SOURCE_MAIN = ur3main.cpp
 	SOURCE_SUB = mymath.cpp solvenu.cpp inversekinematics.cpp inversedynamics.cpp
