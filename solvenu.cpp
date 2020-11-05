@@ -27,7 +27,7 @@
 #include "mymath.h"
 #include "solvenu.h"
 
-Solvenu::Solvenu(){countlimit=10000;limitfl=LIMITOFF;}
+Solvenu::Solvenu(){countlimit=1000;limitfl=LIMITOFF;}
 Solvenu::~Solvenu(){}
 
 void Solvenu::setcountlimit(long a){countlimit = a;}
@@ -128,7 +128,7 @@ VectorXd Solvenu::newtonsolve(VectorXd intx){
         x = x - svd.solve(functionerror(x));//limit ここを書き換える必要がある
         //PRINT_MAT(x);
         chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);// + sigmoidlimit(x,1000);
-        if(count>countlimit){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than 10000 CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;PRINT_MAT(functionerror(x));break;}
+        if(count>countlimit){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than" << countlimit << "CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;PRINT_MAT(functionerror(x));break;}
         if (functionerror(x).norm() < 0.000001d) break;
         count++;
     }
@@ -150,7 +150,7 @@ VectorXd Solvenu::newtonsolve(VectorXd intx,MatrixXd &l_jacobi){
         x = x - svd.solve(functionerror(x));//limit ここを書き換える必要がある
         //PRINT_MAT(x);
         chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);// + sigmoidlimit(x,1000);
-        if(count>countlimit){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than 10000 CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;PRINT_MAT(functionerror(x));break;}
+        if(count>countlimit){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than" << countlimit << "CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;PRINT_MAT(functionerror(x));break;}
         if (functionerror(x).norm() < 0.000001d) break;
         count++;
     }
@@ -186,7 +186,7 @@ VectorXd Solvenu::steepsetdescentsolve(VectorXd intx){
                 alpha1 = alpha2;
                 alpha2 = bottom_alpha + gold_r*(top_alpha - bottom_alpha);
             }
-            if(count>countlimit){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than 10000 CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;PRINT_MAT(functionerror(x));break;}
+            if(count>countlimit){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than" << countlimit << "CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;PRINT_MAT(functionerror(x));break;}
             //std::cout << "bottom_alpha : "<< bottom_alpha << " top_alpha : "<< top_alpha << std::endl;
             if(std::abs(bottom_alpha - top_alpha) <0.00001d){break;}
         }

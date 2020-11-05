@@ -51,7 +51,8 @@ int main(){
     //limit add
     VectorXd angle = VectorXd::Zero(6);
     VectorXd deg = VectorXd::Zero(6);
-    angle(2) = 0.5d*M_PI;
+    deg << -0.379385 , -11.606 , 115.989 , 0.391671 , 75.2911 , -0.517026;
+    angle = M_PI/180.0d*deg;
     maninvk->calcaA(angle,mattheta);
     PRINT_MAT(mattheta);
     std::cout << "atan2 val "<< (-0.5d*M_PI+ atan2(0.080d,0.420d))*180/M_PI << std::endl;
@@ -60,17 +61,13 @@ int main(){
     uplimit <<    120.0d/180.0d*M_PI ,  70.0d/180.0d*M_PI  , 170.0d/180.0d*M_PI  ,  110.0d/180.0d*M_PI ,   75.0d/180.0d*M_PI ,    120.0d/180.0d*M_PI;//可動上限範囲を設定(1~6軸)
     lowlimit <<  -120.0d/180.0d*M_PI , -35.0d/180.0d*M_PI  ,  -0.0d/180.0d*M_PI  , -110.0d/180.0d*M_PI ,  -90.0d/180.0d*M_PI ,   -120.0d/180.0d*M_PI;//可動下限範囲を設定(1~6軸)
     maninvk->setlimit(uplimit,lowlimit);//可動範囲を設定（FLAGが立つ）
-    PRINT_MAT(lowlimit);
     //IK
     VectorXd targetx(7);//目標位置姿勢
     Vector4d qua;//クオータニオン
     Vector3d pos;//3軸位置
     pos = mattheta.block(0,3,3,1);
-    pos(0) -= 0.1;
-    /*mattheta(0,0) = 1;
-    mattheta(1,0) = 0;mattheta(0,1) = 0;mattheta(0,2) = 0;0;mattheta(2,0) = 0;
-    mattheta(1,1) = cos(0.5*M_PI);mattheta(2,2) = cos(0.5*M_PI);
-    mattheta(1,2) = -sin(0.5*M_PI);mattheta(2,1) = sin(0.5*M_PI);*/
+    pos(2) -= 0.1;
+    PRINT_MAT(mattheta);
     qua = maninvk->matrixtoquatanion(mattheta);//回転行列からクオータニオンへ変換
     targetx.block(0,0,3,1) = pos;
     targetx.block(3,0,4,1) = qua.block(0,0,4,1);
