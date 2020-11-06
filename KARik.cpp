@@ -41,13 +41,13 @@ int main(){
     maninvk = new invkSolvenu(jointn);
     /*KAR*/
     double attachdis = 0.102d;
-    //                      jointnum             thetaoff                       aa                    di           alpha
-    maninvk->setdhparameter(0,                       0.0d*M_PI,                              0.055d, 0.21d,   -0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
-    maninvk->setdhparameter(1,-0.5d*M_PI+ atan2(0.080d,0.420d), sqrt(0.420d*0.420d + 0.080d*0.080d),  0.0d,   0.0d*M_PI);//(int num,double thoff,double aa,double di,double alph);
-    maninvk->setdhparameter(2,           -atan2(0.080d,0.420d),                             0.390d,  0.0d,   0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
-    maninvk->setdhparameter(3,                       0.0d*M_PI,                                0.0d,  0.0d,  -0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
-    maninvk->setdhparameter(4,                       0.0d*M_PI,                  0.045d + attachdis,  0.0d,   0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
-    maninvk->setdhparameter(5,                       0.0d*M_PI,                                0.0d,  0.0d,   0.0d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+     //                      jointnum             thetaoff                                               aa        di       alpha
+    maninvk->setdhparameter(0,                            0.0d*M_PI,                                   0.055d, 0.21d,   -0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(1, -0.5d*M_PI+std::atan2(0.080d,0.420d), std::sqrt(0.420d*0.420d + 0.080d*0.080d),  0.0d,   0.0d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(2,  0.5d*M_PI-std::atan2(0.080d,0.420d),                                     0.0d,  0.0d,  0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(3,                            0.0d*M_PI,                                     0.0d,  0.390d,  -0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(4,                            0.0d*M_PI,                                     0.0d,  0.0d,   0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(5,                            0.0d*M_PI,                                     0.0d,  0.045d + attachdis,   0.0d*M_PI);//(int num,double thoff,double aa,double di,double alph);
     //limit add
     VectorXd angle = VectorXd::Zero(6);
     VectorXd deg = VectorXd::Zero(6);
