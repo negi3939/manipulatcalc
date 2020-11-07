@@ -24,43 +24,33 @@ class Robotviz : public Animation{
         Robotviz();
     protected:
     static void display(){
-			glClear(GL_COLOR_BUFFER_BIT);
-            Vector3d c(1.0d,1.0d,1.0d);
-		    Vector2d stpx(-20.0d,0.0d),edpx(20.0d,0.0d);
-		    Vector2d stpy(0.0d,-20.0d),edpy(0.0d,20.0d);
-		    Vector2d rp;
-		    draw::line xaxis,yaxis,r;
-		    draw::curve theta;
-		    int n = 1,m = 1;
-		    Vector2d zero;
-		    zero = MatrixXd::Zero(2, 1);
-		    xaxis.setcolor(c);
-		    yaxis.setcolor(c);
-		    xaxis.setsp(stpx);
-		    yaxis.setsp(stpy);
-		    xaxis.setep(edpx);
-		    yaxis.setep(edpy);
-		    xaxis.dr();
-		    yaxis.dr();
-
-		for(n=1;n<6;n++){
-			theta.setcolor(c);
-			theta.setr((double)n/5);
-			theta.setp(zero);
-			theta.dr();
-		}
-
-		for(m=1;m<12;m++){
-			r.setcolor(c);
-			rp(0) = 1.0*cos((double)m*M_PI/6.0);
-			rp(1) = 1.0*sin((double)m*M_PI/6.0);
-			r.setsp(zero);
-			r.setep(rp);
-			r.dr();
-		}
-            glEnd();
-            glFlush();
-	}
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            float anglex = 0.0f;
+            glViewport(0, 0, 320.0d, 240.0d);
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+            //視野角,アスペクト比(ウィンドウの幅/高さ),描画する範囲(最も近い距離,最も遠い距離)
+            gluPerspective(30.0, 320.0d / 240.0d, 1.0, 1000.0);
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
+            //視点の設定
+            gluLookAt(500.0,500.0,-500.0, //カメラの座標
+            5.0,5.0,5.0, // 注視点の座標
+            1.0,0.0,0.0); // 画面の上方向を指すベクトル
+            //ライトの設定
+            GLfloat lightpos[] = { 20.0, 15.0, -50.0, 0.0 };
+            GLfloat Blue[] = { 1.0, 0.0, 0.0, 0.5 };
+            //glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
+            //マテリアルの設定
+            glMaterialfv(GL_FRONT, GL_DIFFUSE, Blue);
+            //回転
+            glRotatef(anglex,1.0f,0.0f,0.0f);//X軸を回転
+            draw::Cylinder joint;
+            joint.setp(30.0,50.0,10);
+            joint.dr();
+            //glutSwapBuffers();
+    }
+            
 };
 Robotviz::Robotviz(){
     setdispf();
