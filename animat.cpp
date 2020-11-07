@@ -190,14 +190,15 @@ void InitialGlut(int ac,char *av[]){
 
 class Structthis{
 	public:
-		int num;
-		void *anithi;
+		void *num;
+		void *send;
+		void *instthis;
 };
 
 class Animation{
 	private:
-		static void* launchThread(void *pParam){
-        	reinterpret_cast<Animation*>(reinterpret_cast<Structthis*>(pParam)->anithi)->aniloop();
+		static void* launchthread(void *pParam){
+        	reinterpret_cast<Animation*>(reinterpret_cast<Structthis*>(pParam)->instthis)->aniloop(reinterpret_cast<Structthis*>(pParam)->send);
         	pthread_exit(NULL);
     	}
 	protected:
@@ -206,7 +207,7 @@ class Animation{
 		double wide;
 		pthread_t anithread;
 		pthread_mutex_t anitex;
-		void aniloop();
+		void aniloop(void* send);
 	public:
 		Animation();
 		void init();
@@ -218,24 +219,24 @@ Animation::Animation(){
 	for(int ii = 0;ii<winnum;ii++){
 		windowname[ii] = new char[255];
 	}
-	windowname[0] = {"hoge animation"};
+	windowname[0] = {"animation0"};
+	windowname[1] = {"animation1"};
 	init();
 }
 void Animation::init(){
 	pthread_mutex_init(&anitex,NULL);
 	Structthis *anisend = new Structthis;
-	anisend->num = 1;
-	anisend->anithi = (void*)this;
-	pthread_create(&anithread,NULL,Animation::launchThread,anisend);
+	anisend->instthis = (void*)this;
+	pthread_create(&anithread,NULL,Animation::launchthread,anisend);
 	while(1){}
 }
 
-void Animation::aniloop(){
+void Animation::aniloop(void *send){
 	int ac = 1;
 	char *av[5];
-	glutInit(&ac,av);
 	glutInitWindowPosition(100,20);
 	glutInitWindowSize(1000,1000);
+	glutInit(&ac,av);
 	glutReshapeFunc(ani::resize);
 	glutInitDisplayMode(GLUT_RGBA);
 	glutCreateWindow(windowname[0]);
