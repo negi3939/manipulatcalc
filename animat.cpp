@@ -188,9 +188,15 @@ void InitialGlut(int ac,char *av[]){
 	glutMainLoop();
 }
 
+class Animationsend{
+	public:
+		int num;
+		void *anithi;
+};
+
 class Animation{
 	private:
-		static void* launchThread(void *pParam) {
+		static void* launchThread(void *pParam){
         	reinterpret_cast<Animation*>(pParam)->aniloop();
         	pthread_exit(NULL);
     	}
@@ -217,7 +223,11 @@ Animation::Animation(){
 }
 void Animation::init(){
 	pthread_mutex_init(&anitex,NULL);
+	Animationsend *anisend = new Animationsend;
+	anisend->num = 1;
+	anisend->anithi = (void*)this;
 	pthread_create(&anithread,NULL,Animation::launchThread,this);
+	while(1){}
 }
 
 void Animation::aniloop(){
