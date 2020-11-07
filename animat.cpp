@@ -44,7 +44,6 @@ void Animation::init(){
 	Structthis *anisend = new Structthis;
 	anisend->instthis = (void*)this;
 	pthread_create(&anithread,NULL,Animation::launchthread,anisend);
-	while(1){}
 }
 
 void Animation::setdispf(){
@@ -75,6 +74,8 @@ void Animation::aniloop(void *send){
 #if defined(ANIME_IS_MAIN)
 int main(){
 	Animation ani;
-	while(1){}
+	while(1){
+		//std::cout << "hogehoge" << std::endl;
+	}
 }
 #endif
