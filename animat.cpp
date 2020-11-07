@@ -188,7 +188,7 @@ void InitialGlut(int ac,char *av[]){
 	glutMainLoop();
 }
 
-class Animationsend{
+class Structthis{
 	public:
 		int num;
 		void *anithi;
@@ -223,7 +223,7 @@ Animation::Animation(){
 }
 void Animation::init(){
 	pthread_mutex_init(&anitex,NULL);
-	Animationsend *anisend = new Animationsend;
+	Structthis *anisend = new Structthis;
 	anisend->num = 1;
 	anisend->anithi = (void*)this;
 	pthread_create(&anithread,NULL,Animation::launchThread,this);
