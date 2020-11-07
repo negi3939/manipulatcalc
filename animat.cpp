@@ -24,6 +24,7 @@ namespace fragg{
 	bool view;
 	bool end;
 }
+
 namespace ctr{
 	double wide = 1000.0;
 	void keyboard(unsigned char key, int x, int y){
@@ -187,10 +188,59 @@ void InitialGlut(int ac,char *av[]){
 	glutMainLoop();
 }
 
+class Animation{
+	private:
+		static void* launchThread(void *pParam) {
+        	reinterpret_cast<Animation*>(pParam)->aniloop();
+        	pthread_exit(NULL);
+    	}
+	protected:
+		int winnum;
+		char **windowname;
+		double wide;
+		pthread_t anithread;
+		pthread_mutex_t anitex;
+		void aniloop();
+	public:
+		Animation();
+		void init();
+};
+
+Animation::Animation(){
+	winnum = 2;
+	windowname = new char*[winnum];
+	for(int ii = 0;ii<winnum;ii++){
+		windowname[ii] = new char[255];
+	}
+	windowname[0] = {"hoge animation"};
+	init();
+}
+void Animation::init(){
+	pthread_mutex_init(&anitex,NULL);
+	pthread_create(&anithread,NULL,Animation::launchThread,this);
+}
+
+void Animation::aniloop(){
+	int ac = 1;
+	char *av[5];
+	glutInit(&ac,av);
+	glutInitWindowPosition(100,20);
+	glutInitWindowSize(1000,1000);
+	glutReshapeFunc(ani::resize);
+	glutInitDisplayMode(GLUT_RGBA);
+	glutCreateWindow(windowname[0]);
+	glutDisplayFunc(ani::display);
+	glutReshapeFunc(ani::resize);
+	glutKeyboardFunc(ctr::keyboard);
+	ani::init();
+	glutTimerFunc(1,ani::timer,0);
+	glutMainLoop();
+}
+
+
 #if defined(ANIME_IS_MAIN)
 int main(){
-	char *av[5];
-	av[0] = {"hoge"};
-	InitialGlut(1,av);
+	Animation ani;
+	while(1){}
 }
 #endif
