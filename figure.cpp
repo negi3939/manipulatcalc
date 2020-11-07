@@ -12,6 +12,10 @@
 #include<Eigen/Dense>
 #include<Eigen/Core>
 #include<Eigen/Geometry>
+#include <GL/glut.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
+
 #include"animat.h"
 
 namespace draw{
