@@ -18,28 +18,28 @@ class Structthis{
 
 class Animation{
 	protected:
+        static double *wide;//画面の拡大率
+		static pthread_mutex_t flutex;//flag用のmutex
+		static pthread_mutex_t mutex;
+		static pthread_mutex_t endutex;
+		static int startfl;//start flag
+		static int viewfl;//view flag
+		static int endfl;//end flag
 		int winnum;
 		char **windowname;
 		pthread_t anithread;
 		pthread_mutex_t anitex;
 		void (*keyf)(unsigned char,int,int);
 		void (*resiz)(int,int);
-		void (*disp)();
+		void (*disp)();//display関数のポインタ
 		void (*timerf)(int);
 		void aniloop(void* send);
 		void g_init(void);
-		virtual void setdispf();
+		virtual void setdispf();//displayの関数を設定(継承では関数のポインタを変更)
 	public:
 		Animation();
-		void init();
-	private:
-		static double wide;
-		static pthread_mutex_t flutex;
-		static pthread_mutex_t mutex;
-		static pthread_mutex_t endutex;
-		static int start;
-		static int view;
-		static int end;
+		void start();
+    private:
 		static void* launchthread(void *pParam){
         	reinterpret_cast<Animation*>(reinterpret_cast<Structthis*>(pParam)->instthis)->aniloop(reinterpret_cast<Structthis*>(pParam)->send);
         	pthread_exit(NULL);
@@ -49,32 +49,32 @@ class Animation{
 			switch(key){
 			case '-':
 				pthread_mutex_lock(&flutex);
-				wide -= 20;
-				std::cout<<"////////zoom out("<<wide<<")\\\\\\"<<std::endl;
+				(*wide) -= 20;
+				std::cout<<"////////zoom out("<<*wide<<")\\\\\\"<<std::endl;
 				pthread_mutex_unlock(&flutex);
-				break;
+                break;
 			case '+':
 				pthread_mutex_lock(&flutex);
-				wide += 20;
-				std::cout<<"\\\\\\\\zoom in("<<wide<<"///////"<<std::endl;
+				(*wide) += 20;
+				std::cout<<"\\\\\\\\zoom in("<<*wide<<"///////"<<std::endl;
 				pthread_mutex_unlock(&flutex);
 				break;
 			case 's':
 				std::cout<<"========start=========="<<std::endl;
 				pthread_mutex_lock(&flutex);
-				start= 1;
+				startfl= 1;
 				pthread_mutex_unlock(&flutex);
 				break;
 			case 'v':
-				if(view==0){
+				if(viewfl==0){
 					pthread_mutex_lock(&flutex);
-					view= 1;
+					viewfl= 1;
 					pthread_mutex_unlock(&flutex);
 					std::cout<<"=======view========="<<std::endl;
 					break;
 				}else{
 					pthread_mutex_lock(&flutex);
-					view= 0;
+					viewfl= 0;
 					pthread_mutex_unlock(&flutex);
 					std::cout<<"=======no view========="<<std::endl;
 					break;
@@ -87,28 +87,30 @@ class Animation{
 			}
 	}
 	static void resize(int w,int h){
-		double l_wide;
-		pthread_mutex_lock(&flutex);
-		l_wide = wide;
-		pthread_mutex_unlock(&flutex);
-		glViewport(0, 0, w, h);
-		glLoadIdentity();
-		glOrtho(-w / wide, w / wide, -h / wide, h / wide, -1.0, 1.0);
+        timerfunc(0);
 	}
 	static void display(){
 			glClear(GL_COLOR_BUFFER_BIT);
-			usleep(10000);
+            usleep(10000);
 			glFlush();
+            
 	}
 	static void timerfunc(int value){
 		glutPostRedisplay();
 		glutTimerFunc(1,timerfunc,0);
-		endfunc();
+        double l_wide;
+		pthread_mutex_lock(&flutex);
+		l_wide = (*wide);
+		pthread_mutex_unlock(&flutex);
+		glViewport(0, 0, 1000, 1000);
+		glLoadIdentity();
+		glOrtho(-1000 / l_wide, 1000 / l_wide, -1000 / l_wide, 1000 / l_wide , -1.0, 1.0);
+        glFlush();
 	}
 	static void endfunc(){
 		bool endf;
 		pthread_mutex_lock(&endutex);
-		endf = end;
+		endf = endfl;
 		pthread_mutex_unlock(&endutex);
 		if(endf==1){exit(0);}
 	}

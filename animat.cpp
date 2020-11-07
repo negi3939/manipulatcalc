@@ -13,17 +13,18 @@
 #include <GL/glut.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
-
-#include"animat.h"
 #include"figure.h"
+#include"animat.h"
 
-double Animation::wide;
+
+double *Animation::wide;
 pthread_mutex_t Animation::flutex;
 pthread_mutex_t Animation::mutex;
 pthread_mutex_t Animation::endutex;
-static int Animation::start;
-static int Animation::view;
-static int Animation::end;
+static int Animation::startfl;
+static int Animation::viewfl;
+static int Animation::endfl;
+
 
 Animation::Animation(){
 	winnum = 2;
@@ -31,16 +32,20 @@ Animation::Animation(){
 	for(int ii = 0;ii<winnum;ii++){
 		windowname[ii] = new char[255];
 	}
+	wide = new double;
+	(*wide) = 1000;
 	windowname[0] = {"animation0"};
 	windowname[1] = {"animation1"};
-	init();
 }
-void Animation::init(){
+void Animation::start(){
 	setdispf();
 	keyf = Animation::keyboard;
 	resiz = Animation::resize;
 	timerf = Animation::timerfunc;
 	pthread_mutex_init(&anitex,NULL);
+	pthread_mutex_init(&flutex,NULL);
+	pthread_mutex_init(&mutex,NULL);
+	pthread_mutex_init(&endutex,NULL);
 	Structthis *anisend = new Structthis;
 	anisend->instthis = (void*)this;
 	pthread_create(&anithread,NULL,Animation::launchthread,anisend);
@@ -57,10 +62,9 @@ void Animation::g_init(void){
 void Animation::aniloop(void *send){
 	int ac = 1;
 	char *av[5];
+	glutInit(&ac,av);
 	glutInitWindowPosition(100,20);
 	glutInitWindowSize(1000,1000);
-	glutInit(&ac,av);
-	glutReshapeFunc(resiz);
 	glutInitDisplayMode(GLUT_RGBA);
 	glutCreateWindow(windowname[0]);
 	glutDisplayFunc(disp);
@@ -74,6 +78,7 @@ void Animation::aniloop(void *send){
 #if defined(ANIME_IS_MAIN)
 int main(){
 	Animation ani;
+	ani.start();
 	while(1){
 		//std::cout << "hogehoge" << std::endl;
 	}
