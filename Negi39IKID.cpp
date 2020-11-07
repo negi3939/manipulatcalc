@@ -44,69 +44,118 @@ enum ANGLEUNIT{
     DEG=1,
 };
 
-class KARik{
+class DHparameter{
+    private:
+        double thetaoffset;
+        double a;
+        double d;    
+        double alpha;
+    public:
+        void set(double l_thetaoffset,double l_a,double l_d,double l_alpha);
+        double getthetaoffset();
+        double geta();
+        double getd();
+        double getalpha();
+};
+
+class Negi39IKID{
     protected:
-        double attachdis;
-        invkSolvenu *maninvk;
-        Matrix4d mattheta;
+        int jointnum;//関節数
+        LIMITFlag limitfl;//limitがあるか
+        std::vector<DHparameter> dh;//DHparamter
+        invkSolvenu *maninvk;//IKsolver
+        invdSolvenu *maninvd;//IDsolver
+        Matrix4d mattheta;//回転並進行列
         VectorXd angle_rad;//rad(1~6軸)
         VectorXd angle_deg;//deg(1~6軸)
-        VectorXd rail;//スライドレール(0軸)
+        VectorXd angle_defo;//deg(1~6軸) デフォルト姿勢(rad)
         VectorXd targetx;//目標位置姿勢
         Vector4d qua;//クオータニオン
         Vector3d pos;//3軸位置
+        VectorXd uplimit;//関節可動範囲上限
+        VectorXd lowlimit;//関節可動範囲下限
     public:
-        KARik();
-        KARik(double l_attachdis);
+        Negi39IKID(std::vector<DHparameter> l_dh);
+        Negi39IKID(std::vector<DHparameter> l_dh,VectorXd l_uplimit,VectorXd l_lowlimit);
         VectorXd radtodeg(VectorXd rad);
         VectorXd degtorad(VectorXd deg);
         VectorXd solve_relative(Vector3d target,EULERFL eulfl,double eulangle,ANGLEUNIT unit=RAD);
         VectorXd solve_abstarg(VectorXd target,ANGLEUNIT unit=RAD);
         VectorXd setangle(VectorXd ang);
         void init();
+        void setdefoko(VectorXd defo,ANGLEUNIT unit);
         void setdefoko();
         void show_angle(ANGLEUNIT unit=DEG);
 };
 
-KARik::KARik(){
-    attachdis = 0.102d;
+void DHparameter::set(double l_thetaoffset,double l_a,double l_d,double l_alpha){
+    thetaoffset = l_thetaoffset;
+    a = l_a;
+    d = l_d;
+    alpha = l_alpha;
+}
+
+double DHparameter::getthetaoffset(){return thetaoffset;}
+double DHparameter::geta(){return a;}
+double DHparameter::getd(){return d;}
+double DHparameter::getalpha(){return alpha;}
+
+Negi39IKID::Negi39IKID(std::vector<DHparameter> l_dh){
+    dh = l_dh;
+    limitfl = LIMITOFF;
     init();
 }
 
-KARik::KARik(double l_attachdis){
-    l_attachdis = attachdis;
+Negi39IKID::Negi39IKID(std::vector<DHparameter> l_dh,VectorXd l_uplimit,VectorXd l_lowlimit){
+    dh = l_dh;
+    uplimit = l_uplimit;
+    lowlimit = l_lowlimit;
+    limitfl = LIMITON;
     init();
 }
 
-void KARik::init(){
-    int ii,jointn = 6;
-    maninvk = new invkSolvenu(jointn);
-    //                      jointnum             thetaoff                                               aa        di       alpha
-    maninvk->setdhparameter(0,                            0.0d*M_PI,                                   0.055d, 0.21d,   -0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
-    maninvk->setdhparameter(1, -0.5d*M_PI+std::atan2(0.080d,0.420d), std::sqrt(0.420d*0.420d + 0.080d*0.080d),  0.0d,   0.0d*M_PI);//(int num,double thoff,double aa,double di,double alph);
-    maninvk->setdhparameter(2,  0.5d*M_PI-std::atan2(0.080d,0.420d),                                     0.0d,  0.0d,  0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
-    maninvk->setdhparameter(3,                            0.0d*M_PI,                                     0.0d,  0.390d,  -0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
-    maninvk->setdhparameter(4,                            0.0d*M_PI,                                     0.0d,  0.0d,   0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
-    maninvk->setdhparameter(5,                            0.0d*M_PI,                                     0.0d,  0.045d + attachdis,   0.0d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+void Negi39IKID::init(){
+    jointnum = dh.size();
+    maninvk = new invkSolvenu(jointnum);
+    maninvd = new invdSolvenu(jointnum);
+    for(int ii=0;ii<dh.size();ii++){
+        maninvk->setdhparameter(ii,dh[ii].getthetaoffset(),dh[ii].geta(), dh[ii].getd(),dh[ii].getalpha());
+    }
+    maninvd->copy(maninvk);
     //limit add
-    VectorXd uplimit(6);
-    VectorXd lowlimit(6);
-    uplimit <<    120.0d/180.0d*M_PI ,  70.0d/180.0d*M_PI  , 170.0d/180.0d*M_PI  ,  110.0d/180.0d*M_PI ,   75.0d/180.0d*M_PI ,    120.0d/180.0d*M_PI;//可動上限範囲を設定(1~6軸)
-    lowlimit <<  -120.0d/180.0d*M_PI , -35.0d/180.0d*M_PI  ,  -0.0d/180.0d*M_PI  , -110.0d/180.0d*M_PI ,  -90.0d/180.0d*M_PI ,   -120.0d/180.0d*M_PI;//可動下限範囲を設定(1~6軸)
-    maninvk->setlimit(uplimit,lowlimit);//可動範囲を設定（FLAGが立つ）
+    if(limitfl!=LIMITOFF){
+        maninvk->setlimit(uplimit,lowlimit);//可動範囲を設定（FLAGが立つ）
+    }
     maninvk->setthreshold(0.00001d);//solverの判定thresholdを設定
-    //init angle and rail
+    //init angle
     targetx = VectorXd::Zero(7);targetx(3) = 1.0d;
     angle_rad = VectorXd::Zero(6);
     angle_deg = VectorXd::Zero(6);
-    rail = VectorXd::Zero(1);
+    angle_defo = VectorXd::Zero(6);
     setdefoko();// defoko pose
 }
 
-void KARik::setdefoko(){
-    rail << 0.3d;
-    angle_deg <<-18.6979 , 5.02352 , 98.8579 , -0.251937 , 75.2884 , 20.6719;
-    angle_rad = degtorad(angle_deg);
+void Negi39IKID::setdefoko(VectorXd defo,ANGLEUNIT unit){
+    switch (unit){
+    case DEG:
+        angle_deg = defo;
+        angle_rad = degtorad(angle_deg);
+        angle_defo = angle_rad;
+        break;
+    case RAD:
+        angle_rad = defo;
+        angle_deg = radtodeg(angle_rad);
+        angle_defo = angle_rad;
+        break;
+    default:
+        break;
+    }
+    setdefoko();
+}
+
+void Negi39IKID::setdefoko(){
+    angle_rad = angle_defo;
+    angle_deg = radtodeg(angle_defo);
     maninvk->calcaA(angle_rad,mattheta);
     PRINT_MAT(mattheta);
     pos = mattheta.block(0,3,3,1);
@@ -120,16 +169,15 @@ void KARik::setdefoko(){
     std::cout << targetx(6) << std::endl;
 }
 
-VectorXd KARik::degtorad(VectorXd deg){return M_PI/180.0d*deg;}
-VectorXd KARik::radtodeg(VectorXd rad){return 180.0d/M_PI*rad;}
+VectorXd Negi39IKID::degtorad(VectorXd deg){return M_PI/180.0d*deg;}
+VectorXd Negi39IKID::radtodeg(VectorXd rad){return 180.0d/M_PI*rad;}
 
-VectorXd KARik::solve_relative(Vector3d target,EULERFL eulfl,double eulangle,ANGLEUNIT unit){
+VectorXd Negi39IKID::solve_relative(Vector3d target,EULERFL eulfl,double eulangle,ANGLEUNIT unit){
     Matrix3d rotateR;
     rotateR = Matrix3d::Identity();
     for(int ii=0;ii<3;ii++){
         targetx(ii) += target(ii);     
     }
-    rail(0) += target(1);
     switch (eulfl){
     case NON:
         break;    
@@ -158,7 +206,6 @@ VectorXd KARik::solve_relative(Vector3d target,EULERFL eulfl,double eulangle,ANG
         mattheta.block(0,0,3,3) = rotateR*mattheta.block(0,0,3,3);
     }
     pos = targetx.block(0,0,3,1);
-    pos(1) = rail(0);
     qua = maninvk->matrixtoquatanion(mattheta);
     targetx.block(3,0,4,1) = qua.block(0,0,4,1);
     PRINT_MAT(mattheta);
@@ -170,16 +217,14 @@ VectorXd KARik::solve_relative(Vector3d target,EULERFL eulfl,double eulangle,ANG
     return angle_rad; 
 }
 
-VectorXd KARik::solve_abstarg(VectorXd target,ANGLEUNIT unit){
+VectorXd Negi39IKID::solve_abstarg(VectorXd target,ANGLEUNIT unit){
     for(int ii=0;ii<target.size();ii++){
         if(ii!=1){
         targetx(ii) = target(ii);
-        }else{
-            rail(0) = target(1);     
+        }else{     
         }
     }
     pos = targetx.block(0,0,3,1);
-    pos(1) = rail(0);
     qua.block(0,0,4,1) = targetx.block(3,0,4,1);
     PRINT_MAT(mattheta);
     targetx(1) = 0.0d;
@@ -190,7 +235,7 @@ VectorXd KARik::solve_abstarg(VectorXd target,ANGLEUNIT unit){
     return angle_rad;
 }
 
-void KARik::show_angle(ANGLEUNIT unit=DEG){
+void Negi39IKID::show_angle(ANGLEUNIT unit=DEG){
     VectorXd l_angle;
     switch (unit){
     case DEG:
@@ -209,7 +254,7 @@ void KARik::show_angle(ANGLEUNIT unit=DEG){
     std::cout << l_angle(maninvk->getjointnum()-1) <<  std::endl;
 }
 
-VectorXd KARik::setangle(VectorXd ang){
+VectorXd Negi39IKID::setangle(VectorXd ang){
     angle_deg = ang;
     angle_rad = degtorad(angle_deg);
     maninvk->calcaA(angle_rad,mattheta);
@@ -223,17 +268,38 @@ VectorXd KARik::setangle(VectorXd ang){
 
 #if defined(NEGI_IS_MAIN)
 int main(){
-    KARik *ksik = new KARik;
-    VectorXd ang(6);
-    //ang << 0.0 , 0.0 , 90.0 , 90.0 , 90.0 , 90.0;
-    //ksik->setangle(ang);
-    //sik->show_angle();
-    // /exit(0);
+
+    /*maninvk->setdhparameter(0,                            0.0d*M_PI,                                   0.055d, 0.21d,   -0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(1, -0.5d*M_PI+std::atan2(0.080d,0.420d), std::sqrt(0.420d*0.420d + 0.080d*0.080d),  0.0d,   0.0d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(2,  0.5d*M_PI-std::atan2(0.080d,0.420d),                                     0.0d,  0.0d,  0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(3,                            0.0d*M_PI,                                     0.0d,  0.390d,  -0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(4,                            0.0d*M_PI,                                     0.0d,  0.0d,   0.5d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+    maninvk->setdhparameter(5,                            0.0d*M_PI,                                     0.0d,  0.045d + attachdis,   0.0d*M_PI);//(int num,double thoff,double aa,double di,double alph);
+*/
+    int jointnum = 6;
+    std::vector<DHparameter> kardh(jointnum);
+    double attachdis = 0.102d;
+    kardh[0].set(                           0.0d*M_PI,                                   0.055d,                0.21d,  -0.5d*M_PI); 
+    kardh[1].set(-0.5d*M_PI+std::atan2(0.080d,0.420d), std::sqrt(0.420d*0.420d + 0.080d*0.080d),                 0.0d,   0.0d*M_PI);
+    kardh[2].set( 0.5d*M_PI-std::atan2(0.080d,0.420d),                                     0.0d,                 0.0d,   0.5d*M_PI);
+    kardh[3].set(                           0.0d*M_PI,                                     0.0d,               0.390d,  -0.5d*M_PI);
+    kardh[4].set(                           0.0d*M_PI,                                     0.0d,                 0.0d,   0.5d*M_PI);
+    kardh[5].set(                           0.0d*M_PI,                                     0.0d,   0.045d + attachdis,   0.0d*M_PI);
+    VectorXd uplimit(6);
+    VectorXd lowlimit(6);
+    uplimit <<    120.0d/180.0d*M_PI ,  70.0d/180.0d*M_PI  , 170.0d/180.0d*M_PI  ,  110.0d/180.0d*M_PI ,   75.0d/180.0d*M_PI ,    120.0d/180.0d*M_PI;//可動上限範囲を設定(1~6軸)
+    lowlimit <<  -120.0d/180.0d*M_PI , -35.0d/180.0d*M_PI  ,  -0.0d/180.0d*M_PI  , -110.0d/180.0d*M_PI ,  -90.0d/180.0d*M_PI ,   -120.0d/180.0d*M_PI;//可動下限範囲を設定(1~6軸)
+    
+    Negi39IKID *ksik = new Negi39IKID(kardh,uplimit,lowlimit);
+    VectorXd ang(jointnum);
+    VectorXd angle_deg_defo(6);
+    angle_deg_defo <<-18.6979 , 5.02352 , 98.8579 , -0.251937 , 75.2884 , 20.6719;
+    ksik->setdefoko(angle_deg_defo,DEG);
+
     Vector3d pos;
     pos << -0.05,0.0,-0.0; 
     double eul = -60.0d*M_PI/180.0d;
-    ksik->solve_relative(pos,NON,eul);
-    
+    ksik->solve_relative(pos,ROLL,eul);
     ksik->show_angle();
     delete ksik;
 }
