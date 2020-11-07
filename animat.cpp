@@ -197,7 +197,7 @@ class Structthis{
 class Animation{
 	private:
 		static void* launchThread(void *pParam){
-        	reinterpret_cast<Animation*>(pParam)->aniloop();
+        	reinterpret_cast<Animation*>(reinterpret_cast<Structthis*>(pParam)->anithi)->aniloop();
         	pthread_exit(NULL);
     	}
 	protected:
@@ -226,7 +226,7 @@ void Animation::init(){
 	Structthis *anisend = new Structthis;
 	anisend->num = 1;
 	anisend->anithi = (void*)this;
-	pthread_create(&anithread,NULL,Animation::launchThread,this);
+	pthread_create(&anithread,NULL,Animation::launchThread,anisend);
 	while(1){}
 }
 
