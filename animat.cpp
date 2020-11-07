@@ -15,14 +15,14 @@
 #define PRINT_MAT(X) std::cout << #X << ":\n" << X << std::endl << std::endl
 
 
-extern pthread_mutex_t mutex;
-extern pthread_mutex_t futex;
-extern pthread_mutex_t endutex;
+pthread_mutex_t mutex;
+pthread_mutex_t futex;
+pthread_mutex_t endutex;
 
 namespace fragg{
-	extern bool start;
-	extern bool view;
-	extern bool end;
+	bool start;
+	bool view;
+	bool end;
 }
 namespace ctr{
 	double wide = 1000.0;
@@ -144,7 +144,14 @@ namespace ani{
 	}
 
 	
-	void display();
+	void display(){
+		glClear(GL_COLOR_BUFFER_BIT);
+		set_axis();
+		usleep(10000);
+		glFlush();
+		resize(1000.0,1000.0);
+
+	}
 	
 	void init(void){
 		glClearColor(0.0, 0.0, 0.0, 0.5);
@@ -179,3 +186,11 @@ void InitialGlut(int ac,char *av[]){
 	glutTimerFunc(1,ani::timer,0);
 	glutMainLoop();
 }
+
+#if defined(ANIME_IS_MAIN)
+int main(){
+	char *av[5];
+	av[0] = {"hoge"};
+	InitialGlut(1,av);
+}
+#endif

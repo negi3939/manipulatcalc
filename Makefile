@@ -8,10 +8,10 @@
 
 TARGET=$(MAKECMDGOALS)
 ifeq ($(MAKECMDGOALS),)
-	TARGET=negi
+	TARGET=ani
 endif
 ifeq ($(MAKECMDGOALS),clean)
-	TARGET=negi
+	TARGET=ani
 endif
 
 DIRX = /usr/X11R6/lib
@@ -26,6 +26,13 @@ endif
 ifeq ($(TARGET),ur3)
 	SOURCE_MAIN = ur3main.cpp
 	SOURCE_SUB = mymath.cpp solvenu.cpp inversekinematics.cpp inversedynamics.cpp
+endif
+
+ifeq ($(TARGET),ani)
+	SOURCE_MAIN = animat.cpp
+	SOURCE_SUB = figure.cpp
+	CXXFLAGS += -DANIME_IS_MAIN
+	LDFLAGS += -lglut -lGLU -lGL
 endif
 
 ifeq ($(TARGET),negi)
@@ -64,7 +71,7 @@ MAINOBJ = $(SOURCE_MAIN:%.cpp=%.o)
 SUBOBJ = $(SOURCE_SUB:%.cpp=%.o)
 SOFILE = $(SOURCE_MAIN:%.cpp=%.so)
 
-
+ani:$(PROGRAM)
 negi: $(PROGRAM)
 ik: $(PROGRAM)
 id: $(PROGRAM)
