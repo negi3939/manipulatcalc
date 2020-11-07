@@ -5,6 +5,7 @@
 
 #include"animat.h"
 
+
 namespace draw{
 	class line{
 	private:
@@ -17,12 +18,13 @@ namespace draw{
 		void setep(const Vector2d &e);
 		void dr(void);
 	};
-
-	class line3d :public line{
+	
+	class line3d : public line{
 		private:
 			Vector3d color;
 			Vector3d sp;
 			Vector3d ep;
+			double width;
 		public:
 			line3d();
 			void setcolor(const Vector3d &iro);
@@ -31,7 +33,7 @@ namespace draw{
 			void setth(const double &w);
 			void dr(void);
 	};
-	
+
 	class link{
 		protected:
 			Vector3d color;
@@ -45,6 +47,15 @@ namespace draw{
 			void setep(const Vector2d &e);
 			void dr(void);
 	};	
+	class link3d :public link{
+		protected:
+		Vector3d sp;
+		Vector3d ep;
+	public:
+		void setsp(const Vector3d &s);
+		void setep(const Vector3d &e);
+		void dr(void);
+	};
 	
 #define D_C   (16) //bunkarusuu
 #define D_CC   (80) //bunkarusuu 
@@ -99,6 +110,19 @@ namespace draw{
 			void set_v(const Vector2d &in,const int &n);
 			void setcolor(const Vector3d &iro);
 			void dr(void);
+	};
+
+
+	class Cylinder{
+		protected:
+			double radius;
+			Vector3d color;
+			double height;
+			int sides;
+	public:
+		void setp(double l_radius,double l_height,int l_sides);
+		void setcolor(const Vector3d &iro);
+		void dr();
 	};
 
 }

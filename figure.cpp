@@ -16,20 +16,10 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
+#include"figure.h"
 #include"animat.h"
 
 namespace draw{
-	class line{
-	private:
-		Vector3d color;
-		Vector2d sp;
-		Vector2d ep;
-	public:
-		void setcolor(const Vector3d &iro);
-		void setsp(const Vector2d &s);
-		void setep(const Vector2d &e);
-		void dr(void);
-	};
 	
 	void line::setcolor(const Vector3d &iro){
 		color = iro;
@@ -49,21 +39,6 @@ namespace draw{
 		glEnd();
 		
 	}
-	
-	class line3d :public line{
-		private:
-			Vector3d color;
-			Vector3d sp;
-			Vector3d ep;
-			double width;
-		public:
-			line3d();
-			void setcolor(const Vector3d &iro);
-			void setsp(const Vector3d &s);
-			void setep(const Vector3d &e);
-			void setth(const double &w);
-			void dr(void);
-	};
 
 	line3d::line3d(){
 		width = 0.1;
@@ -92,19 +67,7 @@ namespace draw{
 		glEnd();
 	}
 
-	class link{
-	protected:
-		Vector3d color;
-		Vector2d sp;
-		Vector2d ep;
-		double think;
-	public:
-		void setcolor(const Vector3d &iro);
-		void setthink(const double &b);
-		void setsp(const Vector2d &s);
-		void setep(const Vector2d &e);
-		void dr(void);
-	};	
+
 
 	void link::setcolor(const Vector3d &iro){
 		color = iro;
@@ -131,15 +94,6 @@ namespace draw{
 		
 	}
 
-	class link3d :public link{
-		protected:
-		Vector3d sp;
-		Vector3d ep;
-	public:
-		void setsp(const Vector3d &s);
-		void setep(const Vector3d &e);
-		void dr(void);
-	};
 
 	void link3d::setsp(const Vector3d &s){
 		sp = s;
@@ -159,21 +113,6 @@ namespace draw{
 		glEnd();
 	}
 
-
-#define D_C   (160) //bunkarusuu
-#define D_CC   (80) //bunkarusuu 
-	
-	class circle{
-		protected:
-			Vector3d color;
-			double r;
-			Vector2d p;
-		public:
-			void setcolor(const Vector3d &iro);
-			void setr(const double &rr);
-			void setp(const Vector2d &po);
-			void dr(void);
-	};
 
 	void circle::setcolor(const Vector3d &iro){
 		color = iro;
@@ -200,13 +139,6 @@ namespace draw{
 		
 	}
 
-	class circle3d : public circle{
-		protected:
-			Vector3d p;
-		public:
-			void setp(const Vector3d &po);
-			void dr(void);
-	};
 
 	void circle3d::setp(const Vector3d &po){
 		p = po;
@@ -229,11 +161,11 @@ namespace draw{
 	}
 
 
-	class curve : public circle{
+	/*class curve : public circle{
 	protected:
 	public:
 		void dr(void);
-	};
+	};*/
 
 	void curve::dr(void){
 		glColor3d(color.x(),color.y(),color.z());
@@ -248,7 +180,7 @@ namespace draw{
 		
 	}
 
-
+/*
 	class curveZ :public circle{
 		protected:
 			Vector3d p;//p:位置，nvec:法線ベクトル
@@ -256,7 +188,7 @@ namespace draw{
 			void setp(const Vector3d &po);
 			void dr(void);
 	};
-
+*/
 	void curveZ::setp(const Vector3d &po){
 		p = po;
 	}
@@ -273,12 +205,12 @@ namespace draw{
 		glEnd();
 		
 	}
-
+/*
 	class arrow : public link{
 	public:
 		void	dr(void);
 	};
-
+*/
 	void arrow::dr(void){
 		Vector2d mp;
 		mp = (ep -sp)*3.0/4.0 + sp;
@@ -298,7 +230,7 @@ namespace draw{
 		glEnd();
 		
 	}
-
+/*
 	class locus{
 	protected:
 		int num;
@@ -310,7 +242,7 @@ namespace draw{
 		void setcolor(const Vector3d &iro);
 		void dr(void);
 	};
-
+*/
 	void locus::set_v(const Vector2d &in,const int &n){
 		num = n;
 		if(n>1){
@@ -334,4 +266,56 @@ namespace draw{
 			}
 		}
 	}
+
+/*
+class Cylinder{
+	protected:
+	double radius;
+	Vector3d color;
+	double height;
+	int sides;
+	public:
+		void setp(double l_radius,double l_height,int l_sides);
+		void setcolor(const Vector3d &iro);
+		void dr();
+};
+*/
+void Cylinder::setp(double l_radius,double l_height,int l_sides){
+	radius = l_radius;
+	height = l_height;
+	sides = l_sides;
+}	
+
+void Cylinder::setcolor(const Vector3d &iro){
+
+}
+
+void Cylinder::dr(){
+ //上面
+ glNormal3d(0.0, 1.0, 0.0);
+ glBegin(GL_POLYGON);
+ for(double ii = 0; ii < sides; ii++) {
+  double t = M_PI*2/sides * (double)ii;
+  glVertex3d(radius * cos(t), height, radius * sin(t));
+ }
+ glEnd();
+ //側面
+ glBegin(GL_QUAD_STRIP);
+ for(double i=0;i<=sides;i=i+1){
+  double t = i*2*M_PI/sides;
+  glNormal3d(cos(t),0.0,sin(t));
+  glVertex3d((radius*cos(t)),-height,(radius*sin(t)));
+  glVertex3d((radius*cos(t)),height,(radius*sin(t)));
+ }
+ glEnd();
+ //下面
+ glNormal3d(0.0, -1.0, 0.0);
+ glBegin(GL_POLYGON);
+ for(double ii = sides; ii >= 0; --ii) {
+  double t = M_PI*2/sides * (double)ii;
+  glVertex3d(radius * cos(t), -height, radius * sin(t));
+ }
+ glEnd();
+}
+
 }
