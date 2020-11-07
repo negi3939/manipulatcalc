@@ -17,6 +17,11 @@ enum SolvFLAG{
   DEFOKO=3,
 };
 
+enum JudgeFLAG{
+    ZERO=0,
+    DIFFZERO=1,
+};
+
 class Solvenu : public Funcvec{
     protected:
         long countlimit;
@@ -40,11 +45,11 @@ class Solvenu : public Funcvec{
         VectorXd function(VectorXd x) override;
         virtual VectorXd funcorg(VectorXd x);
         VectorXd functionerror(VectorXd x);
-        VectorXd solve(VectorXd intx,SolvFLAG slflag,double l_alpha=0);
-        VectorXd newtonsolve(VectorXd intx);
-        VectorXd newtonsolve(VectorXd intx,MatrixXd &l_jacobi);
-        VectorXd steepsetdescentsolve(VectorXd intx);
-        VectorXd steepsetdescentsolve(VectorXd intx,double l_alpha);
+        VectorXd solve(VectorXd intx,SolvFLAG slflag,double l_alpha=0,JudgeFLAG jdgfl=ZERO);
+        VectorXd newtonsolve(VectorXd intx,JudgeFLAG jdgfl);
+        VectorXd newtonsolve(VectorXd intx,MatrixXd &l_jacobi,JudgeFLAG jdgfl);
+        VectorXd steepsetdescentsolve(VectorXd intx,JudgeFLAG jdgfl);
+        VectorXd steepsetdescentsolve(VectorXd intx,double l_alpha,JudgeFLAG jdgfl);
         ~Solvenu();
 };
 

@@ -102,14 +102,14 @@ VectorXd Solvenu::functionerror(VectorXd x){
     }
 }
 
-VectorXd Solvenu::solve(VectorXd intx,SolvFLAG slflag=NEWTON,double l_alpha=0){
+VectorXd Solvenu::solve(VectorXd intx,SolvFLAG slflag=NEWTON,double l_alpha=0,JudgeFLAG jdgfl=ZERO){
     switch (slflag){
     case NEWTON:
-        return newtonsolve(intx);
+        return newtonsolve(intx,jdgfl);
         break;
     case STEEPEST:
-        if(l_alpha<=0){return steepsetdescentsolve(intx);}
-        return steepsetdescentsolve(intx,l_alpha);
+        if(l_alpha<=0){return steepsetdescentsolve(intx,jdgfl);}
+        return steepsetdescentsolve(intx,l_alpha,jdgfl);
         break;
     default:
         return intx;
@@ -117,7 +117,7 @@ VectorXd Solvenu::solve(VectorXd intx,SolvFLAG slflag=NEWTON,double l_alpha=0){
     }
 }
 
-VectorXd Solvenu::newtonsolve(VectorXd intx){
+VectorXd Solvenu::newtonsolve(VectorXd intx,JudgeFLAG jdgfl){
     x = intx;
     long count = 0;
     VectorXd dx = intx;
@@ -130,7 +130,8 @@ VectorXd Solvenu::newtonsolve(VectorXd intx){
         //PRINT_MAT(x);
         chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);// + sigmoidlimit(x,1000);
         if(count>countlimit){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than" << countlimit << "CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;PRINT_MAT(functionerror(x));break;}
-        if (functionerror(x).norm() < threshold) break;
+        if ((jdgfl==ZERO)&&(functionerror(x).norm() < threshold)){ break;}
+        else if((jdgfl==DIFFZERO)&&(diffnorm(x,this).norm()<threshold)){break;}
         count++;
     }
     int checkret=0;
@@ -139,7 +140,7 @@ VectorXd Solvenu::newtonsolve(VectorXd intx){
     return x;
 }
 
-VectorXd Solvenu::newtonsolve(VectorXd intx,MatrixXd &l_jacobi){
+VectorXd Solvenu::newtonsolve(VectorXd intx,MatrixXd &l_jacobi,JudgeFLAG jdgfl){
     x = intx;
     long count = 0;
     VectorXd dx = intx;
@@ -152,7 +153,8 @@ VectorXd Solvenu::newtonsolve(VectorXd intx,MatrixXd &l_jacobi){
         //PRINT_MAT(x);
         chk = MatrixXd::Ones(1,x.size())*absmat(x - dx);// + sigmoidlimit(x,1000);
         if(count>countlimit){std::cout <<"CAUTIONCAUTIONCAUTIONCAUTIONCAUTION step is more than" << countlimit << "CAUTIONCAUTIONCAUTIONCAUTIONCAUTIONC"<<std::endl;PRINT_MAT(functionerror(x));break;}
-        if (functionerror(x).norm() < threshold) break;
+        if ((jdgfl==ZERO)&&(functionerror(x).norm() < threshold)){ break;}
+        else if((jdgfl==DIFFZERO)&&(diffnorm(x,this).norm()<threshold)){break;}
         count++;
     }
     int checkret=0;
@@ -161,7 +163,7 @@ VectorXd Solvenu::newtonsolve(VectorXd intx,MatrixXd &l_jacobi){
     return x;
 }
 
-VectorXd Solvenu::steepsetdescentsolve(VectorXd intx){
+VectorXd Solvenu::steepsetdescentsolve(VectorXd intx,JudgeFLAG jdgfl){
     long count = 0;
     VectorXd x = intx;
     MatrixXd diffv;
@@ -170,7 +172,8 @@ VectorXd Solvenu::steepsetdescentsolve(VectorXd intx){
     MatrixXd s;
     while(1){
         diffv =  diffnorm(x,this);
-        if(functionerror(x).norm()<threshold){break;}
+        if((jdgfl==ZERO)&&(functionerror(x).norm()<threshold)){break;}
+        else if((jdgfl==DIFFZERO)&&(diffnorm(x,this).norm()<threshold)){break;}
         //std::cout << "norm is " <<functionerror(x).norm() << std::endl;
         s = -diffv.transpose();
         bottom_alpha=0.0d;
@@ -199,14 +202,16 @@ VectorXd Solvenu::steepsetdescentsolve(VectorXd intx){
     return x;
 }
 
-VectorXd Solvenu::steepsetdescentsolve(VectorXd intx,double l_alpha){
+VectorXd Solvenu::steepsetdescentsolve(VectorXd intx,double l_alpha,JudgeFLAG jdgfl){
     long count = 0;
     VectorXd x = intx;
     MatrixXd diffv;
     MatrixXd s;
     while(1){
-        diffv =  diffnorm(x,this);
-        if(functionerror(x).norm()<threshold){break;}
+        //diffv =  diffnorm(x,this);
+        if((jdgfl==ZERO)&&(functionerror(x).norm()<threshold)){break;}
+        else if((jdgfl==DIFFZERO)&&(diffnorm(x,this).norm() < threshold)){break;}
+
         //std::cout << "alppha is const. norm is " <<functionerror(x).norm() << std::endl;
         s = -diffv.transpose();
         x = x + l_alpha*s;
