@@ -8,10 +8,10 @@
 
 TARGET=$(MAKECMDGOALS)
 ifeq ($(MAKECMDGOALS),)
-	TARGET=negi
+	TARGET=solve
 endif
 ifeq ($(MAKECMDGOALS),clean)
-	TARGET=negi
+	TARGET=solve
 endif
 
 DIRX = /usr/X11R6/lib
@@ -46,6 +46,12 @@ ifeq ($(TARGET),negi)
 	SOURCE_MAIN = Negi39IKID.cpp
 	SOURCE_SUB = mymath.cpp solvenu.cpp inversekinematics.cpp inversedynamics.cpp
 	CXXFLAGS += -DNEGI_IS_MAIN
+endif
+
+ifeq ($(TARGET),solve)
+	SOURCE_MAIN = solvenu.cpp
+	SOURCE_SUB = mymath.cpp
+	CXXFLAGS += -DSOLV_IS_MAIN
 endif
 
 ifeq ($(TARGET),ik)

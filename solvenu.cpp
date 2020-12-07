@@ -221,3 +221,9 @@ VectorXd Solvenu::steepsetdescentsolve(VectorXd intx,double l_alpha,JudgeFLAG jd
     if(checkret){std::cout << "solve fail :" << checkret << std::endl;}
     return x;
 }
+
+#if defined(SOLV_IS_MAIN)
+int main(){
+
+}
+#endif
