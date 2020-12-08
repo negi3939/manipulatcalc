@@ -222,9 +222,31 @@ VectorXd Solvenu::steepsetdescentsolve(VectorXd intx,double l_alpha,JudgeFLAG jd
     return x;
 }
 
+class HogeFuncvec : public Funcvec{
+    public:
+        VectorXd function(VectorXd x);
+};
+
+VectorXd HogeFuncvec::function(VectorXd x){
+    VectorXd ans = VectorXd::Zero(1);
+    ans(0) = 1.0;
+    for(int ii=0;ii<x.size();ii++){
+        ans(0) *= x(ii);
+    }
+    for(int ii=0;ii<x.size();ii++){
+        ans(0) += x(ii)*x(ii);
+    }
+    return ans;
+}
 
 #if defined(SOLV_IS_MAIN)
 int main(){
- 
+    VectorXd xy(2);
+    xy(0) = 2;
+    xy(1) = 3;
+    HogeFuncvec f;
+    PRINT_MAT(f.function(xy));
+    PRINT_MAT(diffdiffvec(xy,&f));
+
 }
 #endif
