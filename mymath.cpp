@@ -137,7 +137,7 @@ namespace Mymath{
     	VectorXd fxv = func->function(x);
 		double fx = fxv(0);
     	MatrixXd ans(x.size(),x.size());
-    	double delta = 0.0001d;
+    	double delta = 0.1d;
 		double deltainv = 1.0/delta;
     	VectorXd deltaxpp(x.size());
 		VectorXd deltaxpm(x.size());
@@ -163,7 +163,7 @@ namespace Mymath{
 					deltaxpm(jj) = -delta;
 					deltaxmp(ii) = -delta;
 					deltaxmp(jj) = delta;
-					ans(ii,jj) = deltainv*deltainv*(func->function(x+deltaxpp)(0) + func->function(x+deltaxmm)(0) + func->function(x+deltaxpm)(0) + func->function(x+deltaxmp)(0) - 4.0*fx);
+					ans(ii,jj) = 0.25d*deltainv*deltainv*(func->function(x+deltaxpp)(0) + func->function(x+deltaxmm)(0) - func->function(x+deltaxpm)(0) - func->function(x+deltaxmp)(0));
 					std::cout << func->function(x+deltaxpp)(0)<< "," << func->function(x+deltaxmm)(0)<< "," << func->function(x+deltaxmp)(0)<< ","<< func->function(x+deltaxpm)(0)<< "," << fx << "," << func->function(x+deltaxpp)(0) + func->function(x+deltaxmm)(0) + func->function(x+deltaxpm)(0) + func->function(x+deltaxmp)(0) - 4.0*fx << std::endl;
 				} 
 			}

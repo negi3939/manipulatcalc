@@ -242,8 +242,8 @@ VectorXd HogeFuncvec::function(VectorXd x){
 #if defined(SOLV_IS_MAIN)
 int main(){
     VectorXd xy(2);
-    xy(0) = 2;
-    xy(1) = 3;
+    xy(0) = 0;
+    xy(1) = 0;
     HogeFuncvec f;
     PRINT_MAT(f.function(xy));
     PRINT_MAT(diffdiffvec(xy,&f));
