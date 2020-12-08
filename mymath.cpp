@@ -133,6 +133,38 @@ namespace Mymath{
     	return ans;
 	}
 
+	MatrixXd diffdiffvec(VectorXd x,Funcvec *func){
+    	VectorXd fxv = func->function(x);
+		double fx = fxv(0);
+    	MatrixXd ans(x.size(),x.size());
+    	double delta = 0.000001d;
+		double deltainv = 1.0/delta;
+    	VectorXd deltaxpp(x.size());
+		VectorXd deltaxpm(x.size());
+		VectorXd deltaxmp(x.size());
+		VectorXd deltaxmm(x.size());
+    	for(int ii=0;ii<x.size();ii++){
+			for(int jj=0;jj<x.size();jj++){
+				deltaxpp = VectorXd::Zero(x.size());
+				deltaxpm = VectorXd::Zero(x.size());
+				deltaxmp = VectorXd::Zero(x.size());
+				deltaxmm = VectorXd::Zero(x.size());
+				deltaxpp(ii) = delta;
+				deltaxpp(jj) = delta;
+				deltaxpm(ii) = delta;
+				deltaxpm(jj) = -delta;
+				deltaxmp(ii) = -delta;
+				deltaxmp(jj) = delta;
+				deltaxmm(ii) = -delta;
+				deltaxmm(jj) = -delta;
+				ans(ii,jj) = 0.25*deltainv*deltainv*(func->function(x+deltaxpp)(0) + func->function(x+deltaxmm)(0) - func->function(x+deltaxpm)(0) - func->function(x+deltaxmp)(0)); 
+			}
+    	}
+    	return ans;
+	}
+
+	
+
 	MatrixXd diffnorm(VectorXd x,Funcvec *func){
     	int ii;
     	double fx = func->function(x).norm();
