@@ -222,6 +222,58 @@ VectorXd Solvenu::steepsetdescentsolve(VectorXd intx,double l_alpha,JudgeFLAG jd
     return x;
 }
 
+class solveLagrangemultipler : public Solvenu{
+    protected:
+        VectorXd rambda;
+        VectorXd mu;
+};
+
+class SolveSQP : public Funcvec{
+    protected:
+        VectorXd rambda;
+        VectorXd mu;    
+        MatrixXd Hk;
+    public:
+        SolveSQP();
+        double calcLagrange(VectorXd &x);
+        VectorXd function(VectorXd x);
+        VectorXd constraintineqg(VectorXd &x);
+        VectorXd constrainteqh(VectorXd &x);
+};
+
+SolveSQP::SolveSQP(){
+    rambda = VectorXd::Zero(1);
+    mu = VectorXd::Zero(1);
+    mu(0) = 1;
+    rambda(0) = 1;
+}
+
+double SolveSQP::calcLagrange(VectorXd &x){
+    return function(x)(0) + rambda.transpose()*constraintineqg(x)  + mu.transpose()*constrainteqh(x);
+}
+
+VectorXd SolveSQP::function(VectorXd x){
+    VectorXd ans = VectorXd::Zero(1);
+    ans(0) = 0.0;
+    for(int ii=0;ii<x.size();ii++){
+        ans(0) += x(ii)*x(ii);
+    }
+    return ans;
+}
+
+VectorXd SolveSQP::constraintineqg(VectorXd &x){
+    VectorXd ans(1);
+    ans(0) = x(1) - x(0) -1;
+    return ans;
+}
+
+VectorXd SolveSQP::constrainteqh(VectorXd &x){
+    VectorXd ans(1);
+    ans(0) = x(1) - x(0);
+    return ans;
+}
+
+/*
 class HogeFuncvec : public Funcvec{
     public:
         VectorXd function(VectorXd x);
@@ -229,7 +281,7 @@ class HogeFuncvec : public Funcvec{
 
 VectorXd HogeFuncvec::function(VectorXd x){
     VectorXd ans = VectorXd::Zero(1);
-    ans(0) = 1.0;
+    ans(0) = 2.0;
     for(int ii=0;ii<x.size();ii++){
         ans(0) *= x(ii);
     }
@@ -238,15 +290,12 @@ VectorXd HogeFuncvec::function(VectorXd x){
     }
     return ans;
 }
-
+*/
 #if defined(SOLV_IS_MAIN)
 int main(){
-    VectorXd xy(2);
-    xy(0) = 0;
-    xy(1) = 0;
-    HogeFuncvec f;
-    PRINT_MAT(f.function(xy));
-    PRINT_MAT(diffdiffvec(xy,&f));
-
+    SolveSQP sq;
+    VectorXd x(2);
+    x<<2,3;
+    std::cout << " L : " << sq.calcLagrange(x) << std::endl;
 }
 #endif
