@@ -169,8 +169,6 @@ namespace Mymath{
     	return ans;
 	}
 
-	
-
 	MatrixXd diffnorm(VectorXd x,Funcvec *func){
     	int ii;
     	double fx = func->function(x).norm();
@@ -187,6 +185,31 @@ namespace Mymath{
     	}
     	ans = (bef+aft)/2.0;
     	return ans;
+	}
+
+	void showvec(VectorXd &a){
+		for(int ii=0;ii<a.size()-1;ii++){
+			std::cout << a(ii) << " , " << std::flush;
+		}
+		std::cout << a(a.size()-1) << std::endl;
+	}
+	void showvec(VectorXf &a){
+		for(int ii=0;ii<a.size()-1;ii++){
+			std::cout << a(ii) << " , " << std::flush;
+		}
+		std::cout << a(a.size()-1) << std::endl;
+	}
+	void showvec(Vector3d &a){
+		for(int ii=0;ii<2;ii++){
+			std::cout << a(ii) << " , " << std::flush;
+		}
+		std::cout << a(a.size()-1) << std::endl;
+	}
+	void showvec(Vector3f &a){
+		for(int ii=0;ii<2;ii++){
+			std::cout << a(ii) << " , " << std::flush;
+		}
+		std::cout << a(a.size()-1) << std::endl;
 	}
 }
 
@@ -320,6 +343,31 @@ namespace Mymath{
     	}
     	ans = (bef+aft)/2.0;
     	return ans;
+	}
+
+	void showvec(VectorXd &a){
+		for(int ii=0;ii<a.size()-1;ii++){
+			std::cout << a(ii) << " , " << std::flush;
+		}
+		std::cout << a(a.size()-1) << std::endl;
+	}
+	void showvec(VectorXf &a){
+		for(int ii=0;ii<a.size()-1;ii++){
+			std::cout << a(ii) << " , " << std::flush;
+		}
+		std::cout << a(a.size()-1) << std::endl;
+	}
+	void showvec(Vector3d &a){
+		for(int ii=0;ii<2;ii++){
+			std::cout << a(ii) << " , " << std::flush;
+		}
+		std::cout << a(a.size()-1) << std::endl;
+	}
+	void showvec(Vector3f &a){
+		for(int ii=0;ii<2;ii++){
+			std::cout << a(ii) << " , " << std::flush;
+		}
+		std::cout << a(a.size()-1) << std::endl;
 	}
 }
 #endif

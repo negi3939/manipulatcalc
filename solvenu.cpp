@@ -242,11 +242,11 @@ SolveSQP::SolveSQP(Funcvec *l_optfunc,Funcvec *l_constraint,SolveNU::Functype sl
     optfunc = l_optfunc;
     switch(slf){
         case SolveNU::INEQCONSTRAINT :
-            constrainth = l_constraint;
+            constraintg = l_constraint;
             soltype = slf;
             break;
         case SolveNU::EQCONSTRAINT :
-            constraintg = l_constraint;
+            constrainth = l_constraint;
             soltype = slf;
             break;
         default:
@@ -267,11 +267,11 @@ double SolveSQP::calcoptfunc(VectorXd &x){
 }
 
 VectorXd SolveSQP::constraintineqg(VectorXd &x){
-    constrainth->function(x);
+    return constraintg->function(x);
 }
 
 VectorXd SolveSQP::constrainteqh(VectorXd &x){
-    constraintg->function(x);
+    return constrainth->function(x);
 }
 
 #if defined(SOLV_IS_MAIN)
@@ -311,5 +311,7 @@ int main(){
     x<<2,3;
     SolveSQP ssqp(&sq,&linx,SolveNU::EQCONSTRAINT);
     std::cout << "sq " << ssqp.calcoptfunc(x) << std::endl;
+    VectorXd hogex = ssqp.constrainteqh(x);//ssqp.constrainteqh(x);
+    showvec(hogex);
 }
 #endif
