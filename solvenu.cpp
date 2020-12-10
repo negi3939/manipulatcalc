@@ -221,42 +221,68 @@ VectorXd Solvenu::steepsetdescentsolve(VectorXd intx,double l_alpha,JudgeFLAG jd
     if(checkret){std::cout << "solve fail :" << checkret << std::endl;}
     return x;
 }
-
-
+ 
 class SolveSQP{
     protected:
         MatrixXd Hk;
-        Funcvec optfunc;
+        SolveNU::Functype soltype;
+        Funcvec *optfunc;
         Funcvec *constrainth;
         Funcvec *constraintg;
         Funcvec *constrainthg;
     public:
-        SolveSQP();
-        double calcLagrange(VectorXd &x);
+        SolveSQP(Funcvec *l_optfunc,Funcvec *l_constraint,SolveNU::Functype slf);
+        SolveSQP(Funcvec *l_optfunc,Funcvec *l_constrainth,Funcvec *l_constraintg);
+        double calcoptfunc(VectorXd &x);
         VectorXd constraintineqg(VectorXd &x);
         VectorXd constrainteqh(VectorXd &x);
 };
 
-SolveSQP::SolveSQP(){
+SolveSQP::SolveSQP(Funcvec *l_optfunc,Funcvec *l_constraint,SolveNU::Functype slf){
+    optfunc = l_optfunc;
+    switch(slf){
+        case SolveNU::INEQCONSTRAINT :
+            constrainth = l_constraint;
+            soltype = slf;
+            break;
+        case SolveNU::EQCONSTRAINT :
+            constraintg = l_constraint;
+            soltype = slf;
+            break;
+        default:
+            break;
+    }
+}
+
+SolveSQP::SolveSQP(Funcvec *l_optfunc,Funcvec *l_constrainth,Funcvec *l_constraintg){
+    optfunc = l_optfunc;
+    constrainth = l_constrainth;
+    constraintg = l_constraintg;
+    soltype = SolveNU::BOTHSTRAINT;
 }
 
 
+double SolveSQP::calcoptfunc(VectorXd &x){
+    return optfunc->function(x)(0);
+}
+
 VectorXd SolveSQP::constraintineqg(VectorXd &x){
-    
+    constrainth->function(x);
 }
 
 VectorXd SolveSQP::constrainteqh(VectorXd &x){
-    
+    constraintg->function(x);
 }
 
-/*
-class HogeFuncvec : public Funcvec{
+#if defined(SOLV_IS_MAIN)
+
+class squareFuncvec : public Funcvec{
     public:
         VectorXd function(VectorXd x);
 };
 
-VectorXd HogeFuncvec::function(VectorXd x){
-    VectorXd ans = VectorXd::Zero(1);
+VectorXd squareFuncvec::function(VectorXd x){
+    VectorXd ans = VectorXd::Zero(1);//x*x + y*y + 2*x*y
     ans(0) = 2.0;
     for(int ii=0;ii<x.size();ii++){
         ans(0) *= x(ii);
@@ -266,11 +292,24 @@ VectorXd HogeFuncvec::function(VectorXd x){
     }
     return ans;
 }
-*/
-#if defined(SOLV_IS_MAIN)
+
+class linearconstraints : public Funcvec{
+    public:
+        VectorXd function(VectorXd x);
+};
+
+VectorXd linearconstraints::function(VectorXd x){
+    VectorXd ans = VectorXd::Zero(1);//x*x + y*y + 2*x*y
+    ans(0) = x(1) -x(0);
+    return ans;
+}
+
 int main(){
-    SolveSQP sq;
+    squareFuncvec sq;
+    linearconstraints linx;
     VectorXd x(2);
     x<<2,3;
+    SolveSQP ssqp(&sq,&linx,SolveNU::EQCONSTRAINT);
+    std::cout << "sq " << ssqp.calcoptfunc(x) << std::endl;
 }
 #endif

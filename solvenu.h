@@ -22,6 +22,15 @@ enum JudgeFLAG{
     DIFFZERO=1,
 };
 
+namespace SolveNU{
+    enum Functype{
+        OPTFUNC=0,
+        INEQCONSTRAINT=1,
+        EQCONSTRAINT=2,
+        BOTHSTRAINT=3,
+    };
+}
+
 class Solvenu : public Funcvec{
     protected:
         long countlimit;
