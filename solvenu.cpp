@@ -226,17 +226,48 @@ class SolveSQP{
     protected:
         MatrixXd Hk;
         SolveNU::Functype soltype;
+        int xvecsize;
+        double alpha;
+        double threshold;
         Funcvec *optfunc;
         Funcvec *constrainth;
         Funcvec *constraintg;
         Funcvec *constrainthg;
+        static VectorXd solve_noconstraints_st(VectorXd &x,SolveSQP *p){
+             return p->solve_noconstraints(x);
+        }
+        static VectorXd solve_eqconstraints_st(VectorXd &x,SolveSQP *p){
+            return p->solve_eqconstraints(x);
+        }
+        static VectorXd solve_ineqconstraints_st(VectorXd &x,SolveSQP *p){
+            return p->solve_ineqconstraints(x);
+        }
+        static VectorXd solve_bothconstraints_st(VectorXd &x,SolveSQP *p){
+            return p->solve_bothconstraints(x);
+        }
+        VectorXd solve_noconstraints(VectorXd &x);
+        VectorXd solve_eqconstraints(VectorXd &x);
+        VectorXd solve_ineqconstraints(VectorXd &x);
+        VectorXd solve_bothconstraints(VectorXd &x);
+        VectorXd (*solvefuncp)(VectorXd &x,SolveSQP *p);
     public:
+        SolveSQP(Funcvec *l_optfunc);
         SolveSQP(Funcvec *l_optfunc,Funcvec *l_constraint,SolveNU::Functype slf);
         SolveSQP(Funcvec *l_optfunc,Funcvec *l_constrainth,Funcvec *l_constraintg);
+        void init();
         double calcoptfunc(VectorXd &x);
         VectorXd constraintineqg(VectorXd &x);
         VectorXd constrainteqh(VectorXd &x);
+        VectorXd calcdeltax_sf(VectorXd &x);
+        VectorXd calcdeltax_sf(VectorXd &x,VectorXd &s_rho);
+        VectorXd solve(VectorXd x);
 };
+
+SolveSQP::SolveSQP(Funcvec *l_optfunc){
+    optfunc = l_optfunc;
+    soltype = SolveNU::OPTFUNC;
+    init();
+}
 
 SolveSQP::SolveSQP(Funcvec *l_optfunc,Funcvec *l_constraint,SolveNU::Functype slf){
     optfunc = l_optfunc;
@@ -252,6 +283,7 @@ SolveSQP::SolveSQP(Funcvec *l_optfunc,Funcvec *l_constraint,SolveNU::Functype sl
         default:
             break;
     }
+    init();
 }
 
 SolveSQP::SolveSQP(Funcvec *l_optfunc,Funcvec *l_constrainth,Funcvec *l_constraintg){
@@ -259,8 +291,32 @@ SolveSQP::SolveSQP(Funcvec *l_optfunc,Funcvec *l_constrainth,Funcvec *l_constrai
     constrainth = l_constrainth;
     constraintg = l_constraintg;
     soltype = SolveNU::BOTHSTRAINT;
+    init();
 }
 
+void SolveSQP::init(){
+    xvecsize  =  optfunc->getxvecsize();
+    Hk = MatrixXd::Identity(xvecsize,xvecsize);
+    switch(soltype){
+        case SolveNU::OPTFUNC :
+            solvefuncp = SolveSQP::solve_noconstraints_st;
+            break;
+        case SolveNU::EQCONSTRAINT :
+            solvefuncp = SolveSQP::solve_eqconstraints_st;
+            break;
+        case SolveNU::INEQCONSTRAINT :
+            solvefuncp = SolveSQP::solve_ineqconstraints_st;
+            break;
+        case SolveNU::BOTHSTRAINT :
+            solvefuncp = SolveSQP::solve_bothconstraints_st;
+            break;
+        default :
+            break;
+
+    }
+    alpha = 0.1d;
+    threshold = 0.00001;
+}
 
 double SolveSQP::calcoptfunc(VectorXd &x){
     return optfunc->function(x)(0);
@@ -274,12 +330,50 @@ VectorXd SolveSQP::constrainteqh(VectorXd &x){
     return constrainth->function(x);
 }
 
+VectorXd SolveSQP::calcdeltax_sf(VectorXd &x,VectorXd &s_rho){
+    VectorXd ans;
+    ans = -(diffvec(x,optfunc) + Hk*s_rho);
+}
+
+VectorXd SolveSQP::calcdeltax_sf(VectorXd &x){
+    VectorXd ans;
+    ans = -diffvec(x,optfunc);
+}
+
+VectorXd SolveSQP::solve(VectorXd x){
+    return solvefuncp(x,this);
+}
+
+VectorXd SolveSQP::solve_noconstraints(VectorXd &x){
+    VectorXd ans;
+    std::cout << "no constraints" << std::endl;
+    return ans;
+}
+VectorXd SolveSQP::solve_eqconstraints(VectorXd &x){
+    VectorXd ans;
+    std::cout << "eq constraints" << std::endl;
+    return ans;
+}
+VectorXd SolveSQP::solve_ineqconstraints(VectorXd &x){
+    VectorXd ans;
+    return ans;
+}
+VectorXd SolveSQP::solve_bothconstraints(VectorXd &x){
+    VectorXd ans;
+    return ans;
+}
+
 #if defined(SOLV_IS_MAIN)
 
 class squareFuncvec : public Funcvec{
     public:
+        squareFuncvec();
         VectorXd function(VectorXd x);
 };
+
+squareFuncvec::squareFuncvec(){
+    xvecsize = 2;
+}
 
 VectorXd squareFuncvec::function(VectorXd x){
     VectorXd ans = VectorXd::Zero(1);//x*x + y*y + 2*x*y
@@ -309,9 +403,11 @@ int main(){
     linearconstraints linx;
     VectorXd x(2);
     x<<2,3;
-    SolveSQP ssqp(&sq,&linx,SolveNU::EQCONSTRAINT);
-    std::cout << "sq " << ssqp.calcoptfunc(x) << std::endl;
-    VectorXd hogex = ssqp.constrainteqh(x);//ssqp.constrainteqh(x);
-    showvec(hogex);
+    //SolveSQP ssqp(&sq,&linx,SolveNU::EQCONSTRAINT);
+    SolveSQP ssqp(&sq);
+    //std::cout << "sq " << ssqp.calcoptfunc(x) << std::endl;
+    //VectorXd hogex = ssqp.constrainteqh(x);//ssqp.constrainteqh(x);
+    //showvec(hogex);
+    ssqp.solve(x);
 }
 #endif

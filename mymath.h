@@ -7,10 +7,13 @@ using namespace Eigen;
 
 namespace Mymath{
 	class Funcvec{
+		protected:
+			int xvecsize;
 		public:
 			Funcvec();
 			virtual VectorXd function(VectorXd x);
 			virtual ~Funcvec();
+			int getxvecsize();
 	};
 	
 	double sign(double A);
