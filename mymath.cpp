@@ -22,10 +22,11 @@ using namespace Eigen;
 #ifndef GCC3p3
 namespace Mymath{
 
-	Funcvec::Funcvec(){xvecsize=0;}
+	Funcvec::Funcvec(){xvecsize=0;yvecsize=0;}
 	Funcvec::~Funcvec(){}
 	VectorXd Funcvec::function(VectorXd x){return x;}
 	int Funcvec::getxvecsize(){return xvecsize;}
+	int Funcvec::getyvecsize(){return yvecsize;}
 
 	double sign(double A){
     	if(A>0.0d) return 1.0d;

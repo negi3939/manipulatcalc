@@ -9,11 +9,13 @@ namespace Mymath{
 	class Funcvec{
 		protected:
 			int xvecsize;
+			int yvecsize;
 		public:
 			Funcvec();
 			virtual VectorXd function(VectorXd x);
 			virtual ~Funcvec();
 			int getxvecsize();
+			int getyvecsize();
 	};
 	
 	double sign(double A);
