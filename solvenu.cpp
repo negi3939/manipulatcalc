@@ -319,7 +319,6 @@ void SolveSQP::init(){
             break;
         default :
             break;
-
     }
     alpha = 0.1d;
     threshold = 0.00000000001;
@@ -345,7 +344,8 @@ VectorXd SolveSQP::calcdeltax_st_eqconst(VectorXd &x){
 void SolveSQP::renewHk(VectorXd &sk){
     MatrixXd newHk;
     VectorXd yk = Hk*sk;
-    newHk = Hk + yk*yk.transpose()/(yk.transpose()*sk) - Hk*sk*sk.transpose()*Hk/(sk.transpose()*Hk*sk);
+    //newHk = Hk + yk*yk.transpose()/(yk.transpose()*sk) - Hk*sk*sk.transpose()*Hk/(sk.transpose()*Hk*sk);
+    newHk = yk*yk.transpose()/(yk.transpose()*sk) +(MatrixXd::Zero(xvecsize,xvecsize) - yk*sk.transpose()/(yk.transpose()*sk))*Hk*(MatrixXd::Zero(xvecsize,xvecsize)-sk*yk.transpose()/(sk.transpose()*yk));
     Hk = newHk;
 }
 
@@ -375,6 +375,7 @@ VectorXd SolveSQP::solve_noconstraints(VectorXd &x){
     }
     return x;
 }
+
 VectorXd SolveSQP::solve_eqconstraints(VectorXd &x){
     VectorXd deltax;
     VectorXd deltax_st;
@@ -384,9 +385,9 @@ VectorXd SolveSQP::solve_eqconstraints(VectorXd &x){
         if(deltax.norm()<threshold){break;}
         x += deltax;
         std::cout << "deltax" << deltax << std::endl;
-        //renewHk(deltax);
+        renewHk(deltax);
         showvec(x);
-        //PRINT_MAT(Hk);
+        PRINT_MAT(Hk);
     }
     return x;
 }
@@ -452,7 +453,7 @@ int main(){
     squareFuncvec sq;
     linearconstraints linx;
     VectorXd x(2);
-    x<<3,-20;
+    x << -1,-1;
     SolveSQP ssqp(&sq,&linx,SolveNU::EQCONSTRAINT);
     //SolveSQP ssqp(&sq);
     std::cout << "sq " << ssqp.calcoptfunc(x) << std::endl;
