@@ -122,7 +122,7 @@ namespace Mymath{
     	MatrixXd ans(fx.size(),x.size());
     	MatrixXd bef(fx.size(),x.size());
     	MatrixXd aft(fx.size(),x.size());
-    	double delta = 0.000001d;
+    	double delta = 0.0001d;
     	VectorXd deltax(x.size());
     	for(ii=0;ii<x.size();ii++){
         	deltax = VectorXd::Zero(x.size());
@@ -138,7 +138,7 @@ namespace Mymath{
     	VectorXd fxv = func->function(x);
 		double fx = fxv(0);
     	MatrixXd ans(x.size(),x.size());
-    	double delta = 0.00001d;
+    	double delta = 0.0001d;
 		double deltainv = 1.0/delta;
     	VectorXd deltaxpp(x.size());
 		VectorXd deltaxpm(x.size());
@@ -176,7 +176,7 @@ namespace Mymath{
     	MatrixXd ans(1,x.size());
     	MatrixXd bef(1,x.size());
     	MatrixXd aft(1,x.size());
-    	double delta = 0.000001d;
+    	double delta = 0.0001d;
     	VectorXd deltax(x.size());
     	for(ii=0;ii<x.size();ii++){
         	deltax = VectorXd::Zero(x.size());

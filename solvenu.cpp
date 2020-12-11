@@ -315,7 +315,7 @@ void SolveSQP::init(){
 
     }
     alpha = 0.1d;
-    threshold = 0.00001;
+    threshold = 0.00000000001;
 }
 
 double SolveSQP::calcoptfunc(VectorXd &x){
@@ -332,12 +332,14 @@ VectorXd SolveSQP::constrainteqh(VectorXd &x){
 
 VectorXd SolveSQP::calcdeltax_sf(VectorXd &x,VectorXd &s_rho){
     VectorXd ans;
-    ans = -(diffvec(x,optfunc) + Hk*s_rho);
+    ans = -(diffvec(x,optfunc).transpose() + Hk*s_rho);
+    return ans;
 }
 
 VectorXd SolveSQP::calcdeltax_sf(VectorXd &x){
     VectorXd ans;
-    ans = -diffvec(x,optfunc);
+    ans = -diffvec(x,optfunc).transpose();
+    return ans;
 }
 
 VectorXd SolveSQP::solve(VectorXd x){
@@ -347,6 +349,13 @@ VectorXd SolveSQP::solve(VectorXd x){
 VectorXd SolveSQP::solve_noconstraints(VectorXd &x){
     VectorXd ans;
     std::cout << "no constraints" << std::endl;
+    VectorXd deltax;
+    while(1){
+        deltax = alpha*calcdeltax_sf(x);
+        if(deltax.norm()<threshold){break;}
+        x += deltax; 
+    }
+    ans = x;
     return ans;
 }
 VectorXd SolveSQP::solve_eqconstraints(VectorXd &x){
@@ -376,14 +385,8 @@ squareFuncvec::squareFuncvec(){
 }
 
 VectorXd squareFuncvec::function(VectorXd x){
-    VectorXd ans = VectorXd::Zero(1);//x*x + y*y + 2*x*y
-    ans(0) = 2.0;
-    for(int ii=0;ii<x.size();ii++){
-        ans(0) *= x(ii);
-    }
-    for(int ii=0;ii<x.size();ii++){
-        ans(0) += x(ii)*x(ii);
-    }
+    VectorXd ans = VectorXd::Zero(1);
+    ans(0) =  (x(0) + 1)*(x(0) + 1) + (x(1) + 5)*(x(1) + 5); 
     return ans;
 }
 
@@ -405,9 +408,10 @@ int main(){
     x<<2,3;
     //SolveSQP ssqp(&sq,&linx,SolveNU::EQCONSTRAINT);
     SolveSQP ssqp(&sq);
-    //std::cout << "sq " << ssqp.calcoptfunc(x) << std::endl;
-    //VectorXd hogex = ssqp.constrainteqh(x);//ssqp.constrainteqh(x);
-    //showvec(hogex);
-    ssqp.solve(x);
+    std::cout << "sq " << ssqp.calcoptfunc(x) << std::endl;
+    VectorXd hogex = ssqp.solve(x);//ssqp.constrainteqh(x);//ssqp.constrainteqh(x);
+    std::cout << " solve: " << std::endl;
+    showvec(hogex);
+    std::cout << "sq " << ssqp.calcoptfunc(hogex) << std::endl;
 }
 #endif

@@ -15,7 +15,7 @@ ifeq ($(MAKECMDGOALS),clean)
 endif
 
 DIRX = /usr/X11R6/lib
-CXXFLAGS = -I ~/eigenlib/eigen-3.3.7/ -fpermissive
+CXXFLAGS = -fpermissive
 LDFLAGS	 = -L "$(DIRX)" -lm  -pthread -std=c++11
 
 GCCVERSION = $(shell g++ --version | grep ^g++)
